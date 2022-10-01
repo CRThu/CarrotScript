@@ -1,0 +1,8 @@
+﻿<?caml version="1.0" encoding="UTF-8"?>
+<main>
+<call func="say_hello"/>
+</main>
+<say_hello>
+<input var="name" timeout="1000"/>
+HelloWorld, {name}
+</say_hello>
