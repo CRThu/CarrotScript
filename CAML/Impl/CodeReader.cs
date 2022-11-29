@@ -29,6 +29,14 @@ namespace CAML.Impl
         }
 
         /// <summary>
+        /// 游标返回指向代码头
+        /// </summary>
+        public void Clear()
+        {
+            Cursor = 0;
+        }
+
+        /// <summary>
         /// 获取游标所指字符并向右移动游标
         /// </summary>
         /// <returns></returns>

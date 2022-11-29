@@ -11,12 +11,12 @@ namespace CAML.Impl
         /// <summary>
         /// 代码读取器
         /// </summary>
-        public CodeReader cr;
+        public CodeReader cr { get; set; }
 
         /// <summary>
         /// Token向量
         /// </summary>
-        public List<Token> Tokens;
+        public List<Token> Tokens { get; set; }
 
         /// <summary>
         /// 构造函数
@@ -31,9 +31,29 @@ namespace CAML.Impl
         /// <summary>
         /// 主解析方法
         /// </summary>
-        public void Parse()
+        public List<Token> Parse()
         {
+            cr.Clear();
+            while (cr.HasNext() || cr.Equals(Info.FILE_END))
+            {
+                char nc = cr.GetNextChar();
 
+                if (Info.OPERATORS.FindMatchHeader(nc) != null)
+                {
+                    Tokens.Add(ParseOperator());
+                }
+                else if (char.IsLetterOrDigit(nc) || nc.Equals('_'))
+                {
+                    Tokens.Add(ParseVariable());
+                }
+                else if (char.IsDigit(nc) || nc.Equals('-') || nc.Equals('.'))
+                {
+                    Tokens.Add(ParseValue());
+                }
+                else if (char.IsWhiteSpace(nc))
+                    cr.Next();
+            }
+            return Tokens;
         }
 
         /// <summary>
@@ -84,7 +104,7 @@ namespace CAML.Impl
             while (cr.HasNext())
             {
                 char nc = cr.GetNextChar();
-                if (char.IsDigit(nc)|| nc.Equals('-') || nc.Equals('.') || nc.Equals('e') || nc.Equals('E'))
+                if (char.IsDigit(nc) || nc.Equals('-') || nc.Equals('.') || nc.Equals('e') || nc.Equals('E'))
                     val.Add(cr.Next());
                 else
                     break;
