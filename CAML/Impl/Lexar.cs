@@ -78,20 +78,36 @@ namespace CAML.Impl
         /// 解析常量
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         public Token ParseValue()
         {
-            throw new NotImplementedException();
+            List<char> val = new(16);
+            while (cr.HasNext())
+            {
+                char nc = cr.GetNextChar();
+                if (char.IsDigit(nc)|| nc.Equals('-') || nc.Equals('.') || nc.Equals('e') || nc.Equals('E'))
+                    val.Add(cr.Next());
+                else
+                    break;
+            }
+            return new Token(TokenType.Variable, string.Concat(val));
         }
 
         /// <summary>
         /// 解析变量
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         public Token ParseVariable()
         {
-            throw new NotImplementedException();
+            List<char> variable = new(16);
+            while (cr.HasNext())
+            {
+                char nc = cr.GetNextChar();
+                if (char.IsLetterOrDigit(nc) || nc.Equals('_'))
+                    variable.Add(cr.Next());
+                else
+                    break;
+            }
+            return new Token(TokenType.Variable, string.Concat(variable));
         }
     }
 }
