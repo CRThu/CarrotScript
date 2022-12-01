@@ -10,15 +10,15 @@
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         Style="{StaticResource WindowBlur}"
-        Title="CAML IDE" Height="450" Width="800">
+        Title="CAML IDE" Height="600" Width="800">
     <Grid>
         <TextBlock Text="输入代码:" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <hc:TextBox x:Name="InputCodeTextBox" Text="{Binding InputCode}" HorizontalAlignment="Left" Margin="10,30,0,0" TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True" VerticalContentAlignment="Top" VerticalAlignment="Top" Width="324" Height="321"/>
-        <Button x:Name="RunCodeButton" Content="运行" Command="{Binding RunCodeCommand}" HorizontalAlignment="Left" Margin="10,356,0,0" VerticalAlignment="Top" Width="60"/>
-        <TextBlock Text="StdOut:" HorizontalAlignment="Left" Margin="370,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <hc:TextBox x:Name="StdOutTextBox" Text="{Binding StdOut}" HorizontalAlignment="Left" Margin="368,30,0,0" TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True" VerticalContentAlignment="Top" VerticalAlignment="Top" Width="324" Height="221"/>
-        <TextBlock Text="StdIn:" HorizontalAlignment="Left" Margin="370,256,0,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <hc:TextBox x:Name="StdInTextBox" Text="{Binding StdIn}" HorizontalAlignment="Left" Margin="368,276,0,0" TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True" VerticalContentAlignment="Top" VerticalAlignment="Top" Width="324" Height="75"/>
-        <Button x:Name="StdInSendButton" Content="发送" Command="{Binding StdInSendCommand}" Margin="0,356,0,0" VerticalAlignment="Top" Width="60"/>
+        <hc:TextBox x:Name="InputCodeTextBox" Text="{Binding InputCode}" HorizontalAlignment="Left" Margin="10,30,0,45" TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True" VerticalContentAlignment="Top" Width="360"/>
+        <Button x:Name="RunCodeButton" Content="运行" Command="{Binding RunCodeCommand}" HorizontalAlignment="Left" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="60" Height="30"/>
+        <TextBlock Text="StdOut:" HorizontalAlignment="Left" Margin="400,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <hc:TextBox x:Name="StdOutTextBox" Text="{Binding StdOut}" HorizontalAlignment="Left" Margin="398,30,0,0" TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True" VerticalContentAlignment="Top" Width="360" Height="410" VerticalAlignment="Top"/>
+        <TextBlock Text="StdIn:" HorizontalAlignment="Left" Margin="400,445,0,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <hc:TextBox x:Name="StdInTextBox" Text="{Binding StdIn}" HorizontalAlignment="Left" Margin="400,465,0,45" TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True" VerticalContentAlignment="Top" Width="360"/>
+        <Button x:Name="StdInSendButton" Content="发送" Command="{Binding StdInSendCommand}" Margin="400,0,0,10" VerticalAlignment="Bottom" Width="60" HorizontalAlignment="Left"/>
     </Grid>
 </hc:BlurWindow>

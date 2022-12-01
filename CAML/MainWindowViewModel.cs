@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CAML.Impl;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace CAML
     public partial class MainWindowViewModel : ObservableObject
     {
         [ObservableProperty]
-        private string inputCode = "1*2-3";
+        private string inputCode = "2**3\t+ 7.9E2+7*E6/-.32+(1+2*_x_)*-5";
 
         [ObservableProperty]
         private string stdOut = "";
@@ -23,7 +24,15 @@ namespace CAML
         [RelayCommand]
         private void RunCode()
         {
+            Lexar lexar = new(inputCode);
+            lexar.Parse();
             StdOut += InputCode + Environment.NewLine;
+            StdOut += "{" + Environment.NewLine;
+            foreach (var t in lexar.Tokens)
+            {
+                StdOut += "\t" + t.ToString() + Environment.NewLine;
+            }
+            StdOut += "}" + Environment.NewLine;
         }
 
         [RelayCommand]
