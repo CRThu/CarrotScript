@@ -11,7 +11,7 @@ namespace CAML.Impl
         public readonly static string TOKEN_END = " \r\n\t";
         public readonly static string FILE_END = "\0";
 
-        public static string[] OPERATORS = new string[] { "+", "-", "*", "/", "%", "**" };
+        public static string[] OPERATORS = new string[] { "+", "-", "*", "/", "%", "**","(",")" };
 
     }
 }

@@ -37,21 +37,29 @@ namespace CAML.Impl
             while (cr.HasNext() || cr.Equals(Info.FILE_END))
             {
                 char nc = cr.GetNextChar();
-
-                if (Info.OPERATORS.FindMatchHeader(nc) != null)
+                if (char.IsWhiteSpace(nc))
+                    cr.Next();
+                else if (Info.OPERATORS.FindMatchHeader(nc) != null)
                 {
+                    // 1*-0.12 1*-.12 1*+0.12 1*+.12
+
                     Tokens.Add(ParseOperator());
+
+                    if (cr.HasNext() || cr.Equals(Info.FILE_END))
+                    {
+                        char nc1 = cr.GetNextChar();
+                        if (nc1.Equals('-') || nc1.Equals('+'))
+                            Tokens.Add(ParseValue());
+                    }
                 }
-                else if (char.IsLetterOrDigit(nc) || nc.Equals('_'))
+                else if (char.IsLetter(nc) || nc.Equals('_'))
                 {
                     Tokens.Add(ParseVariable());
                 }
-                else if (char.IsDigit(nc) || nc.Equals('-') || nc.Equals('.'))
+                else if (char.IsDigit(nc) || nc.Equals('-') || nc.Equals('+') || nc.Equals('.'))
                 {
                     Tokens.Add(ParseValue());
                 }
-                else if (char.IsWhiteSpace(nc))
-                    cr.Next();
             }
             return Tokens;
         }
@@ -63,35 +71,26 @@ namespace CAML.Impl
         /// <exception cref="NotImplementedException"></exception>
         public Token ParseOperator()
         {
-            char op0 = cr.Next();
+            string op = cr.Next().ToString();
             if (cr.HasNext())
             {
-                char op1 = cr.GetNextChar(0);
-
                 // 判断是否为两位运算符
-                for (int i = 0; i < Info.OPERATORS.Length; i++)
+                string? op2 = Util.FindMatchHeader(Info.OPERATORS, op + cr.GetNextChar(0).ToString(), isPrecise: true);
+                if (op2 != null)
                 {
-                    string op = Info.OPERATORS[i];
-                    if (op[0] == op0 && op[1] == op1)
-                    {
-                        cr.Next();
-                        return new Token(op);
-                    }
+                    cr.Next();
+                    return new Token(op2);
                 }
             }
 
             // 判断是否为一位运算符
-            for (int i = 0; i < Info.OPERATORS.Length; i++)
+            if (Util.FindMatchHeader(Info.OPERATORS, op, isPrecise: true) != null)
             {
-                string op = Info.OPERATORS[i];
-                if (op[0] == op0)
-                {
-                    return new Token(op);
-                }
+                return new Token(op);
             }
 
             // 无法识别运算符
-            throw new NotImplementedException($"无法识别的运算符:{op0}");
+            throw new NotImplementedException($"无法识别的运算符: {op}");
         }
 
         /// <summary>
@@ -100,16 +99,71 @@ namespace CAML.Impl
         /// <returns></returns>
         public Token ParseValue()
         {
+            // STATE:   0 1    2 3 4
+            // NUMBER:  + 1.02 E + 03
             List<char> val = new(16);
+            short state = 0;
             while (cr.HasNext())
             {
                 char nc = cr.GetNextChar();
-                if (char.IsDigit(nc) || nc.Equals('-') || nc.Equals('.') || nc.Equals('e') || nc.Equals('E'))
-                    val.Add(cr.Next());
-                else
+
+                switch (state)
+                {
+                    case 0:
+                        // +/-
+                        if (nc.Equals('-') || nc.Equals('+'))
+                        {
+                            val.Add(cr.Next());
+                        }
+                        state = 1;
+                        break;
+                    case 1:
+                        // 1.02
+                        if (char.IsDigit(nc) || nc.Equals('.'))
+                        {
+                            val.Add(cr.Next());
+                        }
+                        else
+                        {
+                            state = 2;
+                        }
+                        break;
+                    case 2:
+                        // e/E
+                        if (nc.Equals('e') || nc.Equals('E'))
+                        {
+                            val.Add(cr.Next());
+                            state = 3;
+                        }
+                        else
+                        {
+                            state = 5;
+                        }
+                        break;
+                    case 3:
+                        // +/-
+                        if (nc.Equals('-') || nc.Equals('+'))
+                        {
+                            val.Add(cr.Next());
+                        }
+                        state = 4;
+                        break;
+                    case 4:
+                        // 03
+                        if (char.IsDigit(nc))
+                        {
+                            val.Add(cr.Next());
+                        }
+                        else
+                        {
+                            state = 5;
+                        }
+                        break;
+                }
+                if (state == 5)
                     break;
             }
-            return new Token(TokenType.Variable, string.Concat(val));
+            return new Token(TokenType.Value, string.Concat(val));
         }
 
         /// <summary>
