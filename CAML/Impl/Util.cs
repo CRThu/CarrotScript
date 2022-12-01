@@ -17,21 +17,23 @@ namespace CAML.Impl
         /// <returns></returns>
         public static string? FindMatchHeader(this string[] ss, char c, bool isPrecise = false)
         {
+
             for (int i = 0; i < ss.Length; i++)
             {
-                string op = Info.OPERATORS[i];
+                string s = ss[i];
                 if (!isPrecise)
                 {
-                    if (op[0] == c)
+                    if (s.StartsWith(c))
+                    //if (s[0] == c)
                     {
-                        return op;
+                        return s;
                     }
                 }
                 else
                 {
-                    if (op.Equals(c.ToString()))
+                    if (s.Equals(c.ToString()))
                     {
-                        return op;
+                        return s;
                     }
                 }
             }
@@ -49,19 +51,20 @@ namespace CAML.Impl
         {
             for (int i = 0; i < ss.Length; i++)
             {
-                string op = Info.OPERATORS[i];
+                string s = ss[i];
                 if (!isPrecise)
                 {
-                    if (op[0..(c.Length)].Equals(c))
+                    if (s.StartsWith(c))
+                    //if (s[0..(c.Length)].Equals(c))
                     {
-                        return op;
+                        return s;
                     }
                 }
                 else
                 {
-                    if (op.Equals(c))
+                    if (s.Equals(c))
                     {
-                        return op;
+                        return s;
                     }
                 }
             }
