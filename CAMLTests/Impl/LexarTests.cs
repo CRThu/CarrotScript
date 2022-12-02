@@ -16,27 +16,33 @@ namespace CAML.Impl.Tests
         {
             Lexar lexar = new("2**3\t+ 7.9E2+7*E6/-.32+(1+2*_x_)*-5");
             lexar.Parse();
-            Assert.AreEqual("Token: {Value : 2}", lexar.Tokens[0].ToString());
-            Assert.AreEqual("Token: {Operator : **}", lexar.Tokens[1].ToString());
-            Assert.AreEqual("Token: {Value : 3}", lexar.Tokens[2].ToString());
-            Assert.AreEqual("Token: {Operator : +}", lexar.Tokens[3].ToString());
-            Assert.AreEqual("Token: {Value : 7.9E2}", lexar.Tokens[4].ToString());
-            Assert.AreEqual("Token: {Operator : +}", lexar.Tokens[5].ToString());
-            Assert.AreEqual("Token: {Value : 7}", lexar.Tokens[6].ToString());
-            Assert.AreEqual("Token: {Operator : *}", lexar.Tokens[7].ToString());
-            Assert.AreEqual("Token: {Variable : E6}", lexar.Tokens[8].ToString());
-            Assert.AreEqual("Token: {Operator : /}", lexar.Tokens[9].ToString());
-            Assert.AreEqual("Token: {Value : -.32}", lexar.Tokens[10].ToString());
-            Assert.AreEqual("Token: {Operator : +}", lexar.Tokens[11].ToString());
-            Assert.AreEqual("Token: {Operator : (}", lexar.Tokens[12].ToString());
-            Assert.AreEqual("Token: {Value : 1}", lexar.Tokens[13].ToString());
-            Assert.AreEqual("Token: {Operator : +}", lexar.Tokens[14].ToString());
-            Assert.AreEqual("Token: {Value : 2}", lexar.Tokens[15].ToString());
-            Assert.AreEqual("Token: {Operator : *}", lexar.Tokens[16].ToString());
-            Assert.AreEqual("Token: {Variable : _x_}", lexar.Tokens[17].ToString());
-            Assert.AreEqual("Token: {Operator : )}", lexar.Tokens[18].ToString());
-            Assert.AreEqual("Token: {Operator : *}", lexar.Tokens[19].ToString());
-            Assert.AreEqual("Token: {Value : -5}", lexar.Tokens[20].ToString());
+            List<Token> expTokens = new() {
+                new Token(TokenType.Value,      "2"),
+                new Token(TokenType.Operator,   "**"),
+                new Token(TokenType.Value,      "3"),
+                new Token(TokenType.Operator,   "+"),
+                new Token(TokenType.Value,      "7.9E2"),
+                new Token(TokenType.Operator,   "+"),
+                new Token(TokenType.Value,      "7"),
+                new Token(TokenType.Operator,   "*"),
+                new Token(TokenType.Variable,   "E6"),
+                new Token(TokenType.Operator,   "/"),
+                new Token(TokenType.Value,      "-.32"),
+                new Token(TokenType.Operator,   "+"),
+                new Token(TokenType.Operator,   "("),
+                new Token(TokenType.Value,      "1"),
+                new Token(TokenType.Operator,   "+"),
+                new Token(TokenType.Value,      "2"),
+                new Token(TokenType.Operator,   "*"),
+                new Token(TokenType.Variable,   "_x_"),
+                new Token(TokenType.Operator,   ")"),
+                new Token(TokenType.Operator,   "*"),
+                new Token(TokenType.Value,      "-5")
+            };
+            foreach (var (exp, lex) in expTokens.Zip(lexar.Tokens))
+            {
+                Assert.AreEqual(exp, lex);
+            }
         }
 
         [TestMethod()]
