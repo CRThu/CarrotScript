@@ -16,9 +16,9 @@ namespace CarrotScript.Impl.Tests
         public void NextTest()
         {
             CodeReader cr = new("123\nHelloworld");
-            Assert.AreEqual(cr.Next(), '1');
-            Assert.AreEqual(cr.Next(), '2');
-            Assert.AreEqual(cr.Next(), '3');
+            Assert.AreEqual(cr.AdvanceNext(), '1');
+            Assert.AreEqual(cr.AdvanceNext(), '2');
+            Assert.AreEqual(cr.AdvanceNext(), '3');
             Assert.AreEqual(cr.Cursor, 3);
         }
 
@@ -39,9 +39,9 @@ namespace CarrotScript.Impl.Tests
         {
             CodeReader cr = new("123\nHelloworld");
             cr.Cursor = 4;
-            Assert.AreEqual( cr.GetNextChar(),'H');
+            Assert.AreEqual( cr.GetNext(),'H');
             cr.Cursor = 5;
-            Assert.AreEqual(cr.GetNextChar(3), 'o');
+            Assert.AreEqual(cr.GetNext(3), 'o');
         }
 
         [TestMethod()]

@@ -33,155 +33,194 @@ namespace CarrotScript.Impl
         /// </summary>
         public List<Token> Parse()
         {
-            cr.Clear();
-            while (cr.HasNext() || cr.Equals(Info.FILE_END))
+            cr.Restart();
+            while (cr.HasNext())
             {
-                char nc = cr.GetNextChar();
-                if (char.IsWhiteSpace(nc))
-                    cr.Next();
-                else if (Info.OPERATORS.FindMatchHeader(nc) != null)
+                if (Util.TryFindMatch(LangDef.DELIMITERS, cr.GetNext(), out string? matchDelimiter))
                 {
-                    // 1*-0.12 1*-.12 1*+0.12 1*+.12
-
-                    Tokens.Add(ParseOperator());
-
-                    if (cr.HasNext() || cr.Equals(Info.FILE_END))
-                    {
-                        char nc1 = cr.GetNextChar();
-                        if (nc1.Equals('-') || nc1.Equals('+'))
-                            Tokens.Add(ParseValue());
-                    }
+                    ParseDelimiter(matchDelimiter!);
+                    continue;
                 }
-                else if (char.IsLetter(nc) || nc.Equals('_'))
+                else if (Util.TryFindMatch(LangDef.KEYWORDS, cr.GetNext(), out string? matchKeyword))
                 {
-                    Tokens.Add(ParseVariable());
+                    ParseKeyword(matchKeyword!);
+                    continue;
                 }
-                else if (char.IsDigit(nc) || nc.Equals('-') || nc.Equals('+') || nc.Equals('.'))
+                else if (Util.TryFindMatch(LangDef.OPERATORS, cr.GetNext(), out string? matchOperator))
                 {
-                    Tokens.Add(ParseValue());
+                    ParseOperator(matchOperator!);
+                    continue;
+                }
+                else if (TryParseConst(cr, out Token? _))
+                {
+                    continue;
+                }
+                else if (TryParseVar(cr, out Token? _))
+                {
+                    continue;
                 }
             }
             return Tokens;
         }
 
-        /// <summary>
-        /// 解析运算符
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public Token ParseOperator()
+
+        public void ParseDelimiter(string matchDelimiter)
         {
-            string op = cr.Next().ToString();
-            if (cr.HasNext())
-            {
-                // 判断是否为两位运算符
-                string? op2 = Util.FindMatchHeader(Info.OPERATORS, op + cr.GetNextChar(0).ToString(), isPrecise: true);
-                if (op2 != null)
-                {
-                    cr.Next();
-                    return new Token(op2);
-                }
-            }
-
-            // 判断是否为一位运算符
-            if (Util.FindMatchHeader(Info.OPERATORS, op, isPrecise: true) != null)
-            {
-                return new Token(op);
-            }
-
-            // 无法识别运算符
-            throw new NotImplementedException($"无法识别的运算符: {op}");
+            var token = new Token(TokenType.DELIMITER, matchDelimiter!, cr.CurrentPosition);
+            Tokens.Add(token);
+            Console.WriteLine(token);
+            cr.Advance(matchDelimiter!.Length);
         }
+
+        private void ParseKeyword(string matchKeyword)
+        {
+            var token = new Token(TokenType.KEYWORD, matchKeyword!, cr.CurrentPosition);
+            Tokens.Add(token);
+            Console.WriteLine(token);
+            cr.Advance(matchKeyword!.Length);
+        }
+
+
+        private void ParseOperator(string matchOperator)
+        {
+            var token = new Token(TokenType.OPERATOR, matchOperator!, cr.CurrentPosition);
+            Tokens.Add(token);
+            Console.WriteLine(token);
+            cr.Advance(matchOperator!.Length);
+        }
+
+        ///// <summary>
+        ///// 解析常量
+        ///// </summary>
+        ///// <returns></returns>
+        //public Token ParseValue()
+        //{
+        //    // STATE:   0 1    2 3 4
+        //    // NUMBER:  + 1.02 E + 03
+        //    List<char> val = new(16);
+        //    short state = 0;
+        //    while (cr.HasNext())
+        //    {
+        //        char nc = cr.GetNext();
+
+        //        switch (state)
+        //        {
+        //            case 0:
+        //                // +/-
+        //                if (nc.Equals('-') || nc.Equals('+'))
+        //                {
+        //                    val.Add(cr.AdvanceNext());
+        //                }
+        //                state = 1;
+        //                break;
+        //            case 1:
+        //                // 1.02
+        //                if (char.IsDigit(nc) || nc.Equals('.'))
+        //                {
+        //                    val.Add(cr.AdvanceNext());
+        //                }
+        //                else
+        //                {
+        //                    state = 2;
+        //                }
+        //                break;
+        //            case 2:
+        //                // e/E
+        //                if (nc.Equals('e') || nc.Equals('E'))
+        //                {
+        //                    val.Add(cr.AdvanceNext());
+        //                    state = 3;
+        //                }
+        //                else
+        //                {
+        //                    state = 5;
+        //                }
+        //                break;
+        //            case 3:
+        //                // +/-
+        //                if (nc.Equals('-') || nc.Equals('+'))
+        //                {
+        //                    val.Add(cr.AdvanceNext());
+        //                }
+        //                state = 4;
+        //                break;
+        //            case 4:
+        //                // 03
+        //                if (char.IsDigit(nc))
+        //                {
+        //                    val.Add(cr.AdvanceNext());
+        //                }
+        //                else
+        //                {
+        //                    state = 5;
+        //                }
+        //                break;
+        //        }
+        //        if (state == 5)
+        //            break;
+        //    }
+        //    return new Token(TokenType.CONST, string.Concat(val));
+        //}
 
         /// <summary>
         /// 解析常量
         /// </summary>
         /// <returns></returns>
-        public Token ParseValue()
+        public bool TryParseConst(CodeReader cr, out Token? token)
         {
-            // STATE:   0 1    2 3 4
-            // NUMBER:  + 1.02 E + 03
-            List<char> val = new(16);
-            short state = 0;
-            while (cr.HasNext())
-            {
-                char nc = cr.GetNextChar();
+            int numLength = 0;
 
-                switch (state)
-                {
-                    case 0:
-                        // +/-
-                        if (nc.Equals('-') || nc.Equals('+'))
-                        {
-                            val.Add(cr.Next());
-                        }
-                        state = 1;
-                        break;
-                    case 1:
-                        // 1.02
-                        if (char.IsDigit(nc) || nc.Equals('.'))
-                        {
-                            val.Add(cr.Next());
-                        }
-                        else
-                        {
-                            state = 2;
-                        }
-                        break;
-                    case 2:
-                        // e/E
-                        if (nc.Equals('e') || nc.Equals('E'))
-                        {
-                            val.Add(cr.Next());
-                            state = 3;
-                        }
-                        else
-                        {
-                            state = 5;
-                        }
-                        break;
-                    case 3:
-                        // +/-
-                        if (nc.Equals('-') || nc.Equals('+'))
-                        {
-                            val.Add(cr.Next());
-                        }
-                        state = 4;
-                        break;
-                    case 4:
-                        // 03
-                        if (char.IsDigit(nc))
-                        {
-                            val.Add(cr.Next());
-                        }
-                        else
-                        {
-                            state = 5;
-                        }
-                        break;
-                }
-                if (state == 5)
-                    break;
+            ReadOnlySpan<char> codeNext = cr.GetNext();
+
+            while (cr.HasNext()
+                && char.IsAsciiDigit(codeNext[numLength]))
+            {
+                numLength++;
             }
-            return new Token(TokenType.Value, string.Concat(val));
+
+            if (numLength != 0)
+            {
+                ReadOnlySpan<char> nums = cr.GetNext( numLength);
+                var matchConst = nums.ToString();
+                token = new Token(TokenType.CONST, matchConst, this.cr.CurrentPosition);
+                Tokens.Add((Token)token);
+                Console.WriteLine(token);
+                this.cr.Advance(matchConst!.Length);
+                return true;
+            }
+
+            token = null;
+            return false;
         }
 
-        /// <summary>
-        /// 解析变量
-        /// </summary>
-        /// <returns></returns>
-        public Token ParseVariable()
+
+        public bool TryParseVar(CodeReader cr, out Token? token)
         {
-            List<char> variable = new(16);
-            while (cr.HasNext())
+            int numLength = 0;
+
+            ReadOnlySpan<char> codeNext = cr.GetNext();
+
+            while (cr.HasNext()
+                 && (char.IsAsciiLetterOrDigit(codeNext[numLength])
+                || codeNext[numLength] == ';'
+                || codeNext[numLength] == '_'))
             {
-                char nc = cr.GetNextChar();
-                if (char.IsLetterOrDigit(nc) || nc.Equals('_'))
-                    variable.Add(cr.Next());
-                else
-                    break;
+                numLength++;
             }
-            return new Token(TokenType.Variable, string.Concat(variable));
+
+            if (numLength != 0)
+            {
+                ReadOnlySpan<char> nums = cr.GetNext(numLength);
+                var matchConst = nums.ToString();
+                token = new Token(TokenType.CONST, matchConst, this.cr.CurrentPosition);
+                Tokens.Add((Token)token);
+                Console.WriteLine(token);
+                this.cr.Advance(matchConst!.Length);
+                return true;
+            }
+
+            token = null;
+            return false;
         }
     }
 }
