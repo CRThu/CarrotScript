@@ -1,12 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CAML.Impl;
+using CarrotScript.Impl;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CAML.Impl.Tests
+namespace CarrotScript.Impl.Tests
 {
     [TestClass()]
     public class CodeReaderTests

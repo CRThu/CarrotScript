@@ -1,4 +1,4 @@
-﻿using CAML.Impl;
+﻿using CarrotScript.Impl;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace CAML
+namespace CarrotScript
 {
     public partial class MainWindowViewModel : ObservableObject
     {

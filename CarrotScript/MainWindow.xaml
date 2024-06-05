@@ -3,14 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:CAML"
+        xmlns:local="clr-namespace:CarrotScript"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         d:DataContext="{d:DesignInstance Type=local:MainWindowViewModel}"
-        x:Class="CAML.MainWindow"
+        x:Class="CarrotScript.MainWindow"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         Style="{StaticResource WindowBlur}"
-        Title="CAML IDE" Height="600" Width="800">
+        Title="CarrotScript IDE" Height="600" Width="800">
     <Grid>
         <TextBlock Text="输入代码:" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
         <hc:TextBox x:Name="InputCodeTextBox" Text="{Binding InputCode}" HorizontalAlignment="Left" Margin="10,30,0,45" TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True" VerticalContentAlignment="Top" Width="360"/>

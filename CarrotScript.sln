@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CAML", "CAML\CAML.csproj", "{FE4B83B8-A54F-42F1-A662-63BD1EF75384}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CarrotScript", "CarrotScript\CarrotScript.csproj", "{FE4B83B8-A54F-42F1-A662-63BD1EF75384}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CAMLTests", "CAMLTests\CAMLTests.csproj", "{84D35F64-3A70-4B56-828F-5C704703D90B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CarrotScriptTests", "CarrotScriptTests\CarrotScriptTests.csproj", "{84D35F64-3A70-4B56-828F-5C704703D90B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
