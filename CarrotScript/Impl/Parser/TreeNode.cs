@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CarrotScript.Impl
+namespace CarrotScript.Impl.Parser
 {
     /// <summary>
     /// 二叉树
@@ -31,7 +31,7 @@ namespace CarrotScript.Impl
         /// <param name="value"></param>
         /// <param name="left"></param>
         /// <param name="right"></param>
-        public TreeNode(T value, TreeNode<T>? left, TreeNode<T>? right)
+        public TreeNode(T value, TreeNode<T>? left = null, TreeNode<T>? right = null)
         {
             Value = value;
             Left = left;
