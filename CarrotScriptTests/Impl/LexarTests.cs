@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CarrotScript.Impl;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,27 +16,27 @@ namespace CarrotScript.Impl.Tests
             Lexar lexar = new("2**3\t+ 7.9E2+7*E6/-.32+(1+2*_x_)*-5");
             lexar.Parse();
             List<Token> expTokens = new() {
-                new Token(TokenType.CONST,      "2"),
+                new Token(TokenType.STRING,      "2"),
                 new Token(TokenType.OPERATOR,   "**"),
-                new Token(TokenType.CONST,      "3"),
+                new Token(TokenType.STRING,      "3"),
                 new Token(TokenType.OPERATOR,   "+"),
-                new Token(TokenType.CONST,      "7.9E2"),
+                new Token(TokenType.STRING,      "7.9E2"),
                 new Token(TokenType.OPERATOR,   "+"),
-                new Token(TokenType.CONST,      "7"),
+                new Token(TokenType.STRING,      "7"),
                 new Token(TokenType.OPERATOR,   "*"),
                 new Token(TokenType.VARIABLE,   "E6"),
                 new Token(TokenType.OPERATOR,   "/"),
-                new Token(TokenType.CONST,      "-.32"),
+                new Token(TokenType.STRING,      "-.32"),
                 new Token(TokenType.OPERATOR,   "+"),
                 new Token(TokenType.OPERATOR,   "("),
-                new Token(TokenType.CONST,      "1"),
+                new Token(TokenType.STRING,      "1"),
                 new Token(TokenType.OPERATOR,   "+"),
-                new Token(TokenType.CONST,      "2"),
+                new Token(TokenType.STRING,      "2"),
                 new Token(TokenType.OPERATOR,   "*"),
                 new Token(TokenType.VARIABLE,   "_x_"),
                 new Token(TokenType.OPERATOR,   ")"),
                 new Token(TokenType.OPERATOR,   "*"),
-                new Token(TokenType.CONST,      "-5")
+                new Token(TokenType.STRING,      "-5")
             };
             foreach (var (exp, lex) in expTokens.Zip(lexar.Tokens))
             {

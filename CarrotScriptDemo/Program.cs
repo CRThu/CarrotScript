@@ -1,4 +1,5 @@
 ﻿using CarrotScript.Impl;
+using CarrotScript.Impl.Lexar;
 using System.Collections.Generic;
 
 namespace CarrotScriptDemo

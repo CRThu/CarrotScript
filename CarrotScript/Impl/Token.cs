@@ -17,9 +17,9 @@ namespace CarrotScript.Impl
         OPERATOR,
 
         /// <summary>
-        /// 常量
+        /// 字符串常量
         /// </summary>
-        CONST,
+        STRING,
 
         /// <summary>
         /// 变量
@@ -85,7 +85,7 @@ namespace CarrotScript.Impl
         /// </summary>
         /// <param name="num"></param>
         public Token(double value, TokenPosition tokenPosition)
-        : this(TokenType.CONST, value.ToString("G15"), tokenPosition)
+        : this(TokenType.STRING, value.ToString("G15"), tokenPosition)
         {
         }
 

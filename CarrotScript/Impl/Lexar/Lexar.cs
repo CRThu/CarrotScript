@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CarrotScript.Impl
+namespace CarrotScript.Impl.Lexar
 {
     public class Lexar
     {
@@ -36,57 +36,130 @@ namespace CarrotScript.Impl
             cr.Restart();
             while (cr.HasNext())
             {
-                if (Util.TryFindMatch(LangDef.DELIMITERS, cr.GetNext(), out string? matchDelimiter))
+                Token? token;
+                if (TryParseDelimiter(cr, out token))
                 {
-                    ParseDelimiter(matchDelimiter!);
+                    Tokens.Add((Token)token!);
+                    Console.WriteLine(token);
                     continue;
                 }
-                else if (Util.TryFindMatch(LangDef.KEYWORDS, cr.GetNext(), out string? matchKeyword))
+                else if (TryParseKeyword(cr, out token))
                 {
-                    ParseKeyword(matchKeyword!);
+                    Tokens.Add((Token)token!);
+                    Console.WriteLine(token);
                     continue;
                 }
-                else if (Util.TryFindMatch(LangDef.OPERATORS, cr.GetNext(), out string? matchOperator))
+                else if (TryParseOperator(cr, out token))
                 {
-                    ParseOperator(matchOperator!);
+                    Tokens.Add((Token)token!);
+                    Console.WriteLine(token);
                     continue;
                 }
-                else if (TryParseConst(cr, out Token? _))
+                else if (TryParseConst(cr, out token))
                 {
+                    Tokens.Add((Token)token!);
+                    Console.WriteLine(token);
                     continue;
                 }
-                else if (TryParseVar(cr, out Token? _))
+                else if (TryParseVar(cr, out token))
                 {
+                    Tokens.Add((Token)token!);
+                    Console.WriteLine(token);
                     continue;
                 }
             }
             return Tokens;
         }
 
-
-        public void ParseDelimiter(string matchDelimiter)
+        private static bool TryParseDelimiter(CodeReader cr, out Token? token)
         {
-            var token = new Token(TokenType.DELIMITER, matchDelimiter!, cr.CurrentPosition);
-            Tokens.Add(token);
-            Console.WriteLine(token);
-            cr.Advance(matchDelimiter!.Length);
+            if (LangDef.DELIMITERS.TryFindMatch(cr.GetNext(), out string? matchDelimiter))
+            {
+                token = new Token(TokenType.DELIMITER, matchDelimiter!, cr.CurrentPosition);
+                cr.Advance(matchDelimiter!.Length);
+                return true;
+            }
+            token = null;
+            return false;
         }
 
-        private void ParseKeyword(string matchKeyword)
+        private static bool TryParseKeyword(CodeReader cr, out Token? token)
         {
-            var token = new Token(TokenType.KEYWORD, matchKeyword!, cr.CurrentPosition);
-            Tokens.Add(token);
-            Console.WriteLine(token);
-            cr.Advance(matchKeyword!.Length);
+            if (LangDef.KEYWORDS.TryFindMatch(cr.GetNext(), out string? matchKeyword))
+            {
+                token = new Token(TokenType.KEYWORD, matchKeyword!, cr.CurrentPosition);
+                cr.Advance(matchKeyword!.Length);
+                return true;
+            }
+            token = null;
+            return false;
         }
 
-
-        private void ParseOperator(string matchOperator)
+        public static bool TryParseOperator(CodeReader cr, out Token? token)
         {
-            var token = new Token(TokenType.OPERATOR, matchOperator!, cr.CurrentPosition);
-            Tokens.Add(token);
-            Console.WriteLine(token);
-            cr.Advance(matchOperator!.Length);
+            if (LangDef.OPERATORS.TryFindMatch(cr.GetNext(), out string? matchOperator))
+            {
+                token = new Token(TokenType.OPERATOR, matchOperator!, cr.CurrentPosition);
+                cr.Advance(matchOperator!.Length);
+                return true;
+            }
+            token = null;
+            return false;
+        }
+        /// <summary>
+        /// 解析常量
+        /// </summary>
+        /// <returns></returns>
+        public static bool TryParseConst(CodeReader cr, out Token? token)
+        {
+            int numLength = 0;
+
+            ReadOnlySpan<char> codeNext = cr.GetNext();
+
+            while (cr.HasNext()
+                && char.IsAsciiDigit(codeNext[numLength]))
+            {
+                numLength++;
+            }
+
+            if (numLength != 0)
+            {
+                ReadOnlySpan<char> nums = cr.GetNext(numLength);
+                var matchConst = nums.ToString();
+                token = new Token(TokenType.STRING, matchConst, cr.CurrentPosition);
+                cr.Advance(matchConst!.Length);
+                return true;
+            }
+
+            token = null;
+            return false;
+        }
+
+        public static bool TryParseVar(CodeReader cr, out Token? token)
+        {
+            int numLength = 0;
+
+            ReadOnlySpan<char> codeNext = cr.GetNext();
+
+            while (cr.HasNext()
+                 && (char.IsAsciiLetterOrDigit(codeNext[numLength])
+                || codeNext[numLength] == ';'
+                || codeNext[numLength] == '_'))
+            {
+                numLength++;
+            }
+
+            if (numLength != 0)
+            {
+                ReadOnlySpan<char> nums = cr.GetNext(numLength);
+                var matchConst = nums.ToString();
+                token = new Token(TokenType.STRING, matchConst, cr.CurrentPosition);
+                cr.Advance(matchConst!.Length);
+                return true;
+            }
+
+            token = null;
+            return false;
         }
 
         ///// <summary>
@@ -162,65 +235,5 @@ namespace CarrotScript.Impl
         //    return new Token(TokenType.CONST, string.Concat(val));
         //}
 
-        /// <summary>
-        /// 解析常量
-        /// </summary>
-        /// <returns></returns>
-        public bool TryParseConst(CodeReader cr, out Token? token)
-        {
-            int numLength = 0;
-
-            ReadOnlySpan<char> codeNext = cr.GetNext();
-
-            while (cr.HasNext()
-                && char.IsAsciiDigit(codeNext[numLength]))
-            {
-                numLength++;
-            }
-
-            if (numLength != 0)
-            {
-                ReadOnlySpan<char> nums = cr.GetNext( numLength);
-                var matchConst = nums.ToString();
-                token = new Token(TokenType.CONST, matchConst, this.cr.CurrentPosition);
-                Tokens.Add((Token)token);
-                Console.WriteLine(token);
-                this.cr.Advance(matchConst!.Length);
-                return true;
-            }
-
-            token = null;
-            return false;
-        }
-
-
-        public bool TryParseVar(CodeReader cr, out Token? token)
-        {
-            int numLength = 0;
-
-            ReadOnlySpan<char> codeNext = cr.GetNext();
-
-            while (cr.HasNext()
-                 && (char.IsAsciiLetterOrDigit(codeNext[numLength])
-                || codeNext[numLength] == ';'
-                || codeNext[numLength] == '_'))
-            {
-                numLength++;
-            }
-
-            if (numLength != 0)
-            {
-                ReadOnlySpan<char> nums = cr.GetNext(numLength);
-                var matchConst = nums.ToString();
-                token = new Token(TokenType.CONST, matchConst, this.cr.CurrentPosition);
-                Tokens.Add((Token)token);
-                Console.WriteLine(token);
-                this.cr.Advance(matchConst!.Length);
-                return true;
-            }
-
-            token = null;
-            return false;
-        }
     }
 }
