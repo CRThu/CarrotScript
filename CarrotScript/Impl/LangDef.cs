@@ -8,13 +8,13 @@ namespace CarrotScript.Impl
 {
     public static class LangDef
     {
-        public static string[] DIGITS = [
-            "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."
-        ];
+        public static string DIGITS = 
+            "0123456789."
+        ;
 
-        public static string[] STRINGS = [
-            "\"","\'"
-        ];
+        public static string STRINGS =
+            ".;"
+            ;
 
         public static string[] OPERATORS = [
             "+", "-", "*", "/", "%", "**",
@@ -36,6 +36,7 @@ namespace CarrotScript.Impl
             "begin", "end",
             "if", "elif", "else",
             "for", "while",
+            "true", "false",
         ];
     }
 }

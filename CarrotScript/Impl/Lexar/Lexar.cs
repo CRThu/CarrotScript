@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -55,17 +56,15 @@ namespace CarrotScript.Impl.Lexar
                     Console.WriteLine(token);
                     continue;
                 }
-                else if (TryParseConst(cr, out token))
+                else if (TryParseString(cr, out token))
                 {
                     Tokens.Add((Token)token!);
                     Console.WriteLine(token);
                     continue;
                 }
-                else if (TryParseVar(cr, out token))
+                else
                 {
-                    Tokens.Add((Token)token!);
-                    Console.WriteLine(token);
-                    continue;
+                    throw new LexarNotSupportException(cr.CurrentPosition);
                 }
             }
             return Tokens;
@@ -110,32 +109,7 @@ namespace CarrotScript.Impl.Lexar
         /// 解析常量
         /// </summary>
         /// <returns></returns>
-        public static bool TryParseConst(CodeReader cr, out Token? token)
-        {
-            int numLength = 0;
-
-            ReadOnlySpan<char> codeNext = cr.GetNext();
-
-            while (cr.HasNext()
-                && char.IsAsciiDigit(codeNext[numLength]))
-            {
-                numLength++;
-            }
-
-            if (numLength != 0)
-            {
-                ReadOnlySpan<char> nums = cr.GetNext(numLength);
-                var matchConst = nums.ToString();
-                token = new Token(TokenType.STRING, matchConst, cr.CurrentPosition);
-                cr.Advance(matchConst!.Length);
-                return true;
-            }
-
-            token = null;
-            return false;
-        }
-
-        public static bool TryParseVar(CodeReader cr, out Token? token)
+        public static bool TryParseString(CodeReader cr, out Token? token)
         {
             int numLength = 0;
 
@@ -143,8 +117,7 @@ namespace CarrotScript.Impl.Lexar
 
             while (cr.HasNext()
                  && (char.IsAsciiLetterOrDigit(codeNext[numLength])
-                || codeNext[numLength] == ';'
-                || codeNext[numLength] == '_'))
+                || LangDef.STRINGS.Contains(codeNext[numLength])))
             {
                 numLength++;
             }
