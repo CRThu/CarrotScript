@@ -3,35 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static CarrotScript.Impl.LangDef;
 
 namespace CarrotScript.Impl
 {
-    /// <summary>
-    /// Token类型
-    /// </summary>
-    public enum TokenType
-    {
-        /// <summary>
-        /// 运算符
-        /// </summary>
-        OPERATOR,
-
-        /// <summary>
-        /// 字符串/变量名/常量
-        /// </summary>
-        STRING,
-
-        /// <summary>
-        /// 关键字
-        /// </summary>
-        KEYWORD,
-
-        /// <summary>
-        /// 分隔符
-        /// </summary>
-        DELIMITER
-    }
-
     /// <summary>
     /// Token位置
     /// </summary>
@@ -81,7 +56,7 @@ namespace CarrotScript.Impl
         /// <param name="num"></param>
         public Token(double value, TokenPosition tokenPosition)
         //: this(TokenType.STRING, value.ToString("G15"), tokenPosition)
-        : this(TokenType.STRING, value.ToString(), tokenPosition)
+        : this(TokenType.NUM, value.ToString(), tokenPosition)
         {
         }
 
@@ -100,7 +75,7 @@ namespace CarrotScript.Impl
                 .Replace("\n", "<NEWLINE>")
                 .Replace(" ", "<SPACE>");
 
-            return $"Token: {{ {Type} : \t{readableValue} }}";
+            return $"{{ {Type}: {readableValue} }}";
         }
     }
 }

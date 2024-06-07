@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static CarrotScript.Impl.LangDef;
 
 namespace CarrotScript.Impl.Lexar
 {
@@ -86,7 +87,7 @@ namespace CarrotScript.Impl.Lexar
         {
             if (LangDef.KEYWORDS.TryFindMatch(cr.GetNext(), out string? matchKeyword))
             {
-                token = new Token(TokenType.KEYWORD, matchKeyword!, cr.CurrentPosition);
+                token = new Token(TokenType.KEYWORDS, matchKeyword!, cr.CurrentPosition);
                 cr.Advance(matchKeyword!.Length);
                 return true;
             }
@@ -96,7 +97,7 @@ namespace CarrotScript.Impl.Lexar
 
         public static bool TryParseOperator(CodeReader cr, out Token? token)
         {
-            if (LangDef.OPERATORS.TryFindMatch(cr.GetNext(), out string? matchOperator))
+            if (LangDef.BINARY_OPERATORS.TryFindMatch(cr.GetNext(), out string? matchOperator))
             {
                 token = new Token(TokenType.OPERATOR, matchOperator!, cr.CurrentPosition);
                 cr.Advance(matchOperator!.Length);
@@ -115,7 +116,7 @@ namespace CarrotScript.Impl.Lexar
 
             ReadOnlySpan<char> codeNext = cr.GetNext();
 
-            while (cr.HasNext()
+            while (cr.HasNext(numLength)
                  && (char.IsAsciiLetterOrDigit(codeNext[numLength])
                 || LangDef.STRINGS.Contains(codeNext[numLength])))
             {
@@ -126,7 +127,7 @@ namespace CarrotScript.Impl.Lexar
             {
                 ReadOnlySpan<char> nums = cr.GetNext(numLength);
                 var matchConst = nums.ToString();
-                token = new Token(TokenType.STRING, matchConst, cr.CurrentPosition);
+                token = new Token(TokenType.STR, matchConst, cr.CurrentPosition);
                 cr.Advance(matchConst!.Length);
                 return true;
             }

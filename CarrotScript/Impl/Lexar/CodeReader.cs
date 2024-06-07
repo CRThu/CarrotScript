@@ -86,9 +86,9 @@ namespace CarrotScript.Impl.Lexar
         /// </summary>
         /// <param name="offset"></param>
         /// <returns></returns>
-        public bool HasNext()
+        public bool HasNext(int offset = 0)
         {
-            return Cursor <= Code.Length - 1;
+            return Cursor + offset <= Code.Length - 1;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace CarrotScript.Impl
 {
     public static class LangDef
     {
-        public static string DIGITS = 
+        public static string DIGITS =
             "0123456789."
         ;
 
@@ -16,7 +16,11 @@ namespace CarrotScript.Impl
             ".;"
             ;
 
-        public static string[] OPERATORS = [
+        public static string[] UNARY_OPERATORS = [
+            "+", "-"
+            ];
+
+        public static string[] BINARY_OPERATORS = [
             "+", "-", "*", "/", "%", "**",
             "==", "!=", ">", ">=", "<", "<=",
             "="
@@ -38,5 +42,19 @@ namespace CarrotScript.Impl
             "for", "while",
             "true", "false",
         ];
+
+        /// <summary>
+        /// Token类型
+        /// </summary>
+        public enum TokenType
+        {
+            NUM,
+            STR,
+
+            OPERATOR,
+            KEYWORDS,
+            IDENTIFY,
+            DELIMITER
+        }
     }
 }

@@ -8,6 +8,10 @@ namespace CarrotScript.Impl.Lexar
 {
     public class LexarNotSupportException : LexarException
     {
+        public LexarNotSupportException()
+        : base("LexarNotSuppportException")
+        {
+        }
         public LexarNotSupportException(TokenPosition pos)
         : base("LexarNotSuppportException", pos)
         {
@@ -18,6 +22,11 @@ namespace CarrotScript.Impl.Lexar
     {
         public string Msg { get; set; }
         public TokenPosition Position { get; set; }
+
+        public LexarException(string msg)
+        {
+            Msg = msg;
+        }
 
         public LexarException(string msg, TokenPosition pos)
         {

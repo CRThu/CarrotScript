@@ -1,5 +1,6 @@
 ﻿using CarrotScript.Impl;
 using CarrotScript.Impl.Lexar;
+using CarrotScript.Impl.Parser;
 using System.Collections.Generic;
 
 namespace CarrotScriptDemo
@@ -9,12 +10,20 @@ namespace CarrotScriptDemo
         static void Main(string[] args)
         {
             string code =
-                ">> COM88\n" +
-                "Helloworld;A;B;C;\n" +
-                "{i=0}\n" +
-                "{i}";
+                "1+2";
+            Console.WriteLine("code: ");
+            Console.WriteLine(code);
+
             Lexar lexar = new(code);
+            Console.WriteLine("lexar: ");
+            Console.WriteLine(lexar);
+
             List<Token> tokens = lexar.Parse();
+            Parser parser = new(tokens);
+            var ast = parser.Parse();
+
+            Console.WriteLine("ast: ");
+            Console.WriteLine(ast);
         }
     }
 }

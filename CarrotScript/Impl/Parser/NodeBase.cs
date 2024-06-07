@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 namespace CarrotScript.Impl.Parser
 {
     /// <summary>
-    /// 二叉树
+    /// 树
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class TreeNode<T>
+    public class NodeBase<T>
     {
         /// <summary>
         /// 树节点值
@@ -19,11 +19,11 @@ namespace CarrotScript.Impl.Parser
         /// <summary>
         /// 树的左分支
         /// </summary>
-        public TreeNode<T>? Left { get; set; }
+        public NodeBase<T>? Left { get; set; }
         /// <summary>
         /// 树的右分支
         /// </summary>
-        public TreeNode<T>? Right { get; set; }
+        public NodeBase<T>? Right { get; set; }
 
         /// <summary>
         /// 构造函数
@@ -31,7 +31,7 @@ namespace CarrotScript.Impl.Parser
         /// <param name="value"></param>
         /// <param name="left"></param>
         /// <param name="right"></param>
-        public TreeNode(T value, TreeNode<T>? left = null, TreeNode<T>? right = null)
+        public NodeBase(T value, NodeBase<T>? left = null, NodeBase<T>? right = null)
         {
             Value = value;
             Left = left;
@@ -42,7 +42,7 @@ namespace CarrotScript.Impl.Parser
         /// 构造函数
         /// </summary>
         /// <param name="value"></param>
-        public TreeNode(T value)
+        public NodeBase(T value)
         {
             Value = value;
         }
