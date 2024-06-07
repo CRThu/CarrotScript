@@ -1,12 +1,12 @@
-﻿using CarrotScript.Impl.Lexar;
+﻿using CarrotScript.Lexar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static CarrotScript.Impl.LangDef;
+using static CarrotScript.LangDef;
 
-namespace CarrotScript.Impl.Parser
+namespace CarrotScript.Parser
 {
     public class Parser
     {

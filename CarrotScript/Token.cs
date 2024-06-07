@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static CarrotScript.Impl.LangDef;
+using static CarrotScript.LangDef;
 
-namespace CarrotScript.Impl
+namespace CarrotScript
 {
     /// <summary>
     /// Token位置

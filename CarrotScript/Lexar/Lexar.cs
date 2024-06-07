@@ -1,12 +1,13 @@
-﻿using Microsoft.VisualBasic;
+﻿using CarrotScript.Lexar;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static CarrotScript.Impl.LangDef;
+using static CarrotScript.LangDef;
 
-namespace CarrotScript.Impl.Lexar
+namespace CarrotScript.Lexar
 {
     public class Lexar
     {
@@ -73,7 +74,7 @@ namespace CarrotScript.Impl.Lexar
 
         private static bool TryParseDelimiter(CodeReader cr, out Token? token)
         {
-            if (LangDef.DELIMITERS.TryFindMatch(cr.GetNext(), out string? matchDelimiter))
+            if (DELIMITERS.TryFindMatch(cr.GetNext(), out string? matchDelimiter))
             {
                 token = new Token(TokenType.DELIMITER, matchDelimiter!, cr.CurrentPosition);
                 cr.Advance(matchDelimiter!.Length);
@@ -85,7 +86,7 @@ namespace CarrotScript.Impl.Lexar
 
         private static bool TryParseKeyword(CodeReader cr, out Token? token)
         {
-            if (LangDef.KEYWORDS.TryFindMatch(cr.GetNext(), out string? matchKeyword))
+            if (KEYWORDS.TryFindMatch(cr.GetNext(), out string? matchKeyword))
             {
                 token = new Token(TokenType.KEYWORDS, matchKeyword!, cr.CurrentPosition);
                 cr.Advance(matchKeyword!.Length);
@@ -97,7 +98,7 @@ namespace CarrotScript.Impl.Lexar
 
         public static bool TryParseOperator(CodeReader cr, out Token? token)
         {
-            if (LangDef.BINARY_OPERATORS.TryFindMatch(cr.GetNext(), out string? matchOperator))
+            if (BINARY_OPERATORS.TryFindMatch(cr.GetNext(), out string? matchOperator))
             {
                 token = new Token(TokenType.OPERATOR, matchOperator!, cr.CurrentPosition);
                 cr.Advance(matchOperator!.Length);
@@ -118,7 +119,7 @@ namespace CarrotScript.Impl.Lexar
 
             while (cr.HasNext(numLength)
                  && (char.IsAsciiLetterOrDigit(codeNext[numLength])
-                || LangDef.STRINGS.Contains(codeNext[numLength])))
+                || STRINGS.Contains(codeNext[numLength])))
             {
                 numLength++;
             }

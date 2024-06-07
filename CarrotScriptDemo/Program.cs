@@ -1,6 +1,6 @@
-﻿using CarrotScript.Impl;
-using CarrotScript.Impl.Lexar;
-using CarrotScript.Impl.Parser;
+﻿using CarrotScript;
+using CarrotScript.Lexar;
+using CarrotScript.Parser;
 using System.Collections.Generic;
 
 namespace CarrotScriptDemo

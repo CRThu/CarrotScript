@@ -13,7 +13,7 @@ namespace CarrotScript.Impl.Tests
         [TestMethod()]
         public void ParseTest()
         {
-            Lexar.Lexar lexar = new("2**3\t+ 7.9E2+7*E6/-.32+(1+2*_x_)*-5");
+            CarrotScript.Lexar.Lexar lexar = new("2**3\t+ 7.9E2+7*E6/-.32+(1+2*_x_)*-5");
             lexar.Parse();
         }
     }

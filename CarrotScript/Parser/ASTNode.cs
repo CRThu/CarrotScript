@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CarrotScript.Impl.Parser
+namespace CarrotScript.Parser
 {
     public abstract class ASTNode : NodeBase<Token>
     {
@@ -23,8 +23,8 @@ namespace CarrotScript.Impl.Parser
 
         public override string ToString()
         {
-            string leftString = (Left == null) ? "" : ",\n\tleft: " + ((ASTNode)Left).ToString();
-            string rightString = (Right == null) ? "" : ",\n\tright: " + ((ASTNode)Right).ToString();
+            string leftString = Left == null ? "" : ",\n\tleft: " + ((ASTNode)Left).ToString();
+            string rightString = Right == null ? "" : ",\n\tright: " + ((ASTNode)Right).ToString();
             return $"{{ type: {Type}, value: {Value}{leftString}{rightString}}}";
         }
     }

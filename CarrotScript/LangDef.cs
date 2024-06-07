@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CarrotScript.Impl
+namespace CarrotScript
 {
     public static class LangDef
     {

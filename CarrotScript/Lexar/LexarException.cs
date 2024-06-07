@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CarrotScript.Impl.Lexar
+namespace CarrotScript.Lexar
 {
     public class LexarNotSupportException : LexarException
     {
