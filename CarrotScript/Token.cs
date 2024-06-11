@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using static CarrotScript.LangDef;
 
@@ -23,20 +25,22 @@ namespace CarrotScript
     /// </summary>
     public struct Token
     {
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         /// <summary>
         /// Token类型
         /// </summary>
-        public TokenType Type;
+        public TokenType Type { get; set; }
 
         /// <summary>
         /// Token值
         /// </summary>
-        public string Value;
+        public string Value { get; set; }
 
+        [JsonIgnore]
         /// <summary>
         /// 代码位置
         /// </summary>
-        public TokenPosition Pos;
+        public TokenPosition Pos { get; set; }
 
         /// <summary>
         /// 构造函数
@@ -69,13 +73,20 @@ namespace CarrotScript
         {
         }
 
-        public override readonly string ToString()
-        {
-            string readableValue = Value
-                .Replace("\n", "<NEWLINE>")
-                .Replace(" ", "<SPACE>");
+        //public override readonly string ToString()
+        //{
+        //    string readableValue = Value
+        //        .Replace("\n", "<NEWLINE>")
+        //        .Replace(" ", "<SPACE>");
 
-            return $"{{ {Type}: {readableValue} }}";
+        //    return $"{{ {Type}: {readableValue} }}";
+        //}
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            });
         }
     }
 }

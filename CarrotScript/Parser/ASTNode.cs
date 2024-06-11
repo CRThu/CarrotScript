@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace CarrotScript.Parser
 {
@@ -23,9 +24,11 @@ namespace CarrotScript.Parser
 
         public override string ToString()
         {
-            string leftString = Left == null ? "" : ",\n\tleft: " + ((ASTNode)Left).ToString();
-            string rightString = Right == null ? "" : ",\n\tright: " + ((ASTNode)Right).ToString();
-            return $"{{ type: {Type}, value: {Value}{leftString}{rightString}}}";
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            });
         }
     }
 

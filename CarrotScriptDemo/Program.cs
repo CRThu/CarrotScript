@@ -10,7 +10,7 @@ namespace CarrotScriptDemo
         static void Main(string[] args)
         {
             string code =
-                "1+2";
+                "(1+2)*5\n";
             Console.WriteLine("code: ");
             Console.WriteLine(code);
 

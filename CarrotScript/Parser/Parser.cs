@@ -54,10 +54,22 @@ namespace CarrotScript.Parser
                 return new NumericNode(token);
             else if (token.Type == TokenType.STR)
                 return new StringNode(token);
-            else
-                throw new LexarNotSupportException();
+            else if (token.Type == TokenType.DELIMITER && token.Value == "(")
+            {
+                // TODO ( & ) parse
+                Advance();
+                var node = CalcExprProc();
+                Advance();
+                Token token2 = CurrentToken.Value;
+                if (token2.Type == TokenType.DELIMITER && token2.Value == ")")
+                {
+                    return node;
+                }
+                else
+                    throw new LexarNotSupportException();
+            }
+            throw new LexarNotSupportException();
 
-            // TODO ( & ) parse
         }
 
         public ASTNode UnaryOpExprProc()
