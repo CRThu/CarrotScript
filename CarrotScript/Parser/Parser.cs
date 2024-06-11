@@ -20,6 +20,22 @@ namespace CarrotScript.Parser
             Tokens = new List<Token>(tokens);
         }
 
+        public static bool TryParse(IEnumerable<Token> tokens, out ASTNode? ast)
+        {
+            try
+            {
+                var parser = new Parser(tokens);
+                ast = parser.Parse();
+                return true;
+
+            }
+            catch (Exception)
+            {
+                ast = null;
+                return false;
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>

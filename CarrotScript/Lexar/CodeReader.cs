@@ -30,6 +30,16 @@ namespace CarrotScript.Lexar
         /// 构造函数
         /// </summary>
         /// <param name="code"></param>
+        public CodeReader()
+        {
+            Code = string.Empty;
+            Cursor = 0;
+        }
+
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="code"></param>
         public CodeReader(string code)
         {
             Code = code;

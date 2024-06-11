@@ -24,6 +24,13 @@ namespace CarrotScriptDemo
 
             Console.WriteLine("ast: ");
             Console.WriteLine(ast);
+
+
+            while (true)
+            {
+                Console.WriteLine();
+                Console.ReadLine();
+            }
         }
     }
 }

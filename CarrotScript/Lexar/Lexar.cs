@@ -14,7 +14,7 @@ namespace CarrotScript.Lexar
         /// <summary>
         /// 代码读取器
         /// </summary>
-        public CodeReader cr { get; set; }
+        public CodeReader CodeReader { get; set; }
 
         /// <summary>
         /// Token向量
@@ -25,9 +25,10 @@ namespace CarrotScript.Lexar
         /// 构造函数
         /// </summary>
         /// <param name="code"></param>
-        public Lexar(string code)
+        public Lexar(string code = "")
         {
-            cr = new(code);
+            CodeReader = new();
+            CodeReader.Code = code;
             Tokens = new();
         }
 
@@ -36,29 +37,29 @@ namespace CarrotScript.Lexar
         /// </summary>
         public List<Token> Parse()
         {
-            cr.Restart();
-            while (cr.HasNext())
+            CodeReader.Restart();
+            while (CodeReader.HasNext())
             {
                 Token? token;
-                if (TryParseDelimiter(cr, out token))
+                if (TryParseDelimiter(CodeReader, out token))
                 {
                     Tokens.Add((Token)token!);
                     Console.WriteLine(token);
                     continue;
                 }
-                else if (TryParseKeyword(cr, out token))
+                else if (TryParseKeyword(CodeReader, out token))
                 {
                     Tokens.Add((Token)token!);
                     Console.WriteLine(token);
                     continue;
                 }
-                else if (TryParseOperator(cr, out token))
+                else if (TryParseOperator(CodeReader, out token))
                 {
                     Tokens.Add((Token)token!);
                     Console.WriteLine(token);
                     continue;
                 }
-                else if (TryParseString(cr, out token))
+                else if (TryParseString(CodeReader, out token))
                 {
                     Tokens.Add((Token)token!);
                     Console.WriteLine(token);
@@ -66,7 +67,7 @@ namespace CarrotScript.Lexar
                 }
                 else
                 {
-                    throw new LexarNotSupportException(cr.CurrentPosition);
+                    throw new LexarNotSupportException(CodeReader.CurrentPosition);
                 }
             }
             return Tokens;
