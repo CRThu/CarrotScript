@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CarrotScript.Exception;
+using CarrotScript.Lexar;
 using static CarrotScript.Lang.Def;
 
 namespace CarrotScript.Parser
@@ -50,21 +51,19 @@ namespace CarrotScript.Parser
         /// ATOM        ::=     ( NUM | STR | IDENTIFER ) | ( "(" EXPR ")" )<br/>
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="LexarNotSupportException"></exception>
         public ASTNode AtomProc()
         {
             if (CurrentToken == null)
-                throw new LexarNotSupportException();
+                throw new InvalidSyntaxException("异常结尾", null);
 
             Token token = CurrentToken.Value;
             if (SINGLE_TYPE.Contains(token.Type))
             {
                 Advance();
-                return token.Type switch
-                {
+                return token.Type switch {
                     TokenType.NUMERIC => new NumericNode(token),
                     TokenType.STRING => new StringNode(token),
-                    _ => throw new LexarNotSupportException(),
+                    _ => throw new ParserNotSupportedException("Parser不支持的Token类型", token.Pos),
                 };
             }
 
@@ -74,18 +73,18 @@ namespace CarrotScript.Parser
                 var node = ExprProc();
                 Token? token2 = CurrentToken;
                 if (token2 != null && token2.Value.Type != TokenType.RPAREN)
-                    throw new LexarNotSupportException();
+                    throw new InvalidSyntaxException("Parser未找到LPAREN Token", token2.Value.Pos);
                 Advance();
                 return node;
             }
 
-            throw new LexarNotSupportException();
+            throw new ParserNotSupportedException("Parser不支持的表达式", token.Pos);
         }
 
         public ASTNode FactorProc()
         {
             if (CurrentToken == null)
-                throw new LexarNotSupportException();
+                throw new InvalidSyntaxException("异常结尾", null);
 
             Token token = CurrentToken.Value;
             if (UNARYOP_TYPE.Contains(token.Type))
@@ -102,7 +101,7 @@ namespace CarrotScript.Parser
         public ASTNode BinaryOpProc(Func<ASTNode> func, TokenType[] ops)
         {
             if (CurrentToken == null)
-                throw new LexarNotSupportException();
+                throw new InvalidSyntaxException("异常结尾", null);
 
             var left = func.Invoke();
             Token? token = CurrentToken;
@@ -123,21 +122,21 @@ namespace CarrotScript.Parser
         public ASTNode TermProc()
         {
             if (CurrentToken == null)
-                throw new LexarNotSupportException();
+                throw new InvalidSyntaxException("异常结尾", null);
 
             return BinaryOpProc(FactorProc, FACTOR_TYPE);
 
-            throw new LexarNotSupportException();
+            throw new ParserNotSupportedException("Parser不支持的表达式", CurrentToken.Value.Pos);
         }
 
         public ASTNode CalcProc()
         {
             if (CurrentToken == null)
-                throw new LexarNotSupportException();
+                throw new InvalidSyntaxException("异常结尾", null);
 
             return BinaryOpProc(TermProc, TERM_TYPE);
 
-            throw new LexarNotSupportException();
+            throw new ParserNotSupportedException("Parser不支持的表达式", CurrentToken.Value.Pos);
         }
 
         public ASTNode ExprProc()
@@ -148,7 +147,7 @@ namespace CarrotScript.Parser
         public ASTNode Parse()
         {
             if (CurrentToken == null)
-                throw new LexarNotSupportException();
+                throw new InvalidSyntaxException("异常结尾", null);
 
             if (DebugInfo)
                 Console.WriteLine("Parser.Parse():");
@@ -156,7 +155,7 @@ namespace CarrotScript.Parser
             var ast = ExprProc();
 
             if (CurrentToken != null)
-                throw new LexarNotSupportException();
+                throw new InvalidSyntaxException("末尾存在非法Token", CurrentToken.Value.Pos);
 
             if (DebugInfo)
                 Console.WriteLine(ast);

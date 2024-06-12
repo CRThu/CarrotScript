@@ -14,6 +14,8 @@ namespace CarrotScript.Parser
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public TokenType Type { get; set; }
 
+        public ASTNodePosition Position => GetPosition();
+
         public ASTNode(Token token) : base(token)
         {
             Type = TokenType.UNKNOWN;
@@ -26,11 +28,17 @@ namespace CarrotScript.Parser
 
         public override string ToString()
         {
-            return JsonSerializer.Serialize(this, new JsonSerializerOptions
-            {
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions {
                 WriteIndented = true,
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             });
+        }
+
+        private ASTNodePosition GetPosition()
+        {
+            TokenPosition start = (Left == null) ? Value.Pos : Left.Value.Pos;
+            TokenPosition end = (Right == null) ? Value.Pos : Right.Value.Pos;
+            return new ASTNodePosition(ref start, ref end);
         }
     }
 

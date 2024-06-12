@@ -24,16 +24,18 @@ namespace CarrotScript.Lexar
         /// </summary>
         public List<Token> Tokens { get; set; }
 
+        /// <summary>
+        /// 是否为调试模式
+        /// </summary>
         public bool DebugInfo { get; set; }
 
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="code"></param>
-        public Lexar(string code = "", bool debugInfo = false)
+        public Lexar(CodeReader codeReader, bool debugInfo = false)
         {
-            CodeReader = new();
-            CodeReader.Code = code;
+            CodeReader = codeReader;
             Tokens = new();
             DebugInfo = debugInfo;
         }
@@ -80,7 +82,8 @@ namespace CarrotScript.Lexar
                 }
                 else
                 {
-                    throw new LexarNotSupportException(CodeReader.CurrentPosition);
+                    throw new InvalidSyntaxException("Lexar无法解析的语法",
+                        CodeReader.CurrentPosition);
                 }
             }
             return Tokens;

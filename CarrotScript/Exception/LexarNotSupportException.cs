@@ -2,13 +2,18 @@
 {
     public class LexarNotSupportedException : ExceptionBase
     {
-        public LexarNotSupportedException()
-        : base("LexarNotSupportedException")
+        public LexarNotSupportedException() : base("")
+        {
+
+        }
+
+        public LexarNotSupportedException(TokenPosition? pos)
+        : base("InvalidSyntaxException", pos)
         {
         }
 
-        public LexarNotSupportedException(TokenPosition pos)
-        : base("LexarNotSupportedException", pos)
+        public LexarNotSupportedException(string msg, TokenPosition? pos)
+        : base(msg, pos)
         {
         }
     }

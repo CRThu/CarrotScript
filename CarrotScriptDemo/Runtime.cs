@@ -22,12 +22,20 @@ namespace CarrotScriptDemo
             DebugInfo = debugInfo;
         }
 
-        public void Emit(string c)
+        public void Emit(string code)
         {
-            Lexar Lexar = new Lexar(c, DebugInfo);
-            Tokens = Lexar.Parse();
-            Parser parser = new Parser(Tokens, DebugInfo);
-            Ast = parser.Parse();
+            try
+            {
+                CodeReader codeReader = new("<NULL>", code);
+                Lexar Lexar = new Lexar(codeReader, DebugInfo);
+                Tokens = Lexar.Parse();
+                Parser parser = new Parser(Tokens, DebugInfo);
+                Ast = parser.Parse();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
     }
 }

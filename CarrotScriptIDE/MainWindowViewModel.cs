@@ -24,7 +24,7 @@ namespace CarrotScript
         [RelayCommand]
         private void RunCode()
         {
-            Lexar.Lexar lexar = new(inputCode);
+            Lexar.Lexar lexar = new(new CodeReader("<NULL>", inputCode));
             lexar.Parse();
             StdOut += InputCode + Environment.NewLine;
             StdOut += "{" + Environment.NewLine;

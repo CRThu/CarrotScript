@@ -10,30 +10,6 @@ using static CarrotScript.Lang.Def;
 namespace CarrotScript
 {
     /// <summary>
-    /// Token位置
-    /// </summary>
-    public readonly struct TokenPosition
-    {
-        public string File { get; init; }
-        public int Line { get; init; }
-        public int Col { get; init; }
-
-        /// <param name="line">代码行</param>
-        /// <param name="col">代码列</param>
-        public TokenPosition(string file, int line, int col)
-        {
-            File = file;
-            Line = line;
-            Col = col;
-        }
-
-        public override string ToString()
-        {
-            return $"{File}:{Line}:{Col}";
-        }
-    }
-
-    /// <summary>
     /// Token实现
     /// </summary>
     public struct Token
@@ -69,8 +45,7 @@ namespace CarrotScript
 
         public override string ToString()
         {
-            return JsonSerializer.Serialize(this, new JsonSerializerOptions
-            {
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions {
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             });
         }
