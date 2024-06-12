@@ -1,5 +1,5 @@
 <Project>
-	<UsingTask TaskName="UpdateVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+	<UsingTask TaskName="UpdateVersion" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
 		<ParameterGroup>
 			<VersionFile ParameterType="System.String" Required="true" />
 			<NewVersion Output="true" ParameterType="System.String" />
