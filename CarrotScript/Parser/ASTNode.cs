@@ -4,22 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
+using static CarrotScript.LangDef;
+using System.Text.Json.Serialization;
 
 namespace CarrotScript.Parser
 {
     public abstract class ASTNode : NodeBase<Token>
     {
-        public string Type { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public TokenType Type { get; set; }
 
         public ASTNode(Token token) : base(token)
         {
-            Value = token;
-            Type = "<empty>";
+            Type = TokenType.UNKNOWN;
         }
 
         public ASTNode(Token token, ASTNode? left = null, ASTNode? right = null) : base(token, left, right)
         {
-            Type = "<empty>";
+            Type = TokenType.UNKNOWN;
         }
 
         public override string ToString()
@@ -36,7 +38,7 @@ namespace CarrotScript.Parser
     {
         public NumericNode(Token token) : base(token)
         {
-            Type = "Numberic";
+            Type = TokenType.NUMERIC;
         }
     }
 
@@ -44,24 +46,23 @@ namespace CarrotScript.Parser
     {
         public StringNode(Token token) : base(token)
         {
-            Type = "String";
+            Type = TokenType.STRING;
         }
     }
 
-
-    public class UnaryNode : ASTNode
+    public class UnaryOpNode : ASTNode
     {
-        public UnaryNode(Token op, ASTNode right) : base(op, left: null, right: right)
+        public UnaryOpNode(Token op, ASTNode right) : base(op, left: null, right: right)
         {
-            Type = "Unary";
+            Type = op.Type;
         }
     }
 
-    public class BinaryNode : ASTNode
+    public class BinaryOpNode : ASTNode
     {
-        public BinaryNode(Token op, ASTNode left, ASTNode right) : base(op, left: left, right: right)
+        public BinaryOpNode(Token op, ASTNode left, ASTNode right) : base(op, left: left, right: right)
         {
-            Type = "Binary";
+            Type = op.Type;
         }
     }
 }

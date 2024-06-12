@@ -4,10 +4,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using static CarrotScript.LangDef;
 
 namespace CarrotScript
 {
-    public static class Util
+    public static class Match
     {
         /// <summary>
         /// 查找字符串在字符串数组头部匹配, 若有则返回字符串, 若无则返回false
@@ -28,11 +29,6 @@ namespace CarrotScript
 
             matchWord = null;
             return false;
-        }
-
-        public static string GetVersion()
-        {
-            return Assembly.GetExecutingAssembly().GetName().Version!.ToString();
         }
     }
 }

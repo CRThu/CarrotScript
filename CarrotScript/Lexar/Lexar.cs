@@ -2,6 +2,8 @@
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,15 +23,18 @@ namespace CarrotScript.Lexar
         /// </summary>
         public List<Token> Tokens { get; set; }
 
+        public bool DebugInfo { get; set; }
+
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="code"></param>
-        public Lexar(string code = "")
+        public Lexar(string code = "", bool debugInfo = false)
         {
             CodeReader = new();
             CodeReader.Code = code;
             Tokens = new();
+            DebugInfo = debugInfo;
         }
 
         /// <summary>
@@ -37,6 +42,9 @@ namespace CarrotScript.Lexar
         /// </summary>
         public List<Token> Parse()
         {
+            if (DebugInfo)
+                Console.WriteLine("Lexar.Parse():");
+
             CodeReader.Restart();
             while (CodeReader.HasNext())
             {
@@ -44,25 +52,29 @@ namespace CarrotScript.Lexar
                 if (TryParseDelimiter(CodeReader, out token))
                 {
                     Tokens.Add((Token)token!);
-                    Console.WriteLine(token);
+                    if (DebugInfo)
+                        Console.WriteLine(token);
                     continue;
                 }
                 else if (TryParseKeyword(CodeReader, out token))
                 {
                     Tokens.Add((Token)token!);
-                    Console.WriteLine(token);
+                    if (DebugInfo)
+                        Console.WriteLine(token);
                     continue;
                 }
                 else if (TryParseOperator(CodeReader, out token))
                 {
                     Tokens.Add((Token)token!);
-                    Console.WriteLine(token);
+                    if (DebugInfo)
+                        Console.WriteLine(token);
                     continue;
                 }
                 else if (TryParseString(CodeReader, out token))
                 {
                     Tokens.Add((Token)token!);
-                    Console.WriteLine(token);
+                    if (DebugInfo)
+                        Console.WriteLine(token);
                     continue;
                 }
                 else
@@ -73,40 +85,78 @@ namespace CarrotScript.Lexar
             return Tokens;
         }
 
-        private static bool TryParseDelimiter(CodeReader cr, out Token? token)
+
+        /// <summary>
+        /// 匹配不同长度固定表达Token字符串并转换为字符
+        /// </summary>
+        /// <param name="chars"></param>
+        /// <param name="token"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool TryMatchFixedToken(ReadOnlySpan<char> chars, TokenType[] searchTokens, out string? token, out TokenType? type)
         {
-            if (DELIMITERS.TryFindMatch(cr.GetNext(), out string? matchDelimiter))
-            {
-                token = new Token(TokenType.DELIMITER, matchDelimiter!, cr.CurrentPosition);
-                cr.Advance(matchDelimiter!.Length);
-                return true;
-            }
             token = null;
+            type = null;
+
+            for (int i = 0; i < LLTokenDict.Length; i++)
+            {
+                if (chars.Length < LLTokenDict[i].len)
+                    continue;
+                string currToken = chars.Slice(0, LLTokenDict[i].len).ToString();
+                if (LLTokenDict[i].dict.TryGetValue(currToken, out TokenType currType)
+                    && searchTokens.Contains(currType))
+                {
+                    token = currToken;
+                    type = currType;
+                    return true;
+                }
+            }
             return false;
         }
 
-        private static bool TryParseKeyword(CodeReader cr, out Token? token)
+        public static bool TryParseDelimiter(CodeReader cr, out Token? token)
         {
-            if (KEYWORDS.TryFindMatch(cr.GetNext(), out string? matchKeyword))
+            if (TryMatchFixedToken(cr.GetNext(), DELIMITERS, out var matchToken, out var matchType))
             {
-                token = new Token(TokenType.KEYWORDS, matchKeyword!, cr.CurrentPosition);
-                cr.Advance(matchKeyword!.Length);
+                token = new Token(matchType!.Value, matchToken!, cr.CurrentPosition);
+                cr.Advance(matchToken!.Length);
                 return true;
             }
-            token = null;
-            return false;
+            else
+            {
+                token = null;
+                return false;
+            }
+        }
+
+        public static bool TryParseKeyword(CodeReader cr, out Token? token)
+        {
+            if (TryMatchFixedToken(cr.GetNext(), KEYWORDS, out var matchToken, out var matchType))
+            {
+                token = new Token(matchType!.Value, matchToken!, cr.CurrentPosition);
+                cr.Advance(matchToken!.Length);
+                return true;
+            }
+            else
+            {
+                token = null;
+                return false;
+            }
         }
 
         public static bool TryParseOperator(CodeReader cr, out Token? token)
         {
-            if (BINARY_OPERATORS.TryFindMatch(cr.GetNext(), out string? matchOperator))
+            if (TryMatchFixedToken(cr.GetNext(), OPERATORS, out var matchToken, out var matchType))
             {
-                token = new Token(TokenType.OPERATOR, matchOperator!, cr.CurrentPosition);
-                cr.Advance(matchOperator!.Length);
+                token = new Token(matchType!.Value, matchToken!, cr.CurrentPosition);
+                cr.Advance(matchToken!.Length);
                 return true;
             }
-            token = null;
-            return false;
+            else
+            {
+                token = null;
+                return false;
+            }
         }
         /// <summary>
         /// 解析常量
@@ -120,7 +170,7 @@ namespace CarrotScript.Lexar
 
             while (cr.HasNext(numLength)
                  && (char.IsAsciiLetterOrDigit(codeNext[numLength])
-                || STRINGS.Contains(codeNext[numLength])))
+                /*|| STRINGS.Contains(codeNext[numLength])*/))
             {
                 numLength++;
             }
@@ -129,7 +179,7 @@ namespace CarrotScript.Lexar
             {
                 ReadOnlySpan<char> nums = cr.GetNext(numLength);
                 var matchConst = nums.ToString();
-                token = new Token(TokenType.STR, matchConst, cr.CurrentPosition);
+                token = new Token(TokenType.STRING, matchConst, cr.CurrentPosition);
                 cr.Advance(matchConst!.Length);
                 return true;
             }

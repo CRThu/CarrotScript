@@ -16,8 +16,12 @@
 NUM         ::=     [0-9]+
 STR         ::=     [A-Za-z_0-9]+
 IDENTIFER   ::=     [A-Za-z_0-9]+
-ATOM        ::=     ( NUM | STR | IDENTIFER )
 
-FACTOR      ::=     [ ( "-" ) ] ATOM | ( "(" EXPR ")" )
-TERM        ::=     FACTOR { ( "*" | "/" ) FACTOR }
-EXPR        ::=     TERM { ( "+" | "-" ) TERM }
+TERM_TYPE   ::=     ( "+" | "-" )
+FACTOR_TYPE ::=     ( "*" | "/" )
+
+ATOM        ::=     ( NUM | STR | IDENTIFER ) | ( "(" EXPR ")" )
+FACTOR      ::=     [ ( "+" | "-" ) ] ATOM
+TERM        ::=     FACTOR { FACTOR_TYPE FACTOR }
+CALC        ::=     TERM { TERM_TYPE TERM }
+EXPR        ::=     CALC

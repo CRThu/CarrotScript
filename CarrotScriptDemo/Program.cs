@@ -9,27 +9,19 @@ namespace CarrotScriptDemo
     {
         static void Main(string[] args)
         {
-            string code =
-                "(1+2)*5\n";
-            Console.WriteLine("code: ");
-            Console.WriteLine(code);
+            Runtime runtime = new Runtime();
 
-            Lexar lexar = new(code);
-            Console.WriteLine("lexar: ");
-            Console.WriteLine(lexar);
-
-            List<Token> tokens = lexar.Parse();
-            Parser parser = new(tokens);
-            var ast = parser.Parse();
-
-            Console.WriteLine("ast: ");
-            Console.WriteLine(ast);
-
-
+            Console.WriteLine($"CarrotScript {CarrotScript.Version.GetVersion()}");
+            Console.WriteLine($"Command Line Runner");
             while (true)
             {
-                Console.WriteLine($"CarrotScript Command Line Demo Ver.{Util.GetVersion()}");
-                Console.ReadLine();
+                Console.Write($">>");
+                var l = Console.ReadLine();
+
+                if (string.IsNullOrEmpty(l))
+                    continue;
+
+                runtime.Emit(l);
             }
         }
     }

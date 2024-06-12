@@ -13,27 +13,12 @@ namespace CarrotScript.Parser
         public Token? CurrentToken => GetToken();
         public int Index { get; set; }
         public List<Token> Tokens { get; set; }
-        public ASTNode AST { get; set; }
+        public bool DebugInfo { get; set; }
 
-        public Parser(IEnumerable<Token> tokens)
+        public Parser(IEnumerable<Token> tokens, bool debugInfo = false)
         {
             Tokens = new List<Token>(tokens);
-        }
-
-        public static bool TryParse(IEnumerable<Token> tokens, out ASTNode? ast)
-        {
-            try
-            {
-                var parser = new Parser(tokens);
-                ast = parser.Parse();
-                return true;
-
-            }
-            catch (Exception)
-            {
-                ast = null;
-                return false;
-            }
+            DebugInfo = debugInfo;
         }
 
         /// <summary>
@@ -60,91 +45,123 @@ namespace CarrotScript.Parser
             return CurrentToken;
         }
 
-        public ASTNode VarExprProc()
+        /// <summary>
+        /// BNF GRAMMER<br/>
+        /// ATOM        ::=     ( NUM | STR | IDENTIFER ) | ( "(" EXPR ")" )<br/>
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="LexarNotSupportException"></exception>
+        public ASTNode AtomProc()
         {
             if (CurrentToken == null)
                 throw new LexarNotSupportException();
 
             Token token = CurrentToken.Value;
-            if (token.Type == TokenType.NUM)
-                return new NumericNode(token);
-            else if (token.Type == TokenType.STR)
-                return new StringNode(token);
-            else if (token.Type == TokenType.DELIMITER && token.Value == "(")
+            if (SINGLE_TYPE.Contains(token.Type))
             {
-                // TODO ( & ) parse
                 Advance();
-                var node = CalcExprProc();
-                Advance();
-                Token token2 = CurrentToken.Value;
-                if (token2.Type == TokenType.DELIMITER && token2.Value == ")")
+                return token.Type switch
                 {
-                    return node;
-                }
-                else
-                    throw new LexarNotSupportException();
+                    TokenType.NUMERIC => new NumericNode(token),
+                    TokenType.STRING => new StringNode(token),
+                    _ => throw new LexarNotSupportException(),
+                };
             }
-            throw new LexarNotSupportException();
 
+            if (token.Type == TokenType.LPAREN)
+            {
+                Advance();
+                var node = ExprProc();
+                Token? token2 = CurrentToken;
+                if (token2 != null && token2.Value.Type != TokenType.RPAREN)
+                    throw new LexarNotSupportException();
+                Advance();
+                return node;
+            }
+
+            throw new LexarNotSupportException();
         }
 
-        public ASTNode UnaryOpExprProc()
+        public ASTNode FactorProc()
         {
             if (CurrentToken == null)
                 throw new LexarNotSupportException();
 
             Token token = CurrentToken.Value;
-            if (token.Type == TokenType.OPERATOR)
+            if (UNARYOP_TYPE.Contains(token.Type))
             {
                 Advance();
-                ASTNode right = VarExprProc();
-
-                //  UNARYOP VAREXPR
-                return new UnaryNode(token, right);
+                ASTNode right = AtomProc();
+                return new UnaryOpNode(token, right);
             }
-
-            // VAREXPR
-            return VarExprProc();
-
-            throw new LexarNotSupportException();
+            else
+                return AtomProc();
         }
 
 
-        public ASTNode BinaryOpExprProc()
+        public ASTNode BinaryOpProc(Func<ASTNode> func, TokenType[] ops)
         {
             if (CurrentToken == null)
                 throw new LexarNotSupportException();
 
-            var left = UnaryOpExprProc();
-            Advance();
-            var token = CurrentToken.Value;
-            // TODO BINARYOP
-            if (token.Type == TokenType.OPERATOR)
+            var left = func.Invoke();
+            Token? token = CurrentToken;
+            if (token != null && ops.Contains(token.Value.Type))
             {
                 Advance();
-                var right = UnaryOpExprProc();
+                var right = func.Invoke();
 
-                //   VAREXPR BINARYOP VAREXPR
-                return new BinaryNode(token, left, right);
+                return new BinaryOpNode(token.Value, left, right);
             }
-
-            throw new LexarNotSupportException();
+            else
+            {
+                return left;
+            }
         }
 
 
-        public ASTNode CalcExprProc()
+        public ASTNode TermProc()
         {
             if (CurrentToken == null)
                 throw new LexarNotSupportException();
 
-            return BinaryOpExprProc();
+            return BinaryOpProc(FactorProc, FACTOR_TYPE);
 
             throw new LexarNotSupportException();
+        }
+
+        public ASTNode CalcProc()
+        {
+            if (CurrentToken == null)
+                throw new LexarNotSupportException();
+
+            return BinaryOpProc(TermProc, TERM_TYPE);
+
+            throw new LexarNotSupportException();
+        }
+
+        public ASTNode ExprProc()
+        {
+            return CalcProc();
         }
 
         public ASTNode Parse()
         {
-            return CalcExprProc();
+            if (CurrentToken == null)
+                throw new LexarNotSupportException();
+
+            if (DebugInfo)
+                Console.WriteLine("Parser.Parse():");
+
+            var ast = ExprProc();
+
+            if (CurrentToken != null)
+                throw new LexarNotSupportException();
+
+            if (DebugInfo)
+                Console.WriteLine(ast);
+
+            return ast;
         }
     }
 }

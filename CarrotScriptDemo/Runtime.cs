@@ -11,22 +11,23 @@ namespace CarrotScriptDemo
 {
     public class Runtime
     {
-        public Lexar Lexar { get; set; }
-
-        public List<Token> Tokens { get; set; }
+        public List<Token>? Tokens { get; set; }
 
         public ASTNode? Ast { get; set; }
 
-        public Runtime()
+        public bool DebugInfo { get; set; }
+
+        public Runtime(bool debugInfo = true)
         {
+            DebugInfo = debugInfo;
         }
 
         public void Emit(string c)
         {
-            Lexar = new Lexar(c);
+            Lexar Lexar = new Lexar(c, DebugInfo);
             Tokens = Lexar.Parse();
-            _ = Parser.TryParse(Tokens, out ASTNode? Ast);
-            this.Ast = Ast;
+            Parser parser = new Parser(Tokens, DebugInfo);
+            Ast = parser.Parse();
         }
     }
 }

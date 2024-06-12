@@ -16,7 +16,7 @@ namespace CarrotScript.Parser
         /// <summary>
         /// 树节点值
         /// </summary>
-        public T Value { get; set; }
+        public T? Value { get; set; }
         /// <summary>
         /// 树的左分支
         /// </summary>
@@ -46,6 +46,13 @@ namespace CarrotScript.Parser
         public NodeBase(T value)
         {
             Value = value;
+        }
+
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        public NodeBase()
+        {
         }
     }
 }

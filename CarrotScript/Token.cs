@@ -54,25 +54,6 @@ namespace CarrotScript
             Pos = tokenPosition;
         }
 
-        /// <summary>
-        /// 常量构造Token
-        /// </summary>
-        /// <param name="num"></param>
-        public Token(double value, TokenPosition tokenPosition)
-        //: this(TokenType.STRING, value.ToString("G15"), tokenPosition)
-        : this(TokenType.NUM, value.ToString(), tokenPosition)
-        {
-        }
-
-        /// <summary>
-        /// 运算符构造函数
-        /// </summary>
-        /// <param name="op"></param>
-        public Token(string op, TokenPosition tokenPosition)
-        : this(TokenType.OPERATOR, op, tokenPosition)
-        {
-        }
-
         //public override readonly string ToString()
         //{
         //    string readableValue = Value
@@ -81,6 +62,7 @@ namespace CarrotScript
 
         //    return $"{{ {Type}: {readableValue} }}";
         //}
+
         public override string ToString()
         {
             return JsonSerializer.Serialize(this, new JsonSerializerOptions
