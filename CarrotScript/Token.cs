@@ -5,19 +5,32 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using static CarrotScript.LangDef;
+using static CarrotScript.Lang.Def;
 
 namespace CarrotScript
 {
     /// <summary>
     /// Token位置
     /// </summary>
-    /// <param name="line">代码行</param>
-    /// <param name="col">代码列</param>
-    public readonly struct TokenPosition(int line, int col)
+    public readonly struct TokenPosition
     {
-        public int Line { get; init; } = line;
-        public int Col { get; init; } = col;
+        public string File { get; init; }
+        public int Line { get; init; }
+        public int Col { get; init; }
+
+        /// <param name="line">代码行</param>
+        /// <param name="col">代码列</param>
+        public TokenPosition(string file, int line, int col)
+        {
+            File = file;
+            Line = line;
+            Col = col;
+        }
+
+        public override string ToString()
+        {
+            return $"{File}:{Line}:{Col}";
+        }
     }
 
     /// <summary>
@@ -36,7 +49,7 @@ namespace CarrotScript
         /// </summary>
         public string Value { get; set; }
 
-        [JsonIgnore]
+        //[JsonIgnore]
         /// <summary>
         /// 代码位置
         /// </summary>
@@ -53,15 +66,6 @@ namespace CarrotScript
             Value = value;
             Pos = tokenPosition;
         }
-
-        //public override readonly string ToString()
-        //{
-        //    string readableValue = Value
-        //        .Replace("\n", "<NEWLINE>")
-        //        .Replace(" ", "<SPACE>");
-
-        //    return $"{{ {Type}: {readableValue} }}";
-        //}
 
         public override string ToString()
         {

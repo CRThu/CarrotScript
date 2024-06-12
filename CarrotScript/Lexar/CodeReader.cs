@@ -23,7 +23,7 @@ namespace CarrotScript.Lexar
         /// </summary>
         public TokenPosition CurrentPosition
         {
-            get => new(1, Cursor + 1);
+            get => new("<null>", 1, Cursor + 1);
         }
 
         /// <summary>

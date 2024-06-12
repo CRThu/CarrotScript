@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static CarrotScript.LangDef.TokenType;
+using static CarrotScript.Lang.Def.TokenType;
 
-namespace CarrotScript
+namespace CarrotScript.Lang
 {
-    public static class LangDef
+    public static class Def
     {
         //public static string DIGITS =
         //    "0123456789."

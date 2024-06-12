@@ -1,4 +1,5 @@
-﻿using CarrotScript.Lexar;
+﻿using CarrotScript.Exception;
+using CarrotScript.Lexar;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static CarrotScript.LangDef;
+using static CarrotScript.Lang.Def;
 
 namespace CarrotScript.Lexar
 {

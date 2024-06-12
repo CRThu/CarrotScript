@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
-using static CarrotScript.LangDef;
+using static CarrotScript.Lang.Def;
 using System.Text.Json.Serialization;
 
 namespace CarrotScript.Parser
