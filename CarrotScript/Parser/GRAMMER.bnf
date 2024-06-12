@@ -1,10 +1,23 @@
-﻿UNARYOP ::= "+" | "-"
-BINARYOP ::= "+" | "-" | "*" | "/"
+# EBNF NOTATION
+# | ----------- | ------------- |
+# | 符号        | 解释          |
+# | ----------- | ------------- |
+# | ::=         | 扩充为        |
+# | ".."        | 终端符        |
+# | |           | 选择          |
+# | [..]        | 可选择        |
+# | {..}        | 可重复0-n次   |
+# | (..)        | 优先扩充顺序  |
+# | expr        | 表达式        |
+# | term        | 项            |
+# | factor      | 因子          |
 
-VAREXPR ::= ( NUM | STR ) | "(" CALCEXPR ")"
 
-UNARYOPEXPR ::=  [ UNARYOP ] VAREXPR
-BINARYOPEXPR ::=  UNARYOPEXPR {BINARYOP UNARYOPEXPR}
-CALCEXPR ::= BINARYOPEXPR
+NUM         ::=     [0-9]+
+STR         ::=     [A-Za-z_0-9]+
+IDENTIFER   ::=     [A-Za-z_0-9]+
+ATOM        ::=     ( NUM | STR | IDENTIFER )
 
-# FORMATEXPR ::= "{" BINARYOPEXPR "}"
+FACTOR      ::=     [ ( "-" ) ] ATOM | ( "(" EXPR ")" )
+TERM        ::=     FACTOR { ( "*" | "/" ) FACTOR }
+EXPR        ::=     TERM { ( "+" | "-" ) TERM }

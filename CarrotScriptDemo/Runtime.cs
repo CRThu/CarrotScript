@@ -21,9 +21,9 @@ namespace CarrotScriptDemo
         {
         }
 
-        public void Run()
+        public void Emit(string c)
         {
-            Lexar = new Lexar();
+            Lexar = new Lexar(c);
             Tokens = Lexar.Parse();
             _ = Parser.TryParse(Tokens, out ASTNode? Ast);
             this.Ast = Ast;

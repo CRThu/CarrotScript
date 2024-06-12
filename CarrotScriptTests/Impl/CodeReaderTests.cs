@@ -14,7 +14,7 @@ namespace CarrotScript.Impl.Tests
         [TestMethod()]
         public void NextTest()
         {
-            CodeReader cr = new("123\nHelloworld");\
+            CodeReader cr = new("123\nHelloworld");
             Assert.AreEqual(cr.Cursor, 3);
         }
     }

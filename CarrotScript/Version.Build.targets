@@ -1,0 +1,39 @@
+<Project>
+	<UsingTask TaskName="UpdateVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+		<ParameterGroup>
+			<VersionFile ParameterType="System.String" Required="true" />
+			<NewVersion Output="true" ParameterType="System.String" />
+		</ParameterGroup>
+		<Task>
+			<Using Namespace="System.IO" />
+			<Using Namespace="System.Text.RegularExpressions" />
+			<Code Type="Fragment" Language="cs">
+				<![CDATA[
+        string version = File.ReadAllText(VersionFile).Trim();
+        var versionParts = version.Split('.');
+        int buildNumber = int.Parse(versionParts[2]) + 1;
+        NewVersion = string.Format("{0}.{1}.{2}.{3}", versionParts[0], versionParts[1], buildNumber, versionParts[3]);
+        File.WriteAllText(VersionFile, NewVersion);
+        ]]>
+			</Code>
+		</Task>
+	</UsingTask>
+
+	<Target Name="IncrementVersion" BeforeTargets="BeforeBuild">
+		<PropertyGroup>
+			<VersionFile>Version.txt</VersionFile>
+		</PropertyGroup>
+
+		<UpdateVersion VersionFile="$(VersionFile)">
+			<Output TaskParameter="NewVersion" PropertyName="NewVersion" />
+		</UpdateVersion>
+
+		<Message Text="New Version: $(NewVersion)" Importance="high" />
+
+		<PropertyGroup>
+			<AssemblyVersion>$(NewVersion)</AssemblyVersion>
+			<FileVersion>$(NewVersion)</FileVersion>
+			<Version>$(NewVersion)</Version>
+		</PropertyGroup>
+	</Target>
+</Project>

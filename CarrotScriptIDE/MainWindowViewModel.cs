@@ -1,5 +1,4 @@
-﻿using CarrotScript.Impl.Lexar;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
@@ -7,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CarrotScript.Lexar;
 
 namespace CarrotScript
 {
@@ -24,7 +24,7 @@ namespace CarrotScript
         [RelayCommand]
         private void RunCode()
         {
-            Lexar lexar = new(inputCode);
+            Lexar.Lexar lexar = new(inputCode);
             lexar.Parse();
             StdOut += InputCode + Environment.NewLine;
             StdOut += "{" + Environment.NewLine;

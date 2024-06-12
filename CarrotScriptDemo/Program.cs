@@ -28,7 +28,7 @@ namespace CarrotScriptDemo
 
             while (true)
             {
-                Console.WriteLine();
+                Console.WriteLine($"CarrotScript Command Line Demo Ver.{Util.GetVersion()}");
                 Console.ReadLine();
             }
         }
