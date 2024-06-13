@@ -62,9 +62,9 @@ namespace CarrotScript.Lexar
                         Console.WriteLine(token);
                     continue;
                 }
-                else if (NumericParser.Parse(Cr) != 0)
+                else if (NumericScanner.Scan(Cr) != 0)
                 {
-                    int len = NumericParser.Parse(Cr);
+                    int len = NumericScanner.Scan(Cr);
                     ReadOnlySpan<char> s = Cr.GetNextSpan(len);
 
                     start = Cr.CurrentPosition;

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static CarrotScript.Lexar.NumericParser.FSM_STATUS;
+using static CarrotScript.Lexar.NumericScanner.FSM_STATUS;
 using static CarrotScript.Lang.Def;
 
 namespace CarrotScript.Lexar
 {
-    public static class NumericParser
+    public static class NumericScanner
     {
         public enum FSM_STATUS
         {
@@ -24,7 +24,7 @@ namespace CarrotScript.Lexar
         /// 解析常量
         /// </summary>
         /// <returns></returns>
-        public static int Parse(CodeReader cr)
+        public static int Scan(CodeReader cr)
         {
             // STATE:   0 1    2 3 4
             // NUMBER:  {-}123.456E-05
