@@ -52,185 +52,82 @@ namespace CarrotScript.Lexar
             Cr.Restart();
             while (Cr.HasNext())
             {
-                Token? token;
-                TokenPosition start, end;
+                TokenType type;
+                int len;
 
-                if (TryParseDelimiter(Cr, out token))
+                if (DelimiterScanner.TryScan(Cr, out type, out len))
                 {
-                    Tokens.Add((Token)token!);
-                    if (DebugInfo)
-                        Console.WriteLine(token);
+                    CreateToken(Cr, type, len);
                     continue;
                 }
-                else if (NumericScanner.Scan(Cr) != 0)
+                else if (OperatorScanner.TryScan(Cr, out type, out len))
                 {
-                    int len = NumericScanner.Scan(Cr);
-                    ReadOnlySpan<char> s = Cr.GetNextSpan(len);
-
-                    start = Cr.CurrentPosition;
-                    Cr.Advance(len);
-                    end = Cr.CurrentPosition;
-
-                    Tokens.Add(new Token(TokenType.NUMERIC, s.ToString(),
-                        new TokenSpan(ref start, ref end)));
-                    if (DebugInfo)
-                        Console.WriteLine(token);
+                    CreateToken(Cr, type, len);
                     continue;
                 }
-                else if (TryParseKeyword(Cr, out token))
+                else if (NumericScanner.TryScan(Cr, out type, out len))
                 {
-                    Tokens.Add((Token)token!);
-                    if (DebugInfo)
-                        Console.WriteLine(token);
+                    CreateToken(Cr, type, len);
                     continue;
                 }
-                else if (TryParseOperator(Cr, out token))
+                else if (KeywordScanner.TryScan(Cr, out type, out len))
                 {
-                    Tokens.Add((Token)token!);
-                    if (DebugInfo)
-                        Console.WriteLine(token);
+                    CreateToken(Cr, type, len);
                     continue;
                 }
-                else if (TryParseString(Cr, out token))
+                else if (IdentifierScanner.TryScan(Cr, out type, out len))
                 {
-                    Tokens.Add((Token)token!);
-                    if (DebugInfo)
-                        Console.WriteLine(token);
+                    CreateToken(Cr, type, len);
+                    continue;
+                }
+                else if (StringScanner.TryScan(Cr, out type, out len))
+                {
+                    CreateToken(Cr, type, len);
                     continue;
                 }
                 else
                 {
-                    start = Cr.CurrentPosition;
-                    end = Cr.CurrentPosition;
+                    TokenPosition start = Cr.CurrentPosition;
+                    TokenPosition end = Cr.CurrentPosition;
 
                     throw new InvalidSyntaxException("Lexar无法解析的语法",
                         new TokenSpan(ref start, ref end));
                 }
             }
+
+            // REMOVE EXCLUDE TOKENS
+            int occur = Tokens.RemoveAll(t => EXCLUDE_TOKENS.Contains(t.Type));
+            if (DebugInfo)
+            {
+                Console.WriteLine($"REMOVED {occur} TOKENS.");
+                if (occur != 0)
+                {
+                    Console.WriteLine("NEW TOKENS:");
+                    for (int i = 0; i < Tokens.Count; i++)
+                        Console.WriteLine(Tokens[i].ToString());
+                }
+            }
+
             return Tokens;
         }
 
-
-        /// <summary>
-        /// 匹配不同长度固定表达Token字符串并转换为字符
-        /// </summary>
-        /// <param name="chars"></param>
-        /// <param name="token"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public static bool TryMatchFixedToken(ReadOnlySpan<char> chars, TokenType[] searchTokens, out string? token, out TokenType? type)
+        private void CreateToken(CodeReader cr, TokenType type, int len)
         {
-            token = null;
-            type = null;
+            TokenPosition start, end;
 
-            for (int i = 0; i < LLTokenDict.Length; i++)
-            {
-                if (chars.Length < LLTokenDict[i].len)
-                    continue;
-                string currToken = chars.Slice(0, LLTokenDict[i].len).ToString();
-                if (LLTokenDict[i].dict.TryGetValue(currToken, out TokenType currType)
-                    && searchTokens.Contains(currType))
-                {
-                    token = currToken;
-                    type = currType;
-                    return true;
-                }
-            }
-            return false;
+            ReadOnlySpan<char> s = cr.GetNextSpan(len);
+
+            start = cr.CurrentPosition;
+            cr.Advance(len);
+            end = cr.CurrentPosition;
+
+            Token token = new Token(type, s.ToString(),
+                new TokenSpan(ref start, ref end));
+
+            Tokens.Add(token);
+            if (DebugInfo)
+                Console.WriteLine(token);
+
         }
-
-        public static bool TryParseDelimiter(CodeReader cr, out Token? token)
-        {
-            if (TryMatchFixedToken(cr.GetNextSpan(), DELIMITERS, out var matchToken, out var matchType))
-            {
-                var start = cr.CurrentPosition;
-                cr.Advance(matchToken!.Length);
-                var end = cr.CurrentPosition;
-
-                token = new Token(matchType!.Value, matchToken!,
-                    new TokenSpan(ref start, ref end));
-                return true;
-            }
-            else
-            {
-                token = null;
-                return false;
-            }
-        }
-
-        public static bool TryParseKeyword(CodeReader cr, out Token? token)
-        {
-            if (TryMatchFixedToken(cr.GetNextSpan(), KEYWORDS, out var matchToken, out var matchType))
-            {
-                var start = cr.CurrentPosition;
-                cr.Advance(matchToken!.Length);
-                var end = cr.CurrentPosition;
-
-                token = new Token(matchType!.Value, matchToken!,
-                    new TokenSpan(ref start, ref end));
-                return true;
-            }
-            else
-            {
-                token = null;
-                return false;
-            }
-        }
-
-        public static bool TryParseOperator(CodeReader cr, out Token? token)
-        {
-            if (TryMatchFixedToken(cr.GetNextSpan(), OPERATORS, out var matchToken, out var matchType))
-            {
-                var start = cr.CurrentPosition;
-                cr.Advance(matchToken!.Length);
-                var end = cr.CurrentPosition;
-
-                token = new Token(matchType!.Value, matchToken!,
-                    new TokenSpan(ref start, ref end));
-                return true;
-            }
-            else
-            {
-                token = null;
-                return false;
-            }
-        }
-        /// <summary>
-        /// 解析常量
-        /// </summary>
-        /// <returns></returns>
-        public static bool TryParseString(CodeReader cr, out Token? token)
-        {
-            int numLength = 0;
-
-            ReadOnlySpan<char> codeNext = cr.GetNextSpan();
-
-            while (cr.HasNext(numLength)
-                 && (char.IsAsciiLetterOrDigit(codeNext[numLength])
-                /*|| STRINGS.Contains(codeNext[numLength])*/))
-            {
-                numLength++;
-            }
-
-            if (numLength != 0)
-            {
-                ReadOnlySpan<char> nums = cr.GetNextSpan(numLength);
-                var matchToken = nums.ToString();
-
-                var start = cr.CurrentPosition;
-                cr.Advance(matchToken!.Length);
-                var end = cr.CurrentPosition;
-
-                token = new Token(TokenType.STRING, matchToken,
-                    new TokenSpan(ref start, ref end));
-
-                return true;
-            }
-
-            token = null;
-            return false;
-        }
-
-
     }
 }

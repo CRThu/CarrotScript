@@ -10,66 +10,44 @@ namespace CarrotScript.Lang
 {
     public static class Def
     {
+        public readonly static char[] DIGITS = "0123456789".ToCharArray();
+        public readonly static char[] LETTERS_AND_DIGITS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".ToCharArray();
+
         public readonly static char[] NUMERIC_SIGN = "+-".ToCharArray();
-        public readonly static char[] NUMERIC_DIGITS = "0123456789".ToCharArray();
+        public readonly static char[] NUMERIC_DIGITS = DIGITS;
         public readonly static char[] NUMERIC_DOTS = ".".ToCharArray();
         public readonly static char[] NUMERIC_EXPSYM = "eE".ToCharArray();
 
-        //public static string DIGITS =
-        //    "0123456789."
-        //;
+        public readonly static char[] DELIMITERS_SYM = "(){}:".ToCharArray();
+        public readonly static char[] DELIMITERS_SPACE = " \r\t\n".ToCharArray();
 
-        //public static string STRINGS =
-        //    ".;"
-        //    ;
+        public readonly static char[] STRINGS_CHARS = [.. LETTERS_AND_DIGITS, .. "_.;[]".ToCharArray()];
 
-        //public static string[] UNARY_OPERATORS = [
-        //    "+", "-"
-        //    ];
+        public readonly static char[] IDENTIFIER_CHARS = [.. LETTERS_AND_DIGITS, .. "_".ToCharArray()];
+        public readonly static char[] IDENTIFIER_FIRST_CHAR_EXCLUDE = DIGITS;
+        public readonly static char[] IDENTIFIER_FIRST_CHAR = IDENTIFIER_CHARS.Where(c => !IDENTIFIER_FIRST_CHAR_EXCLUDE.Contains(c)).ToArray();
 
-        //public static string[] BINARY_OPERATORS = [
-        //    "+", "-", "*", "/", "%", "**",
-        //    "==", "!=", ">", ">=", "<", "<=",
-        //    "="
-        //];
+        public readonly static string[] OPERATORS_SYM = [
+            "+", "-", "*", "/", "%",
+            "**",
+            "==", "!=", ">", ">=", "<", "<=",
+            "="
+        ];
 
-        //public static string[] DELIMITERS = [
-        //    "\r", "\n", "\t", " ",
-        //    "(", ")",
-        //    "{", "}",
+        public static string[] KEYWORDS_SYM = [
+            "def",
+            "begin", "end",
+            "if", "elif", "else",
+            "for", "while",
+            "true", "false",
+        ];
+
+        //public static string[] TODO_DELIMITERS = [
         //    "<<", ">>",
-        //    ":",
         //    "#",
         //];
 
-        //public static string[] KEYWORDS = [
-        //    "def",
-        //    "begin", "end",
-        //    "if", "elif", "else",
-        //    "for", "while",
-        //    "true", "false",
-        //];
-
-        /// <summary>
-        /// Token类型
-        /// </summary>
-        //public enum TokenType
-        //{
-        //    NUM,
-        //    STR,
-
-        //    OPERATOR,
-        //    KEYWORDS,
-        //    IDENTIFY,
-        //    DELIMITER
-        //}
-
-        public readonly static FrozenDictionary<string, TokenType> L2TokenDict = new Dictionary<string, TokenType>()
-        {
-            { "**", POW },
-        }.ToFrozenDictionary();
-
-        public readonly static FrozenDictionary<string, TokenType> L1TokenDict = new Dictionary<string, TokenType>()
+        public readonly static FrozenDictionary<string, TokenType> TokenDict = new Dictionary<string, TokenType>()
         {
             { "+", ADD },
             { "-", SUB },
@@ -80,7 +58,8 @@ namespace CarrotScript.Lang
             { ")", RPAREN },
 
             { " ", SPACE },
-            { "\n", NEWLINE },
+
+            { "**", POW },
 
             { "if", IF },
             { "elif", ELIF },
@@ -91,18 +70,13 @@ namespace CarrotScript.Lang
 
         }.ToFrozenDictionary();
 
-        public readonly static (FrozenDictionary<string, TokenType> dict, int len)[] LLTokenDict =
-        [
-            ( L2TokenDict!, 2 ),
-            ( L1TokenDict!, 1 )
-        ];
-
         public enum TokenType
         {
             UNKNOWN,
 
             NUMERIC,    // Const Numberic
             STRING,     // Const String
+            IDENTIFIER, // Identifier
 
             ADD,        //  +
             SUB,        //  -
@@ -114,7 +88,6 @@ namespace CarrotScript.Lang
             RPAREN,     //  )
 
             SPACE,      // <SPACE>
-            NEWLINE,    // \n
 
             IF,         // if
             ELIF,       // elif
@@ -124,9 +97,12 @@ namespace CarrotScript.Lang
             WHILE,      // while
         }
 
+        public readonly static TokenType[] EXCLUDE_TOKENS = [
+            SPACE
+        ];
+
         public readonly static TokenType[] DELIMITERS = [
             SPACE,
-            NEWLINE,
 
             LPAREN,
             RPAREN,

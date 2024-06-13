@@ -21,15 +21,18 @@ namespace CarrotScript.Lexar
         }
 
         /// <summary>
-        /// 解析常量
+        /// 扫描数字类型
         /// </summary>
+        /// <param name="cr"></param>
+        /// <param name="tokenType"></param>
+        /// <param name="length"></param>
         /// <returns></returns>
-        public static int Scan(CodeReader cr)
+        public static bool TryScan(CodeReader cr, out TokenType tokenType, out int length)
         {
             // STATE:   0 1    2 3 4
             // NUMBER:  {-}123.456E-05
             FSM_STATUS state = 0;
-            int length = 0;
+            length = 0;
             while (cr.HasNext(length))
             {
                 char c = cr.GetNextChar(length);
@@ -95,7 +98,17 @@ namespace CarrotScript.Lexar
                 if (state == END)
                     break;
             }
-            return length;
+
+            if (length != 0)
+            {
+                tokenType = TokenType.NUMERIC;
+                return true;
+            }
+            else
+            {
+                tokenType = TokenType.UNKNOWN;
+                return false;
+            }
         }
     }
 }
