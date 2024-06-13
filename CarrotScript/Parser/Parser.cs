@@ -63,7 +63,7 @@ namespace CarrotScript.Parser
                 return token.Type switch {
                     TokenType.NUMERIC => new NumericNode(token),
                     TokenType.STRING => new StringNode(token),
-                    _ => throw new ParserNotSupportedException("Parser不支持的Token类型", token.Pos),
+                    _ => throw new ParserNotSupportedException("Parser不支持的Token类型", token.Span),
                 };
             }
 
@@ -73,12 +73,12 @@ namespace CarrotScript.Parser
                 var node = ExprProc();
                 Token? token2 = CurrentToken;
                 if (token2 != null && token2.Value.Type != TokenType.RPAREN)
-                    throw new InvalidSyntaxException("Parser未找到LPAREN Token", token2.Value.Pos);
+                    throw new InvalidSyntaxException("Parser未找到LPAREN Token", token2.Value.Span);
                 Advance();
                 return node;
             }
 
-            throw new ParserNotSupportedException("Parser不支持的表达式", token.Pos);
+            throw new ParserNotSupportedException("Parser不支持的表达式", token.Span);
         }
 
         public ASTNode FactorProc()
@@ -126,7 +126,7 @@ namespace CarrotScript.Parser
 
             return BinaryOpProc(FactorProc, FACTOR_TYPE);
 
-            throw new ParserNotSupportedException("Parser不支持的表达式", CurrentToken.Value.Pos);
+            throw new ParserNotSupportedException("Parser不支持的表达式", CurrentToken.Value.Span);
         }
 
         public ASTNode CalcProc()
@@ -136,7 +136,7 @@ namespace CarrotScript.Parser
 
             return BinaryOpProc(TermProc, TERM_TYPE);
 
-            throw new ParserNotSupportedException("Parser不支持的表达式", CurrentToken.Value.Pos);
+            throw new ParserNotSupportedException("Parser不支持的表达式", CurrentToken.Value.Span);
         }
 
         public ASTNode ExprProc()
@@ -155,7 +155,7 @@ namespace CarrotScript.Parser
             var ast = ExprProc();
 
             if (CurrentToken != null)
-                throw new InvalidSyntaxException("末尾存在非法Token", CurrentToken.Value.Pos);
+                throw new InvalidSyntaxException("末尾存在非法Token", CurrentToken.Value.Span);
 
             if (DebugInfo)
                 Console.WriteLine(ast);

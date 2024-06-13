@@ -2,6 +2,7 @@
 using CarrotScript.Lexar;
 using Microsoft.VisualBasic;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -17,7 +18,7 @@ namespace CarrotScript.Lexar
         /// <summary>
         /// 代码读取器
         /// </summary>
-        public CodeReader CodeReader { get; set; }
+        public CodeReader Cr { get; set; }
 
         /// <summary>
         /// Token向量
@@ -35,7 +36,7 @@ namespace CarrotScript.Lexar
         /// <param name="code"></param>
         public Lexar(CodeReader codeReader, bool debugInfo = false)
         {
-            CodeReader = codeReader;
+            Cr = codeReader;
             Tokens = new();
             DebugInfo = debugInfo;
         }
@@ -48,32 +49,49 @@ namespace CarrotScript.Lexar
             if (DebugInfo)
                 Console.WriteLine("Lexar.Parse():");
 
-            CodeReader.Restart();
-            while (CodeReader.HasNext())
+            Cr.Restart();
+            while (Cr.HasNext())
             {
                 Token? token;
-                if (TryParseDelimiter(CodeReader, out token))
+                TokenPosition start, end;
+
+                if (TryParseDelimiter(Cr, out token))
                 {
                     Tokens.Add((Token)token!);
                     if (DebugInfo)
                         Console.WriteLine(token);
                     continue;
                 }
-                else if (TryParseKeyword(CodeReader, out token))
+                else if (NumericParser.Parse(Cr) != 0)
+                {
+                    int len = NumericParser.Parse(Cr);
+                    ReadOnlySpan<char> s = Cr.GetNextSpan(len);
+
+                    start = Cr.CurrentPosition;
+                    Cr.Advance(len);
+                    end = Cr.CurrentPosition;
+
+                    Tokens.Add(new Token(TokenType.NUMERIC, s.ToString(),
+                        new TokenSpan(ref start, ref end)));
+                    if (DebugInfo)
+                        Console.WriteLine(token);
+                    continue;
+                }
+                else if (TryParseKeyword(Cr, out token))
                 {
                     Tokens.Add((Token)token!);
                     if (DebugInfo)
                         Console.WriteLine(token);
                     continue;
                 }
-                else if (TryParseOperator(CodeReader, out token))
+                else if (TryParseOperator(Cr, out token))
                 {
                     Tokens.Add((Token)token!);
                     if (DebugInfo)
                         Console.WriteLine(token);
                     continue;
                 }
-                else if (TryParseString(CodeReader, out token))
+                else if (TryParseString(Cr, out token))
                 {
                     Tokens.Add((Token)token!);
                     if (DebugInfo)
@@ -82,8 +100,11 @@ namespace CarrotScript.Lexar
                 }
                 else
                 {
+                    start = Cr.CurrentPosition;
+                    end = Cr.CurrentPosition;
+
                     throw new InvalidSyntaxException("Lexar无法解析的语法",
-                        CodeReader.CurrentPosition);
+                        new TokenSpan(ref start, ref end));
                 }
             }
             return Tokens;
@@ -120,10 +141,14 @@ namespace CarrotScript.Lexar
 
         public static bool TryParseDelimiter(CodeReader cr, out Token? token)
         {
-            if (TryMatchFixedToken(cr.GetNext(), DELIMITERS, out var matchToken, out var matchType))
+            if (TryMatchFixedToken(cr.GetNextSpan(), DELIMITERS, out var matchToken, out var matchType))
             {
-                token = new Token(matchType!.Value, matchToken!, cr.CurrentPosition);
+                var start = cr.CurrentPosition;
                 cr.Advance(matchToken!.Length);
+                var end = cr.CurrentPosition;
+
+                token = new Token(matchType!.Value, matchToken!,
+                    new TokenSpan(ref start, ref end));
                 return true;
             }
             else
@@ -135,10 +160,14 @@ namespace CarrotScript.Lexar
 
         public static bool TryParseKeyword(CodeReader cr, out Token? token)
         {
-            if (TryMatchFixedToken(cr.GetNext(), KEYWORDS, out var matchToken, out var matchType))
+            if (TryMatchFixedToken(cr.GetNextSpan(), KEYWORDS, out var matchToken, out var matchType))
             {
-                token = new Token(matchType!.Value, matchToken!, cr.CurrentPosition);
+                var start = cr.CurrentPosition;
                 cr.Advance(matchToken!.Length);
+                var end = cr.CurrentPosition;
+
+                token = new Token(matchType!.Value, matchToken!,
+                    new TokenSpan(ref start, ref end));
                 return true;
             }
             else
@@ -150,10 +179,14 @@ namespace CarrotScript.Lexar
 
         public static bool TryParseOperator(CodeReader cr, out Token? token)
         {
-            if (TryMatchFixedToken(cr.GetNext(), OPERATORS, out var matchToken, out var matchType))
+            if (TryMatchFixedToken(cr.GetNextSpan(), OPERATORS, out var matchToken, out var matchType))
             {
-                token = new Token(matchType!.Value, matchToken!, cr.CurrentPosition);
+                var start = cr.CurrentPosition;
                 cr.Advance(matchToken!.Length);
+                var end = cr.CurrentPosition;
+
+                token = new Token(matchType!.Value, matchToken!,
+                    new TokenSpan(ref start, ref end));
                 return true;
             }
             else
@@ -170,7 +203,7 @@ namespace CarrotScript.Lexar
         {
             int numLength = 0;
 
-            ReadOnlySpan<char> codeNext = cr.GetNext();
+            ReadOnlySpan<char> codeNext = cr.GetNextSpan();
 
             while (cr.HasNext(numLength)
                  && (char.IsAsciiLetterOrDigit(codeNext[numLength])
@@ -181,10 +214,16 @@ namespace CarrotScript.Lexar
 
             if (numLength != 0)
             {
-                ReadOnlySpan<char> nums = cr.GetNext(numLength);
-                var matchConst = nums.ToString();
-                token = new Token(TokenType.STRING, matchConst, cr.CurrentPosition);
-                cr.Advance(matchConst!.Length);
+                ReadOnlySpan<char> nums = cr.GetNextSpan(numLength);
+                var matchToken = nums.ToString();
+
+                var start = cr.CurrentPosition;
+                cr.Advance(matchToken!.Length);
+                var end = cr.CurrentPosition;
+
+                token = new Token(TokenType.STRING, matchToken,
+                    new TokenSpan(ref start, ref end));
+
                 return true;
             }
 
@@ -192,78 +231,6 @@ namespace CarrotScript.Lexar
             return false;
         }
 
-        ///// <summary>
-        ///// 解析常量
-        ///// </summary>
-        ///// <returns></returns>
-        //public Token ParseValue()
-        //{
-        //    // STATE:   0 1    2 3 4
-        //    // NUMBER:  + 1.02 E + 03
-        //    List<char> val = new(16);
-        //    short state = 0;
-        //    while (cr.HasNext())
-        //    {
-        //        char nc = cr.GetNext();
-
-        //        switch (state)
-        //        {
-        //            case 0:
-        //                // +/-
-        //                if (nc.Equals('-') || nc.Equals('+'))
-        //                {
-        //                    val.Add(cr.AdvanceNext());
-        //                }
-        //                state = 1;
-        //                break;
-        //            case 1:
-        //                // 1.02
-        //                if (char.IsDigit(nc) || nc.Equals('.'))
-        //                {
-        //                    val.Add(cr.AdvanceNext());
-        //                }
-        //                else
-        //                {
-        //                    state = 2;
-        //                }
-        //                break;
-        //            case 2:
-        //                // e/E
-        //                if (nc.Equals('e') || nc.Equals('E'))
-        //                {
-        //                    val.Add(cr.AdvanceNext());
-        //                    state = 3;
-        //                }
-        //                else
-        //                {
-        //                    state = 5;
-        //                }
-        //                break;
-        //            case 3:
-        //                // +/-
-        //                if (nc.Equals('-') || nc.Equals('+'))
-        //                {
-        //                    val.Add(cr.AdvanceNext());
-        //                }
-        //                state = 4;
-        //                break;
-        //            case 4:
-        //                // 03
-        //                if (char.IsDigit(nc))
-        //                {
-        //                    val.Add(cr.AdvanceNext());
-        //                }
-        //                else
-        //                {
-        //                    state = 5;
-        //                }
-        //                break;
-        //        }
-        //        if (state == 5)
-        //            break;
-        //    }
-        //    return new Token(TokenType.CONST, string.Concat(val));
-        //}
 
     }
 }

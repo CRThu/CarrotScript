@@ -24,6 +24,13 @@ namespace CarrotScript
             Col = col;
         }
 
+        public TokenPosition(TokenPosition currentPosition) : this()
+        {
+            File = currentPosition.File;
+            Line = currentPosition.Line;
+            Col = currentPosition.Col;
+        }
+
         public override string ToString()
         {
             return $"{File}:{Line}:{Col}";

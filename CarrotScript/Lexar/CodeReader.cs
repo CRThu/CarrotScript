@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -91,7 +92,7 @@ namespace CarrotScript.Lexar
         /// 获取游标偏移所指字符串
         /// </summary>
         /// <returns></returns>
-        public ReadOnlySpan<char> GetNext()
+        public ReadOnlySpan<char> GetNextSpan()
         {
             return Code.AsSpan(Cursor);
         }
@@ -100,7 +101,7 @@ namespace CarrotScript.Lexar
         /// 获取游标偏移所指字符串
         /// </summary>
         /// <returns></returns>
-        public ReadOnlySpan<char> GetNext(int length = 0)
+        public ReadOnlySpan<char> GetNextSpan(int length)
         {
             return Code.AsSpan(Cursor, length);
         }
@@ -113,6 +114,25 @@ namespace CarrotScript.Lexar
         public bool HasNext(int offset = 0)
         {
             return Cursor + offset <= Code.Length - 1;
+        }
+
+        public char GetNextChar(int offset)
+        {
+            return Code[Cursor + offset];
+        }
+
+        public bool TryGetNextChar(int offset, out char? c)
+        {
+            if (HasNext(offset))
+            {
+                c = GetNextChar(offset);
+                return true;
+            }
+            else
+            {
+                c = null;
+                return false;
+            }
         }
     }
 }

@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace CarrotScript.Parser
 {
-    public class ParseResult
+    public class ParseStackTrace
     {
+        public ParseStackTrace(Func<ASTNode> func)
+        {
+
+        }
     }
 }

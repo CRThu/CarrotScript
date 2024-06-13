@@ -29,23 +29,24 @@ namespace CarrotScript
         /// <summary>
         /// 代码位置
         /// </summary>
-        public TokenPosition Pos { get; set; }
+        public TokenSpan Span { get; set; }
 
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="tokenType"></param>
         /// <param name="value"></param>
-        public Token(TokenType tokenType, string value, TokenPosition tokenPosition)
+        public Token(TokenType tokenType, string value, TokenSpan span)
         {
             Type = tokenType;
             Value = value;
-            Pos = tokenPosition;
+            Span = span;
         }
 
         public override string ToString()
         {
-            return JsonSerializer.Serialize(this, new JsonSerializerOptions {
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions
+            {
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             });
         }

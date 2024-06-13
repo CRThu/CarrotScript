@@ -2,12 +2,12 @@
 {
     public class InvalidSyntaxException : ExceptionBase
     {
-        public InvalidSyntaxException(TokenPosition? pos)
+        public InvalidSyntaxException(TokenSpan? pos)
         : base("InvalidSyntaxException", pos)
         {
         }
 
-        public InvalidSyntaxException(string msg, TokenPosition? pos)
+        public InvalidSyntaxException(string msg, TokenSpan? pos)
         : base(msg, pos)
         {
         }

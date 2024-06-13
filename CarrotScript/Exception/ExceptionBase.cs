@@ -9,14 +9,14 @@ namespace CarrotScript.Exception
     public class ExceptionBase : System.Exception
     {
         public string Msg { get; set; }
-        public TokenPosition? Position { get; set; }
+        public TokenSpan? Position { get; set; }
 
         public ExceptionBase(string msg)
         {
             Msg = msg;
         }
 
-        public ExceptionBase(string msg, TokenPosition? pos)
+        public ExceptionBase(string msg, TokenSpan? pos)
         {
             Msg = msg;
             Position = pos;

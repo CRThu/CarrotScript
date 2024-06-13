@@ -10,6 +10,11 @@ namespace CarrotScript.Lang
 {
     public static class Def
     {
+        public readonly static char[] NUMERIC_SIGN = "+-".ToCharArray();
+        public readonly static char[] NUMERIC_DIGITS = "0123456789".ToCharArray();
+        public readonly static char[] NUMERIC_DOTS = ".".ToCharArray();
+        public readonly static char[] NUMERIC_EXPSYM = "eE".ToCharArray();
+
         //public static string DIGITS =
         //    "0123456789."
         //;

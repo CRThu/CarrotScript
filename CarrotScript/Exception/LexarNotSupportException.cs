@@ -7,12 +7,12 @@
 
         }
 
-        public LexarNotSupportedException(TokenPosition? pos)
+        public LexarNotSupportedException(TokenSpan? pos)
         : base("InvalidSyntaxException", pos)
         {
         }
 
-        public LexarNotSupportedException(string msg, TokenPosition? pos)
+        public LexarNotSupportedException(string msg, TokenSpan? pos)
         : base(msg, pos)
         {
         }
