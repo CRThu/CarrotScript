@@ -32,7 +32,7 @@ namespace CarrotScriptTests
             var tokens = lexar.Parse();
 
             Assert.AreEqual(1, tokens.Count);
-            Assert.AreEqual(123, tokens[0].Value);
+            Assert.AreEqual("123", tokens[0].Value);
             Assert.AreEqual(TokenType.NUMERIC, tokens[0].Type);
         }
 
@@ -43,9 +43,11 @@ namespace CarrotScriptTests
             Lexar lexar = new(codeReader);
             var tokens = lexar.Parse();
 
-            Assert.AreEqual(1, tokens.Count);
-            Assert.AreEqual(-123, tokens[0].Value);
-            Assert.AreEqual(TokenType.NUMERIC, tokens[0].Type);
+            Assert.AreEqual(2, tokens.Count);
+            Assert.AreEqual("-", tokens[0].Value);
+            Assert.AreEqual(TokenType.SUB, tokens[0].Type);
+            Assert.AreEqual("123", tokens[1].Value);
+            Assert.AreEqual(TokenType.NUMERIC, tokens[1].Type);
         }
 
         [TestMethod()]
@@ -56,11 +58,11 @@ namespace CarrotScriptTests
             var tokens = lexar.Parse();
 
             Assert.AreEqual(3, tokens.Count);
-            Assert.AreEqual(1, tokens[0].Value);
+            Assert.AreEqual("1", tokens[0].Value);
             Assert.AreEqual(TokenType.NUMERIC, tokens[0].Type);
             Assert.AreEqual("+", tokens[1].Value);
             Assert.AreEqual(TokenType.ADD, tokens[1].Type);
-            Assert.AreEqual(3, tokens[2].Value);
+            Assert.AreEqual("3", tokens[2].Value);
             Assert.AreEqual(TokenType.NUMERIC, tokens[2].Type);
         }
 
@@ -72,11 +74,11 @@ namespace CarrotScriptTests
             var tokens = lexar.Parse();
 
             Assert.AreEqual(3, tokens.Count);
-            Assert.AreEqual(1, tokens[0].Value);
+            Assert.AreEqual("1", tokens[0].Value);
             Assert.AreEqual(TokenType.NUMERIC, tokens[0].Type);
             Assert.AreEqual("*", tokens[1].Value);
             Assert.AreEqual(TokenType.MUL, tokens[1].Type);
-            Assert.AreEqual(3, tokens[2].Value);
+            Assert.AreEqual("3", tokens[2].Value);
             Assert.AreEqual(TokenType.NUMERIC, tokens[2].Type);
         }
 
