@@ -1,0 +1,6 @@
+<?carrotxml version="1.0" encoding="utf-8"?>
+<add>
+    <?def a="1" type="num"?>
+    <?def b="2" type="num"?>
+    1+2={a+b};
+</add>
