@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CarrotScriptTests", "Carrot
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CarrotScriptIDE", "CarrotScriptIDE\CarrotScriptIDE.csproj", "{ED93ABAF-DD09-45A1-A4E7-D59FFDABE71D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarrotScript", "CarrotScript\CarrotScript.csproj", "{92F2DBBD-C5D1-4C31-8012-D4EE243D14C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CarrotScript", "CarrotScript\CarrotScript.csproj", "{92F2DBBD-C5D1-4C31-8012-D4EE243D14C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarrotScriptDemo", "CarrotScriptDemo\CarrotScriptDemo.csproj", "{E8BDECE0-7578-4B8C-95EE-BD325D087014}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CarrotScriptDemo", "CarrotScriptDemo\CarrotScriptDemo.csproj", "{E8BDECE0-7578-4B8C-95EE-BD325D087014}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

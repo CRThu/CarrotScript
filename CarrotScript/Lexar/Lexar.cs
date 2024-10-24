@@ -25,6 +25,8 @@ namespace CarrotScript.Lexar
         /// </summary>
         public List<Token> Tokens { get; set; }
 
+        public States States { get; set; }
+
         /// <summary>
         /// 是否为调试模式
         /// </summary>

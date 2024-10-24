@@ -70,9 +70,28 @@ namespace CarrotScript.Lang
 
         }.ToFrozenDictionary();
 
+        public enum States
+        {
+            Xml,
+            XmlComment,
+            XmlPI,
+            XmlTag,
+            w
+        }
+
         public enum TokenType
         {
             UNKNOWN,
+
+            // CARROTXML
+            XML_TAG_START,
+            XML_ATTR_NAME,
+            XML_ATTR_VALUE,
+            XML_CONTENT,
+            XML_TAG_END,
+            XML_PI_TARGET,
+            XML_PI_ATTR_NAME,
+            XML_PI_ATTR_VALUE,
 
             NUMERIC,    // Const Numberic
             STRING,     // Const String
