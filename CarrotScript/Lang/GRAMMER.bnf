@@ -68,10 +68,32 @@ comment.
 ############################################
 (* CarrotXML EBNF Defination *)
 
-SPACE               ::= [#x9 | #xA | #xD | #x20]+       (* TAB | LF | CR | SPACE *)
-PRINTABLE           ::= [#x21-#x7E]                     (* ASCII PRINTABLE CHAR *)
-CHAR                ::= SPACE | PRINTABLE
+PrintableChar       ::= [#x21-#x7E]                         (* ASCII PRINTABLE CHAR *)
+Char                ::= #x9 | #xA | #xD | [#x20-#x7E]
+Space               ::= (#x9 | #xA | #xD | #x20)+           (* TAB | LF | CR | SPACE *)
+Byte                ::= [#x0-#xFF]                          (* DATA BYTE *)
 
+NameStartChar	    ::= ":" | "_" | [A-Z] | [a-z]
+NameChar	        ::= NameStartChar | "-" | "." | [0-9]
+Name                ::= NameStartChar (NameChar)*
+
+Comment             ::= '<!--' (Char)* '-->'                (* <!-- COMMENT --> *)
+
+PI                  ::= '<?' Name Space (Char)* '?>'        (* <?PI a="a" b="b" ?>*)
+
+BDATASection        ::= BDATAStart BDATA BDATAEnd           (* <![BDATA[---BINARY HERE---]]> *)
+BDATAStart          ::= '<![BDATA['
+BDATA               ::= (BYTE)*
+BDATAEnd            ::= ']]>'
+
+STag                ::= '<' Name (Space Attribute)* S? '>'  (* <tag a="a" b="b"> *)
+Attribute           ::= Name Eq AttValue
+Eq                  ::= Space? '=' Space?
+AttValue            ::= '"' (Char)* '"'
+ETag                ::= '</' Name '>'                       (* </tag> *)
+EmptyElemTag        ::= '<' Name (Space Attribute)* S? '/>' (* <tag/> *)
+Element             ::= EmptyElemTag | STag Content ETag
+Content             ::= Char? ((Element | BDATASection | PI | Comment) Char?)*
 
 ############################################
 
