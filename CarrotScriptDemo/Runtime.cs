@@ -29,8 +29,8 @@ namespace CarrotScriptDemo
                 CodeReader codeReader = new("<NULL>", code);
                 Lexar Lexar = new Lexar(codeReader, DebugInfo);
                 Tokens = Lexar.Parse();
-                Parser parser = new Parser(Tokens, DebugInfo);
-                Ast = parser.Parse();
+                //Parser parser = new Parser(Tokens, DebugInfo);
+                //Ast = parser.Parse();
             }
             catch (Exception ex)
             {

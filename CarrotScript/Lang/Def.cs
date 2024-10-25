@@ -5,11 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static CarrotScript.Lang.Def.TokenType;
+using static CarrotScript.Lang.Def.Symbol;
 
 namespace CarrotScript.Lang
 {
     public static class Def
     {
+        /*
         public readonly static char[] DIGITS = "0123456789".ToCharArray();
         public readonly static char[] LETTERS_AND_DIGITS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".ToCharArray();
 
@@ -46,9 +48,12 @@ namespace CarrotScript.Lang
         //    "<<", ">>",
         //    "#",
         //];
+        */
 
-        public readonly static FrozenDictionary<string, TokenType> TokenDict = new Dictionary<string, TokenType>()
+
+        public readonly static FrozenDictionary<string, Symbol> SymbolDict = new Dictionary<string, Symbol>()
         {
+            /*
             { "+", ADD },
             { "-", SUB },
             { "*", MUL },
@@ -67,16 +72,32 @@ namespace CarrotScript.Lang
 
             { "for", FOR },
             { "while", WHILE },
+            */
+
+            // CarrotXml
+            {"<", LT },
+            {">", GT },
+            {"\"", QUOT },
+            {"\'", QUOT },
+            {"=", EQ },
+            {"/", DIV },
+            {" ", SP },
+            {"\t", SP },
+            {"\r", SP },
+            {"\n", SP },
+            {"!", EXCL },
+            {"?", QUEST },
 
         }.ToFrozenDictionary();
 
-        public enum States
+        public enum XmlState
         {
-            Xml,
-            XmlComment,
-            XmlPI,
-            XmlTag,
-            w
+            XmlContent,
+            XmlTagBegin,
+            XmlTagName,
+            XmlAttrName,
+            XmlAttrValue,
+            XmlTagEnd
         }
 
         public enum TokenType
@@ -93,6 +114,7 @@ namespace CarrotScript.Lang
             XML_PI_ATTR_NAME,
             XML_PI_ATTR_VALUE,
 
+            /*
             NUMERIC,    // Const Numberic
             STRING,     // Const String
             IDENTIFIER, // Identifier
@@ -114,8 +136,27 @@ namespace CarrotScript.Lang
 
             FOR,        // for
             WHILE,      // while
+            */
         }
 
+        public enum Symbol
+        {
+            // Default
+            CHAR,       // Any Ascii            |   Ascii 
+
+            // CarrotXml
+            LT,         // '<'                  |   Less than
+            GT,         // '>'                  |   Greater than
+            QUOT,       // ''' | '"'            |   Quote
+            EQ,         // '='                  |   Equals
+            DIV,        // '/'                  |   Slash or Divide
+            SP,         // ' ' | '\t' | '\n'    |   Space or CR or LF
+            EXCL,       // '!'                  |   Exclamation
+            QUEST,      // '?'                  |   Question
+
+        }
+
+        /*
         public readonly static TokenType[] EXCLUDE_TOKENS = [
             SPACE
         ];
@@ -165,6 +206,6 @@ namespace CarrotScript.Lang
             ADD,
             SUB,
         ];
-
+        */
     }
 }

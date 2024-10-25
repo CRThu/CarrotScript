@@ -18,14 +18,16 @@ namespace CarrotScript.Lexar
         /// <summary>
         /// 代码读取器
         /// </summary>
-        public CodeReader Cr { get; set; }
+        public CodeReader Reader { get; set; }
 
         /// <summary>
         /// Token向量
         /// </summary>
         public List<Token> Tokens { get; set; }
 
-        public States States { get; set; }
+        public XmlState CurrentState { get; set; }
+
+        public Dictionary<string, object> Context { get; set; }
 
         /// <summary>
         /// 是否为调试模式
@@ -38,8 +40,10 @@ namespace CarrotScript.Lexar
         /// <param name="code"></param>
         public Lexar(CodeReader codeReader, bool debugInfo = false)
         {
-            Cr = codeReader;
+            Reader = codeReader;
             Tokens = new();
+            CurrentState = XmlState.XmlContent;
+            Context = new();
             DebugInfo = debugInfo;
         }
 
@@ -51,7 +55,10 @@ namespace CarrotScript.Lexar
             if (DebugInfo)
                 Console.WriteLine("Lexar.Parse():");
 
-            Cr.Restart();
+            while (CarrotXmlScanner.TryScan(this))
+                ;
+
+            /*
             while (Cr.HasNext())
             {
                 TokenType type;
@@ -109,27 +116,21 @@ namespace CarrotScript.Lexar
                         Console.WriteLine(Tokens[i].ToString());
                 }
             }
-
+            */
             return Tokens;
         }
 
-        private void CreateToken(CodeReader cr, TokenType type, int len)
+        public void CreateToken(TokenType type, TokenPosition start, TokenPosition end)
         {
-            TokenPosition start, end;
-
-            ReadOnlySpan<char> s = cr.GetNextSpan(len);
-
-            start = cr.CurrentPosition;
-            cr.Advance(len);
-            end = cr.CurrentPosition;
+            ReadOnlySpan<char> s = Reader.GetSpan(start, end);
 
             Token token = new Token(type, s.ToString(),
-                new TokenSpan(ref start, ref end));
+                new TokenSpan(start, end));
 
             Tokens.Add(token);
             if (DebugInfo)
                 Console.WriteLine(token);
-
         }
+
     }
 }

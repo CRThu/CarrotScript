@@ -11,7 +11,7 @@ namespace CarrotScript
         public TokenPosition Start { get; set; }
         public TokenPosition End { get; set; }
 
-        public TokenSpan(ref TokenPosition start, ref TokenPosition end)
+        public TokenSpan(TokenPosition start, TokenPosition end)
         {
             Start = start;
             End = end;

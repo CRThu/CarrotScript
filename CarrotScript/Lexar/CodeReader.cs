@@ -20,16 +20,9 @@ namespace CarrotScript.Lexar
         public string Code { get; set; }
 
         /// <summary>
-        /// 访问游标
+        /// 游标位置
         /// </summary>
-        public int Cursor { get; set; }
-
-        private TokenPosition currentPosition;
-
-        /// <summary>
-        /// 当前游标所指向代码坐标
-        /// </summary>
-        public TokenPosition CurrentPosition => currentPosition;
+        public TokenPosition CurrentPosition { get; set; }
 
         /// <summary>
         /// 构造函数
@@ -38,7 +31,7 @@ namespace CarrotScript.Lexar
         {
             File = "<NULL>";
             Code = string.Empty;
-            Restart();
+            CurrentPosition = new TokenPosition(File, 0, 1, 1);
         }
 
         /// <summary>
@@ -49,90 +42,71 @@ namespace CarrotScript.Lexar
         {
             File = file;
             Code = code;
-            Restart();
-        }
-
-        /// <summary>
-        /// 游标返回指向代码头
-        /// </summary>
-        public void Restart()
-        {
-            Cursor = 0;
-            currentPosition = new TokenPosition(File, 1, 1);
-        }
-
-        /// <summary>
-        /// 前进游标
-        /// </summary>
-        /// <returns></returns>
-        public void Advance(int offset = 0)
-        {
-            UpdatePosition(offset);
-            Cursor += offset;
-        }
-
-        public void UpdatePosition(int offset = 0)
-        {
-            ReadOnlySpan<char> chars = Code.AsSpan(Cursor, offset);
-            for (int i = 0; i < chars.Length; i++)
-            {
-                if (chars[i] == '\n')
-                {
-                    currentPosition.Line += 1;
-                    currentPosition.Col = 1;
-                }
-                else
-                {
-                    currentPosition.Col += 1;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 获取游标偏移所指字符串
-        /// </summary>
-        /// <returns></returns>
-        public ReadOnlySpan<char> GetNextSpan()
-        {
-            return Code.AsSpan(Cursor);
-        }
-
-        /// <summary>
-        /// 获取游标偏移所指字符串
-        /// </summary>
-        /// <returns></returns>
-        public ReadOnlySpan<char> GetNextSpan(int length)
-        {
-            return Code.AsSpan(Cursor, length);
+            CurrentPosition = new TokenPosition(File, 0, 1, 1);
         }
 
         /// <summary>
         /// 是否到文件结尾
         /// </summary>
-        /// <param name="offset"></param>
         /// <returns></returns>
-        public bool HasNext(int offset = 0)
+        public bool HasNext()
         {
-            return Cursor + offset <= Code.Length - 1;
+            return CurrentPosition.Offset <= Code.Length - 1;
         }
 
-        public char GetNextChar(int offset)
+        public char GetChar()
         {
-            return Code[Cursor + offset];
+            return Code[CurrentPosition.Offset];
         }
 
-        public bool TryGetNextChar(int offset, out char? c)
+        public bool Advance()
         {
-            if (HasNext(offset))
+            string newFile = CurrentPosition.File!;
+            int newOffset = CurrentPosition.Offset;
+            int newLine = CurrentPosition.Line;
+            int newCol = CurrentPosition.Col;
+
+            newOffset += 1;
+
+            char c = GetChar();
+
+            if (c == '\n')
             {
-                c = GetNextChar(offset);
-                return true;
+                newLine += 1;
+                newCol = 1;
             }
             else
             {
-                c = null;
+                newCol += 1;
+            }
+
+            CurrentPosition = new TokenPosition(newFile, newOffset, newLine, newCol);
+
+
+            if (!HasNext())
+            {
                 return false;
             }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 获取所指字符串
+        /// </summary>
+        /// <returns></returns>
+        public ReadOnlySpan<char> GetSpan(int start, int end)
+        {
+            return Code.AsSpan(start, end - start + 1);
+        }
+
+        /// <summary>
+        /// 获取所指字符串
+        /// </summary>
+        /// <returns></returns>
+        public ReadOnlySpan<char> GetSpan(TokenPosition start, TokenPosition end)
+        {
+            return GetSpan(start.Offset, end.Offset);
         }
     }
 }

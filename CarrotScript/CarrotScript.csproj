@@ -13,4 +13,15 @@
 		<FileVersion>$(NewVersion)</FileVersion>
 		<Version>$(NewVersion)</Version>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Lexar\DelimiterScanner.cs" />
+	  <Compile Remove="Lexar\IdentifierScanner.cs" />
+	  <Compile Remove="Lexar\KeywordScanner.cs" />
+	  <Compile Remove="Lexar\NumericScanner.cs" />
+	  <Compile Remove="Lexar\OperatorScanner.cs" />
+	  <Compile Remove="Lexar\StringScanner.cs" />
+	  <Compile Remove="Parser\Parser.cs" />
+	  <Compile Remove="Parser\ParseStackTrace.cs" />
+	</ItemGroup>
 </Project>

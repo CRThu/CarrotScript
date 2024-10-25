@@ -39,7 +39,7 @@ namespace CarrotScript.Parser
         {
             TokenPosition startPos = (Left == null) ? Value.Span.Start : Left.Value.Span.Start;
             TokenPosition endPos = (Right == null) ? Value.Span.Start : Right.Value.Span.Start;
-            return new TokenSpan(ref startPos, ref endPos);
+            return new TokenSpan(startPos, endPos);
         }
     }
 
@@ -47,7 +47,7 @@ namespace CarrotScript.Parser
     {
         public NumericNode(Token token) : base(token)
         {
-            Type = TokenType.NUMERIC;
+            Type = TokenType.UNKNOWN;
         }
     }
 
@@ -55,7 +55,7 @@ namespace CarrotScript.Parser
     {
         public StringNode(Token token) : base(token)
         {
-            Type = TokenType.STRING;
+            Type = TokenType.UNKNOWN;
         }
     }
 
