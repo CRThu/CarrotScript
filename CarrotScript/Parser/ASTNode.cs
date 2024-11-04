@@ -12,18 +12,23 @@ namespace CarrotScript.Parser
     public abstract class ASTNode : NodeBase<Token>
     {
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public TokenType Type { get; set; }
+        public NodeType Type { get; set; }
 
         public TokenSpan Span => GetSpan();
 
+        public ASTNode() : base()
+        {
+            Type = NodeType.UNKNOWN;
+        }
+
         public ASTNode(Token token) : base(token)
         {
-            Type = TokenType.UNKNOWN;
+            Type = NodeType.UNKNOWN;
         }
 
         public ASTNode(Token token, ASTNode? left = null, ASTNode? right = null) : base(token, left, right)
         {
-            Type = TokenType.UNKNOWN;
+            Type = NodeType.UNKNOWN;
         }
 
         public override string ToString()
@@ -38,7 +43,7 @@ namespace CarrotScript.Parser
         private TokenSpan GetSpan()
         {
             TokenPosition startPos = (Left == null) ? Value.Span.Start : Left.Value.Span.Start;
-            TokenPosition endPos = (Right == null) ? Value.Span.Start : Right.Value.Span.Start;
+            TokenPosition endPos = (Right == null) ? Value.Span.End : Right.Value.Span.End;
             return new TokenSpan(startPos, endPos);
         }
     }
@@ -47,7 +52,7 @@ namespace CarrotScript.Parser
     {
         public NumericNode(Token token) : base(token)
         {
-            Type = TokenType.UNKNOWN;
+            Type = NodeType.NUMERIC;
         }
     }
 
@@ -55,7 +60,18 @@ namespace CarrotScript.Parser
     {
         public StringNode(Token token) : base(token)
         {
-            Type = TokenType.UNKNOWN;
+            Type = NodeType.STRING;
+        }
+    }
+
+    public class NullNode : ASTNode
+    {
+        public new TokenSpan Span { get; set; }
+
+        public NullNode(TokenSpan span) : base()
+        {
+            Type = NodeType.NULL;
+            Span = span;
         }
     }
 
@@ -63,7 +79,7 @@ namespace CarrotScript.Parser
     {
         public UnaryOpNode(Token op, ASTNode right) : base(op, left: null, right: right)
         {
-            Type = op.Type;
+            Type = NodeType.UNARYOP;
         }
     }
 
@@ -71,7 +87,7 @@ namespace CarrotScript.Parser
     {
         public BinaryOpNode(Token op, ASTNode left, ASTNode right) : base(op, left: left, right: right)
         {
-            Type = op.Type;
+            Type = NodeType.BINARYOP;
         }
     }
 }

@@ -207,5 +207,17 @@ namespace CarrotScript.Lang
             SUB,
         ];
         */
+        public enum NodeType
+        {
+            UNKNOWN,
+
+            NULL,           // NULL
+            NUMERIC,        // Const Numberic
+            STRING,         // Const String
+            IDENTIFIER,     // Identifier
+
+            UNARYOP,        // UNARYOP
+            BINARYOP,       // BINARYOP
+        }
     }
 }

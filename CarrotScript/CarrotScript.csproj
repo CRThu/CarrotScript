@@ -21,7 +21,5 @@
 	  <Compile Remove="Lexar\NumericScanner.cs" />
 	  <Compile Remove="Lexar\OperatorScanner.cs" />
 	  <Compile Remove="Lexar\StringScanner.cs" />
-	  <Compile Remove="Parser\Parser.cs" />
-	  <Compile Remove="Parser\ParseStackTrace.cs" />
 	</ItemGroup>
 </Project>
