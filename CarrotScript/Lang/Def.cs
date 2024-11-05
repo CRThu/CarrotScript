@@ -82,9 +82,9 @@ namespace CarrotScript.Lang
             {"=", EQ },
             {"/", DIV },
             {" ", SP },
-            {"\t", SP },
-            {"\r", SP },
-            {"\n", SP },
+            {"\t", TAB },
+            {"\r", CR },
+            {"\n", LF },
             {"!", EXCL },
             {"?", QUEST },
 
@@ -98,6 +98,11 @@ namespace CarrotScript.Lang
             XmlAttrName,
             XmlAttrValue,
             XmlTagEnd
+        }
+
+        public enum ScriptState
+        {
+            Root
         }
 
         public enum TokenType
@@ -150,10 +155,12 @@ namespace CarrotScript.Lang
             QUOT,       // ''' | '"'            |   Quote
             EQ,         // '='                  |   Equals
             DIV,        // '/'                  |   Slash or Divide
-            SP,         // ' ' | '\t' | '\n'    |   Space or CR or LF
+            SP,         // ' '                  |   Space
+            TAB,        // '\t'                 |   Horizontal Tab
+            CR,         // '\r'                 |   Carriage Return
+            LF,         // '\n'                 |   Line Feed
             EXCL,       // '!'                  |   Exclamation
             QUEST,      // '?'                  |   Question
-
         }
 
         /*

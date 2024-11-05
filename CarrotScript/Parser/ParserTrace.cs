@@ -9,12 +9,12 @@ namespace CarrotScript.Parser
 {
     public class ParserTrace
     {
-        public ASTNode Node { get; set; }
+        public ASTNode? Node { get; set; }
         public ExceptionBase? Error { get; set; }
 
         public ParserTrace()
         {
-
+            
         }
 
         public ParserTrace SetError(ExceptionBase error)

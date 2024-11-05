@@ -46,6 +46,25 @@ namespace CarrotScript.Parser
             return CurrentToken;
         }
 
+        /*
+        public ASTNode Factor()
+        {
+            //ParserTrace trace = new ParserTrace();
+            //trace.Check(Advance());
+            Token? token = CurrentToken;
+            if (token != null)
+            {
+                if (token.Value.Type == TokenType.XML_TAG_START)
+                {
+                    Advance();
+                    ASTNode node = new StringNode(token.Value);
+                }
+                else
+                {
+                    throw new InvalidSyntaxException(token.Value.Span);
+                }
+            }
+        }
         /// <summary>
         /// BNF GRAMMER<br/>
         /// ATOM        ::=     ( NUM | STR | IDENTIFER ) | ( "(" EXPR ")" )<br/>
@@ -162,5 +181,6 @@ namespace CarrotScript.Parser
 
             return ast;
         }
+        */
     }
 }

@@ -45,10 +45,13 @@ namespace CarrotScript
 
         public override string ToString()
         {
+            return $"{{\"type\" = \"{Type}\", \"Value\" = \"{Value}\", \"Span\" = \"{Span}\"}}";
+            /*
             return JsonSerializer.Serialize(this, new JsonSerializerOptions
             {
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             });
+            */
         }
     }
 }

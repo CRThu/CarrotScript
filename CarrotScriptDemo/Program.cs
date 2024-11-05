@@ -9,19 +9,23 @@ namespace CarrotScriptDemo
     {
         static void Main(string[] args)
         {
-            Runtime runtime = new Runtime();
-
             Console.WriteLine($"CarrotScript {CarrotScript.Version.GetVersion()}");
             Console.WriteLine($"Command Line Runner");
+
             while (true)
             {
-                Console.Write($">>");
-                var l = Console.ReadLine();
+                Console.WriteLine($">>");
+                List<string> s = new List<string>();
+                string? input;
 
-                if (string.IsNullOrEmpty(l))
-                    continue;
+                while (!string.IsNullOrEmpty(input = Console.ReadLine()))
+                {
+                    s.Add(input);
+                }
+                string code = string.Concat(s);
 
-                runtime.Emit(l);
+                Runtime runtime = new Runtime();
+                runtime.Emit(code);
             }
         }
     }

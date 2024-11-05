@@ -17,7 +17,7 @@ namespace CarrotScript.Lexar
         {
             char c = lex.Reader.GetChar();
             bool hasToken = SymbolDict.TryGetValue(c!.ToString(), out Symbol tok);
-            if(!hasToken)
+            if (!hasToken)
             {
                 tok = CHAR;
             }
@@ -36,6 +36,26 @@ namespace CarrotScript.Lexar
                                 lex.Context.Remove("XmlContent.StartPosition");
                             }
                             lex.CurrentState = XmlState.XmlTagBegin;
+                            break;
+                        case SP:
+                        case TAB:
+                            lex.Context["XmlContent.EndPosition"] = lex.Reader.CurrentPosition;
+                            lex.CurrentState = XmlState.XmlContent;
+                            break;
+                        case CR:
+                        case LF:
+                            if (lex.Context.ContainsKey("XmlContent.StartPosition"))
+                            {
+                                lex.CreateToken(XML_CONTENT,
+                                    (TokenPosition)lex.Context["XmlContent.StartPosition"],
+                                    (TokenPosition)lex.Context["XmlContent.EndPosition"]);
+                                lex.Context.Remove("XmlContent.StartPosition");
+                            }
+                            else
+                            {
+                                lex.Context["XmlContent.EndPosition"] = lex.Reader.CurrentPosition;
+                            }
+                            lex.CurrentState = XmlState.XmlContent;
                             break;
                         default:
                             if (!lex.Context.ContainsKey("XmlContent.StartPosition"))

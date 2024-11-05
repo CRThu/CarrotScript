@@ -124,8 +124,7 @@ namespace CarrotScript.Lexar
         {
             ReadOnlySpan<char> s = Reader.GetSpan(start, end);
 
-            Token token = new Token(type, s.ToString(),
-                new TokenSpan(start, end));
+            Token token = new Token(type, s.ToString(), new TokenSpan(start, end));
 
             Tokens.Add(token);
             if (DebugInfo)
