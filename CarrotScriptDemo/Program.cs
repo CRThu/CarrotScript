@@ -22,7 +22,7 @@ namespace CarrotScriptDemo
                 {
                     s.Add(input);
                 }
-                string code = string.Concat(s);
+                string code = string.Join("\r\n", s);
 
                 Runtime runtime = new Runtime();
                 runtime.Emit(code);
