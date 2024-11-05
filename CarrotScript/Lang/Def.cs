@@ -95,6 +95,7 @@ namespace CarrotScript.Lang
             XmlContent,
             XmlTagBegin,
             XmlTagName,
+            XmlPiTagName,
             XmlAttrName,
             XmlAttrValue,
             XmlTagEnd

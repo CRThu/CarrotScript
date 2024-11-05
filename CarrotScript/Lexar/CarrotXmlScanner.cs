@@ -13,7 +13,7 @@ namespace CarrotScript.Lexar
 {
     public class CarrotXmlScanner
     {
-        public static bool TryScan(Lexar lex)
+        public static bool Scan(Lexar lex)
         {
             char c = lex.Reader.GetChar();
             bool hasToken = SymbolDict.TryGetValue(c!.ToString(), out Symbol tok);
@@ -79,6 +79,11 @@ namespace CarrotScript.Lexar
                             lex.Context["IsEndTag"] = true;
                             lex.CurrentState = XmlState.XmlTagName;
                             break;
+                        // ..< ? ...
+                        case QUEST:
+                            lex.Context["IsPiTag"] = true;
+                            lex.CurrentState = XmlState.XmlPiTagName;
+                            break;
                         default:
                             if (!lex.Context.ContainsKey("XmlTagName.StartPosition"))
                             {
@@ -114,6 +119,63 @@ namespace CarrotScript.Lexar
                                 lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
                             }
                             lex.CurrentState = XmlState.XmlTagName;
+                            break;
+                    }
+                    break;
+                case XmlState.XmlPiTagName:
+                    switch (tok)
+                    {
+                        // <?.. ? ...
+                        case QUEST:
+                            lex.Context["XmlPiTagName.MaybeTagEnd"] = true;
+                            if (!lex.Context.ContainsKey("XmlTagName.StartPosition"))
+                            {
+                                lex.Context["XmlTagName.StartPosition"] = lex.Reader.CurrentPosition;
+                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
+                            }
+                            else
+                            {
+                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
+                            }
+                            lex.CurrentState = XmlState.XmlPiTagName;
+                            break;
+                        case GT:
+                            if (lex.Context.ContainsKey("XmlPiTagName.MaybeTagEnd"))
+                            {
+                                lex.CreateToken(XML_PI_TARGET,
+                                    (TokenPosition)lex.Context["XmlTagName.StartPosition"],
+                                    (TokenPosition)lex.Context["XmlTagName.EndPosition"]);
+                                lex.Context.Remove("XmlTagName.StartPosition");
+                                lex.Context.Remove("XmlPiTagName.MaybeTagEnd");
+                                lex.CurrentState = XmlState.XmlContent;
+                            }
+                            else
+                            {
+                                if (!lex.Context.ContainsKey("XmlTagName.StartPosition"))
+                                {
+                                    lex.Context["XmlTagName.StartPosition"] = lex.Reader.CurrentPosition;
+                                    lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
+                                }
+                                else
+                                {
+                                    lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
+                                }
+                                lex.Context["XmlPiTagName.MaybeTagEnd"] = false;
+                                lex.CurrentState = XmlState.XmlPiTagName;
+                            }
+                            break;
+                        default:
+                            if (!lex.Context.ContainsKey("XmlTagName.StartPosition"))
+                            {
+                                lex.Context["XmlTagName.StartPosition"] = lex.Reader.CurrentPosition;
+                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
+                            }
+                            else
+                            {
+                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
+                            }
+                            lex.Context["XmlPiTagName.MaybeTagEnd"] = false;
+                            lex.CurrentState = XmlState.XmlPiTagName;
                             break;
                     }
                     break;

@@ -55,7 +55,7 @@ namespace CarrotScript.Lexar
             if (DebugInfo)
                 Console.WriteLine("Lexar.Parse():");
 
-            while (CarrotXmlScanner.TryScan(this))
+            while (CarrotXmlScanner.Scan(this))
                 ;
 
             /*

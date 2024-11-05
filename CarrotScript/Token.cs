@@ -45,7 +45,7 @@ namespace CarrotScript
 
         public override string ToString()
         {
-            return $"{{\"type\" = \"{Type}\", \"Value\" = \"{Value}\", \"Span\" = \"{Span}\"}}";
+            return $"{{\"type\" = \"{Type}\", \"value\" = \"{Value}\", \"span\" = \"{Span}\"}}";
             /*
             return JsonSerializer.Serialize(this, new JsonSerializerOptions
             {
