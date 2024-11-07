@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CarrotScript.Lexar
+namespace CarrotScript.Reader
 {
     public class CodeReader
     {

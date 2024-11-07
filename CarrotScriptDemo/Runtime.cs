@@ -1,6 +1,7 @@
 ﻿using CarrotScript;
 using CarrotScript.Lexar;
 using CarrotScript.Parser;
+using CarrotScript.Reader;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,8 +28,15 @@ namespace CarrotScriptDemo
             try
             {
                 CodeReader codeReader = new("<NULL>", code);
-                Lexar Lexar = new Lexar(codeReader, DebugInfo);
-                Tokens = Lexar.Parse();
+
+                LexarPipeline lexarPipeline = new LexarPipeline();
+                lexarPipeline.AddLexar(new CarrotXmlLexar());
+                lexarPipeline.AddLexar(new CarrotScriptLexar());
+                lexarPipeline.AddReader(codeReader);
+                lexarPipeline.Process();
+
+                //Lexar Lexar = new Lexar(codeReader, DebugInfo);
+                //Tokens = Lexar.Parse();
                 //Parser parser = new Parser(Tokens, DebugInfo);
                 //Ast = parser.Parse();
             }

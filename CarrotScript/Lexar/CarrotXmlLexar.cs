@@ -11,7 +11,7 @@ using static CarrotScript.Lang.Def.Symbol;
 
 namespace CarrotScript.Lexar
 {
-    public class CarrotXmlScanner
+    public class CarrotXmlLexar : ILexar
     {
         public static bool Scan(Lexar lex)
         {
@@ -188,6 +188,11 @@ namespace CarrotScript.Lexar
                 return false;
             }
             return true;
+        }
+
+        public IEnumerable<Token> Tokenize(IEnumerable<Token> tokens)
+        {
+            throw new NotImplementedException();
         }
     }
 }

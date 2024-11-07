@@ -109,6 +109,8 @@ namespace CarrotScript.Lang
         public enum TokenType
         {
             UNKNOWN,
+            // ROOT
+            ROOT,
 
             // CARROTXML
             XML_TAG_START,

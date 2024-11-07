@@ -12,7 +12,7 @@ namespace CarrotScript
     /// <summary>
     /// Token实现
     /// </summary>
-    public struct Token
+    public class Token
     {
         [JsonConverter(typeof(JsonStringEnumConverter))]
         /// <summary>
@@ -32,6 +32,11 @@ namespace CarrotScript
         public TokenSpan Span { get; set; }
 
         /// <summary>
+        /// 子Token
+        /// </summary>
+        public List<Token> Children { get; set; }
+
+        /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="tokenType"></param>
@@ -41,11 +46,18 @@ namespace CarrotScript
             Type = tokenType;
             Value = value;
             Span = span;
+            Children = new List<Token>();
         }
 
         public override string ToString()
         {
-            return $"{{\"type\" = \"{Type}\", \"value\" = \"{Value}\", \"span\" = \"{Span}\"}}";
+            string tokenString = $"{{\"type\" = \"{Type}\", \"value\" = \"{Value}\", \"span\" = \"{Span}\"}}";
+            foreach (Token token in Children)
+            {
+                tokenString += "\n\t";
+                tokenString += token.ToString();
+            }
+            return tokenString;
             /*
             return JsonSerializer.Serialize(this, new JsonSerializerOptions
             {

@@ -1,4 +1,5 @@
 ﻿using CarrotScript.Lexar;
+using CarrotScript.Reader;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;

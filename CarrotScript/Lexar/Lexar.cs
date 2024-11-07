@@ -1,5 +1,5 @@
 ﻿using CarrotScript.Exception;
-using CarrotScript.Lexar;
+using CarrotScript.Reader;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections;
@@ -55,7 +55,10 @@ namespace CarrotScript.Lexar
             if (DebugInfo)
                 Console.WriteLine("Lexar.Parse():");
 
-            while (CarrotXmlScanner.Scan(this))
+            while (CarrotXmlLexar.Scan(this))
+                ;
+
+            while (CarrotScriptLexar.Scan(this))
                 ;
 
             /*
