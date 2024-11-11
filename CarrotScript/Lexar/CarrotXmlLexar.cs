@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using static CarrotScript.Lang.Def;
 using static CarrotScript.Lang.Def.TokenType;
 using static CarrotScript.Lang.Def.Symbol;
+using CarrotScript.Reader;
 
 namespace CarrotScript.Lexar
 {
@@ -15,7 +16,7 @@ namespace CarrotScript.Lexar
     {
         public static bool Scan(Lexar lex)
         {
-            char c = lex.Reader.GetChar();
+            char? c = lex.Reader.Peek();
             bool hasToken = SymbolDict.TryGetValue(c!.ToString(), out Symbol tok);
             if (!hasToken)
             {
@@ -31,15 +32,15 @@ namespace CarrotScript.Lexar
                             if (lex.Context.ContainsKey("XmlContent.StartPosition"))
                             {
                                 lex.CreateToken(XML_CONTENT,
-                                    (TokenPosition)lex.Context["XmlContent.StartPosition"],
-                                    (TokenPosition)lex.Context["XmlContent.EndPosition"]);
+                                    (CodePosition)lex.Context["XmlContent.StartPosition"],
+                                    (CodePosition)lex.Context["XmlContent.EndPosition"]);
                                 lex.Context.Remove("XmlContent.StartPosition");
                             }
                             lex.CurrentState = XmlState.XmlTagBegin;
                             break;
                         case SP:
                         case TAB:
-                            lex.Context["XmlContent.EndPosition"] = lex.Reader.CurrentPosition;
+                            lex.Context["XmlContent.EndPosition"] = lex.Reader.Position;
                             lex.CurrentState = XmlState.XmlContent;
                             break;
                         case CR:
@@ -47,25 +48,25 @@ namespace CarrotScript.Lexar
                             if (lex.Context.ContainsKey("XmlContent.StartPosition"))
                             {
                                 lex.CreateToken(XML_CONTENT,
-                                    (TokenPosition)lex.Context["XmlContent.StartPosition"],
-                                    (TokenPosition)lex.Context["XmlContent.EndPosition"]);
+                                    (CodePosition)lex.Context["XmlContent.StartPosition"],
+                                    (CodePosition)lex.Context["XmlContent.EndPosition"]);
                                 lex.Context.Remove("XmlContent.StartPosition");
                             }
                             else
                             {
-                                lex.Context["XmlContent.EndPosition"] = lex.Reader.CurrentPosition;
+                                lex.Context["XmlContent.EndPosition"] = lex.Reader.Position;
                             }
                             lex.CurrentState = XmlState.XmlContent;
                             break;
                         default:
                             if (!lex.Context.ContainsKey("XmlContent.StartPosition"))
                             {
-                                lex.Context["XmlContent.StartPosition"] = lex.Reader.CurrentPosition;
-                                lex.Context["XmlContent.EndPosition"] = lex.Reader.CurrentPosition;
+                                lex.Context["XmlContent.StartPosition"] = lex.Reader.Position;
+                                lex.Context["XmlContent.EndPosition"] = lex.Reader.Position;
                             }
                             else
                             {
-                                lex.Context["XmlContent.EndPosition"] = lex.Reader.CurrentPosition;
+                                lex.Context["XmlContent.EndPosition"] = lex.Reader.Position;
                             }
                             lex.CurrentState = XmlState.XmlContent;
                             break;
@@ -87,8 +88,8 @@ namespace CarrotScript.Lexar
                         default:
                             if (!lex.Context.ContainsKey("XmlTagName.StartPosition"))
                             {
-                                lex.Context["XmlTagName.StartPosition"] = lex.Reader.CurrentPosition;
-                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
+                                lex.Context["XmlTagName.StartPosition"] = lex.Reader.Position;
+                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
                             }
                             lex.CurrentState = XmlState.XmlTagName;
                             break;
@@ -102,8 +103,8 @@ namespace CarrotScript.Lexar
                             lex.CreateToken(
                                 lex.Context.ContainsKey("IsEndTag")
                                     ? XML_TAG_END : XML_TAG_START,
-                                (TokenPosition)lex.Context["XmlTagName.StartPosition"],
-                                (TokenPosition)lex.Context["XmlTagName.EndPosition"]);
+                                (CodePosition)lex.Context["XmlTagName.StartPosition"],
+                                (CodePosition)lex.Context["XmlTagName.EndPosition"]);
                             lex.Context.Remove("XmlTagName.StartPosition");
                             lex.Context.Remove("IsEndtag");
                             lex.CurrentState = XmlState.XmlContent;
@@ -111,12 +112,12 @@ namespace CarrotScript.Lexar
                         default:
                             if (!lex.Context.ContainsKey("XmlTagName.StartPosition"))
                             {
-                                lex.Context["XmlTagName.StartPosition"] = lex.Reader.CurrentPosition;
-                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
+                                lex.Context["XmlTagName.StartPosition"] = lex.Reader.Position;
+                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
                             }
                             else
                             {
-                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
+                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
                             }
                             lex.CurrentState = XmlState.XmlTagName;
                             break;
@@ -130,12 +131,12 @@ namespace CarrotScript.Lexar
                             lex.Context["XmlPiTagName.MaybeTagEnd"] = true;
                             if (!lex.Context.ContainsKey("XmlTagName.StartPosition"))
                             {
-                                lex.Context["XmlTagName.StartPosition"] = lex.Reader.CurrentPosition;
-                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
+                                lex.Context["XmlTagName.StartPosition"] = lex.Reader.Position;
+                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
                             }
                             else
                             {
-                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
+                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
                             }
                             lex.CurrentState = XmlState.XmlPiTagName;
                             break;
@@ -143,8 +144,8 @@ namespace CarrotScript.Lexar
                             if (lex.Context.ContainsKey("XmlPiTagName.MaybeTagEnd"))
                             {
                                 lex.CreateToken(XML_PI_TARGET,
-                                    (TokenPosition)lex.Context["XmlTagName.StartPosition"],
-                                    (TokenPosition)lex.Context["XmlTagName.EndPosition"]);
+                                    (CodePosition)lex.Context["XmlTagName.StartPosition"],
+                                    (CodePosition)lex.Context["XmlTagName.EndPosition"]);
                                 lex.Context.Remove("XmlTagName.StartPosition");
                                 lex.Context.Remove("XmlPiTagName.MaybeTagEnd");
                                 lex.CurrentState = XmlState.XmlContent;
@@ -153,12 +154,12 @@ namespace CarrotScript.Lexar
                             {
                                 if (!lex.Context.ContainsKey("XmlTagName.StartPosition"))
                                 {
-                                    lex.Context["XmlTagName.StartPosition"] = lex.Reader.CurrentPosition;
-                                    lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
+                                    lex.Context["XmlTagName.StartPosition"] = lex.Reader.Position;
+                                    lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
                                 }
                                 else
                                 {
-                                    lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
+                                    lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
                                 }
                                 lex.Context["XmlPiTagName.MaybeTagEnd"] = false;
                                 lex.CurrentState = XmlState.XmlPiTagName;
@@ -167,12 +168,12 @@ namespace CarrotScript.Lexar
                         default:
                             if (!lex.Context.ContainsKey("XmlTagName.StartPosition"))
                             {
-                                lex.Context["XmlTagName.StartPosition"] = lex.Reader.CurrentPosition;
-                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
+                                lex.Context["XmlTagName.StartPosition"] = lex.Reader.Position;
+                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
                             }
                             else
                             {
-                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.CurrentPosition;
+                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
                             }
                             lex.Context["XmlPiTagName.MaybeTagEnd"] = false;
                             lex.CurrentState = XmlState.XmlPiTagName;
@@ -183,16 +184,12 @@ namespace CarrotScript.Lexar
                     break;
             }
 
-            if (!lex.Reader.Advance())
-            {
-                return false;
-            }
             return true;
         }
 
         public IEnumerable<Token> Tokenize(IEnumerable<Token> tokens)
         {
-            throw new NotImplementedException();
+            return tokens;
         }
     }
 }

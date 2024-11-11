@@ -20,7 +20,7 @@ namespace CarrotScript.Lexar
 
     public class LexarPipeline
     {
-        public List<CodeReader> Readers = new List<CodeReader>();
+        public List<StringCodeReader> Readers = new List<StringCodeReader>();
         public List<ILexar> Lexars = new List<ILexar>();
 
         public void AddLexar(ILexar lexar)
@@ -28,7 +28,7 @@ namespace CarrotScript.Lexar
             Lexars.Add(lexar);
         }
 
-        public void AddReader(CodeReader reader)
+        public void AddReader(StringCodeReader reader)
         {
             Readers.Add(reader);
         }

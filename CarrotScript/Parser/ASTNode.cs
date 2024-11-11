@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using static CarrotScript.Lang.Def;
 using System.Text.Json.Serialization;
+using CarrotScript.Reader;
 
 namespace CarrotScript.Parser
 {
@@ -42,8 +43,8 @@ namespace CarrotScript.Parser
 
         private TokenSpan GetSpan()
         {
-            TokenPosition startPos = (Left == null) ? Value.Span.Start : Left.Value.Span.Start;
-            TokenPosition endPos = (Right == null) ? Value.Span.End : Right.Value.Span.End;
+            CodePosition startPos = (Left == null) ? Value.Span.Start : Left.Value.Span.Start;
+            CodePosition endPos = (Right == null) ? Value.Span.End : Right.Value.Span.End;
             return new TokenSpan(startPos, endPos);
         }
     }

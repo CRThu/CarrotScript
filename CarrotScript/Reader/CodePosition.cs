@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CarrotScript
+namespace CarrotScript.Reader
 {
     /// <summary>
     /// Token位置
     /// </summary>
-    public struct TokenPosition
+    public struct CodePosition
     {
         public string? File { get; set; }
         public int Offset { get; set; }
@@ -18,7 +18,7 @@ namespace CarrotScript
 
         /// <param name="line">代码行</param>
         /// <param name="col">代码列</param>
-        public TokenPosition(string file, int offset, int line, int col)
+        public CodePosition(string file, int offset, int line, int col)
         {
             File = file;
             Offset = offset;
@@ -26,7 +26,7 @@ namespace CarrotScript
             Col = col;
         }
 
-        public TokenPosition(TokenPosition currentPosition) : this()
+        public CodePosition(CodePosition currentPosition) : this()
         {
             File = currentPosition.File;
             Offset = currentPosition.Offset;

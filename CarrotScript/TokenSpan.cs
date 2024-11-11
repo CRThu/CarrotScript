@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CarrotScript.Reader;
 
 namespace CarrotScript
 {
     public struct TokenSpan
     {
-        public TokenPosition Start { get; set; }
-        public TokenPosition End { get; set; }
+        public CodePosition Start { get; set; }
+        public CodePosition End { get; set; }
 
-        public TokenSpan(TokenPosition start, TokenPosition end)
+        public TokenSpan(CodePosition start, CodePosition end)
         {
             Start = start;
             End = end;

@@ -19,5 +19,9 @@ namespace CarrotScript.Reader
         /// <returns></returns>
         public char? Read();
 
+        /// <summary>
+        /// 当前游标位置
+        /// </summary>
+        public CodePosition Position { get;  }
     }
 }

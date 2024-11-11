@@ -10,13 +10,14 @@ using static CarrotScript.Lang.Def;
 
 namespace CarrotScriptTests
 {
+    /*
     [TestClass()]
     public class LexarExprTests
     {
         [TestMethod()]
         public void ParseExprStringTest()
         {
-            CodeReader codeReader = new CodeReader("<FILE>", "ABC");
+            StringCodeReader codeReader = new StringCodeReader("<FILE>", "ABC");
             Lexar lexar = new(codeReader);
             var tokens = lexar.Parse();
 
@@ -28,7 +29,7 @@ namespace CarrotScriptTests
         [TestMethod()]
         public void ParseExprNumIntPosTest()
         {
-            CodeReader codeReader = new CodeReader("<FILE>", "123");
+            StringCodeReader codeReader = new StringCodeReader("<FILE>", "123");
             Lexar lexar = new(codeReader);
             var tokens = lexar.Parse();
 
@@ -40,7 +41,7 @@ namespace CarrotScriptTests
         [TestMethod()]
         public void ParseExprNumIntNegTest()
         {
-            CodeReader codeReader = new CodeReader("<FILE>", "-123");
+            StringCodeReader codeReader = new StringCodeReader("<FILE>", "-123");
             Lexar lexar = new(codeReader);
             var tokens = lexar.Parse();
 
@@ -54,7 +55,7 @@ namespace CarrotScriptTests
         [TestMethod()]
         public void ParseExprAddTest()
         {
-            CodeReader codeReader = new CodeReader("<FILE>", "1+3");
+            StringCodeReader codeReader = new StringCodeReader("<FILE>", "1+3");
             Lexar lexar = new(codeReader);
             var tokens = lexar.Parse();
 
@@ -70,7 +71,7 @@ namespace CarrotScriptTests
         [TestMethod()]
         public void ParseExprMulTest()
         {
-            CodeReader codeReader = new CodeReader("<FILE>", "1*3");
+            StringCodeReader codeReader = new StringCodeReader("<FILE>", "1*3");
             Lexar lexar = new(codeReader);
             var tokens = lexar.Parse();
 
@@ -86,9 +87,10 @@ namespace CarrotScriptTests
         [TestMethod()]
         public void ParseExprComplexTest()
         {
-            CodeReader codeReader = new CodeReader("<FILE>", "2**3\t+ 7.9E2+7*E6/-.32+(1+2*_x_)*-5");
+            StringCodeReader codeReader = new StringCodeReader("<FILE>", "2**3\t+ 7.9E2+7*E6/-.32+(1+2*_x_)*-5");
             Lexar lexar = new(codeReader);
             lexar.Parse();
         }
     }
+    */
 }

@@ -13,12 +13,13 @@ using static CarrotScript.Lang.Def;
 
 namespace CarrotScript.Lexar
 {
+
     public class Lexar
     {
         /// <summary>
         /// 代码读取器
         /// </summary>
-        public CodeReader Reader { get; set; }
+        public StringCodeReader Reader { get; set; }
 
         /// <summary>
         /// Token向量
@@ -38,7 +39,7 @@ namespace CarrotScript.Lexar
         /// 构造函数
         /// </summary>
         /// <param name="code"></param>
-        public Lexar(CodeReader codeReader, bool debugInfo = false)
+        public Lexar(StringCodeReader codeReader, bool debugInfo = false)
         {
             Reader = codeReader;
             Tokens = new();
@@ -50,17 +51,17 @@ namespace CarrotScript.Lexar
         /// <summary>
         /// 主解析方法
         /// </summary>
-        public List<Token> Parse()
+        public List<Token> Tokenize()
         {
             if (DebugInfo)
                 Console.WriteLine("Lexar.Parse():");
-
-            while (CarrotXmlLexar.Scan(this))
+            /*
+            while (CarrotXmlLexar.Tokenize(this))
                 ;
 
-            while (CarrotScriptLexar.Scan(this))
+            while (CarrotScriptLexar.Tokenize(this))
                 ;
-
+            */
             /*
             while (Cr.HasNext())
             {
@@ -123,7 +124,8 @@ namespace CarrotScript.Lexar
             return Tokens;
         }
 
-        public void CreateToken(TokenType type, TokenPosition start, TokenPosition end)
+        /*
+        public void CreateToken(TokenType type, CodePosition start, CodePosition end)
         {
             ReadOnlySpan<char> s = Reader.GetSpan(start, end);
 
@@ -133,6 +135,7 @@ namespace CarrotScript.Lexar
             if (DebugInfo)
                 Console.WriteLine(token);
         }
+        */
 
     }
 }

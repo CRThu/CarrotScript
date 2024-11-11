@@ -25,7 +25,7 @@ namespace CarrotScript
         private void RunCode()
         {
             Lexar.Lexar lexar = new(new CodeReader("<NULL>", inputCode));
-            lexar.Parse();
+            lexar.Tokenize();
             StdOut += InputCode + Environment.NewLine;
             StdOut += "{" + Environment.NewLine;
             foreach (var t in lexar.Tokens)
