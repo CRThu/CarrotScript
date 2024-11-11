@@ -5,7 +5,8 @@ namespace CarrotScript.Lexar
     {
         public IEnumerable<Token> Tokenize(IEnumerable<Token> tokens)
         {
-            throw new NotImplementedException();
+            return tokens;
+            //throw new NotImplementedException();
         }
     }
 }

@@ -14,8 +14,20 @@ namespace CarrotScript.Lexar
 {
     public class CarrotXmlLexar : ILexar
     {
-        public static bool Scan(Lexar lex)
+        public IEnumerable<Token> Tokenize(IEnumerable<Token> tokens)
         {
+            List<Token> result = new List<Token>();
+            foreach (Token token in tokens)
+            {
+                TokenReader reader = new TokenReader(token);
+                char? c;
+                while ((c = reader.Peek()) != null)
+                {
+                    result.Add(new Token(TokenType.UNKNOWN, reader.Read().ToString(), new TokenSpan(reader.Position, reader.Position)));
+
+                }
+            }
+            /*
             char? c = lex.Reader.Peek();
             bool hasToken = SymbolDict.TryGetValue(c!.ToString(), out Symbol tok);
             if (!hasToken)
@@ -183,13 +195,8 @@ namespace CarrotScript.Lexar
                 default:
                     break;
             }
-
-            return true;
-        }
-
-        public IEnumerable<Token> Tokenize(IEnumerable<Token> tokens)
-        {
-            return tokens;
+            */
+            return result;
         }
     }
 }

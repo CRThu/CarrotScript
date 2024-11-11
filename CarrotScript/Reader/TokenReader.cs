@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CarrotScript.Reader
 {
-    public class StringCodeReader : ICodeReader
+    public class TokenReader : ITokenReader
     {
         /// <summary>
         /// 代码文件名
@@ -28,19 +28,19 @@ namespace CarrotScript.Reader
         /// <summary>
         /// 游标位置
         /// </summary>
-        public CodePosition Position => new CodePosition(File, 0, 1, 1);
+        public CodePosition Position => new CodePosition(File, Offset, Line, Column);
 
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="code"></param>
-        public StringCodeReader(string code)
+        public TokenReader(Token token)
         {
             File = "<input>";
-            Code = code;
-            Offset = 0;
-            Line = 1;
-            Column = 1;
+            Code = token.Value;
+            Offset = token.Span.Start.Offset;
+            Line = token.Span.Start.Line;
+            Column = token.Span.Start.Col;
         }
 
         public char? Peek()

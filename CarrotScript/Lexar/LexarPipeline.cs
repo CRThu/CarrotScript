@@ -20,27 +20,43 @@ namespace CarrotScript.Lexar
 
     public class LexarPipeline
     {
-        public List<StringCodeReader> Readers = new List<StringCodeReader>();
-        public List<ILexar> Lexars = new List<ILexar>();
+        public string Code { get; set; } = "";
+        //public List<StringCodeReader> Readers = new List<StringCodeReader>();
+        public List<ILexar> Lexars { get; set; } = new List<ILexar>();
+        public bool DebugInfo { get; set; }
 
         public void AddLexar(ILexar lexar)
         {
             Lexars.Add(lexar);
         }
 
-        public void AddReader(StringCodeReader reader)
-        {
-            Readers.Add(reader);
-        }
+        //public void AddReader(StringCodeReader reader)
+        //{
+        //    Readers.Add(reader);
+        //}
 
         public IEnumerable<Token> Process()
         {
-            List<Token> tokens = new List<Token> { new Token(TokenType.ROOT, "", default) };
+            List<Token> tokens = new List<Token>();
+            tokens.Add(new Token(TokenType.ROOT, Code, new TokenSpan()));
+
             IEnumerable<Token> currTokens = tokens;
+
+            if (DebugInfo)
+            {
+                foreach (var token in currTokens)
+                    Console.WriteLine(token.ToString());
+            }
 
             foreach (var lex in Lexars)
             {
                 currTokens = lex.Tokenize(currTokens);
+
+                if (DebugInfo)
+                {
+                    foreach (var token in currTokens)
+                        Console.WriteLine(token.ToString());
+                }
             }
 
             return currTokens;

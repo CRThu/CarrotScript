@@ -27,12 +27,14 @@ namespace CarrotScriptDemo
         {
             try
             {
-                StringCodeReader codeReader = new("<NULL>", code);
+                //StringCodeReader codeReader = new(code);
 
                 LexarPipeline lexarPipeline = new LexarPipeline();
+                lexarPipeline.DebugInfo = true;
                 lexarPipeline.AddLexar(new CarrotXmlLexar());
-                lexarPipeline.AddLexar(new CarrotScriptLexar());
-                lexarPipeline.AddReader(codeReader);
+                //lexarPipeline.AddLexar(new CarrotScriptLexar());
+                //lexarPipeline.AddReader(codeReader);
+                lexarPipeline.Code = code;
                 lexarPipeline.Process();
 
                 //Lexar Lexar = new Lexar(codeReader, DebugInfo);

@@ -31,10 +31,10 @@ namespace CarrotScript
         /// </summary>
         public TokenSpan Span { get; set; }
 
-        /// <summary>
-        /// 子Token
-        /// </summary>
-        public List<Token> Children { get; set; }
+        ///// <summary>
+        ///// 子Token
+        ///// </summary>
+        //public List<Token> Children { get; set; }
 
         /// <summary>
         /// 构造函数
@@ -46,17 +46,17 @@ namespace CarrotScript
             Type = tokenType;
             Value = value;
             Span = span;
-            Children = new List<Token>();
+            //Children = new List<Token>();
         }
 
         public override string ToString()
         {
-            string tokenString = $"{{\"type\" = \"{Type}\", \"value\" = \"{Value}\", \"span\" = \"{Span}\"}}";
-            foreach (Token token in Children)
-            {
-                tokenString += "\n\t";
-                tokenString += token.ToString();
-            }
+            string tokenString = $"{{\"type\" = \"{Type}\", \"value\" = \"{RemoveUnprintableAscii(Value)}\", \"span\" = \"{Span}\"}}";
+            //foreach (Token token in Children)
+            //{
+            //    tokenString += "\n\t";
+            //    tokenString += token.ToString();
+            //}
             return tokenString;
             /*
             return JsonSerializer.Serialize(this, new JsonSerializerOptions
@@ -64,6 +64,11 @@ namespace CarrotScript
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             });
             */
+        }
+
+        public string RemoveUnprintableAscii(string i)
+        {
+            return i.Replace(" ", "\\s").Replace("\t", "\\t").Replace("\r", "\\r").Replace("\n", "\\n");
         }
     }
 }

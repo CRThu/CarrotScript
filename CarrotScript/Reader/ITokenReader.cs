@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CarrotScript.Reader
 {
-    public interface ICodeReader
+    public interface ITokenReader
     {
         /// <summary>
         /// 返回下一个字符但不前进游标
