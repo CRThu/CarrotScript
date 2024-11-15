@@ -1,0 +1,9 @@
+<? pitag ?>
+<tag>
+    <nest>
+        <br/>
+    </nest>
+</tag>
+<?pitag2 attr1="val1" attr2="val2"?>
+<tag2 attr3="val3" attr4="val4"></tag2>
+<tag3 attr5="val5" attr5="val5"/>

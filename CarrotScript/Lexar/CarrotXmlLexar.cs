@@ -20,9 +20,9 @@ namespace CarrotScript.Lexar
             foreach (Token token in tokens)
             {
                 TokenReader reader = new TokenReader(token);
+                // check reader has read to end or not
                 while (reader.Peek() != null)
                 {
-                    //result.Add(new Token(TokenType.UNKNOWN, reader.Read().ToString(), new TokenSpan(reader.Position, reader.Position)));
                     char? c = reader.Read();
                     Symbol? sym = c.ToSymbol();
 
@@ -34,20 +34,26 @@ namespace CarrotScript.Lexar
                         {
                             // ..< / ...
                             reader.Read();
-                            Flush(result, XML_TAG_END, "</...", reader.Position, reader.Position);
-
+                            CloseTagLexar(reader, result);
+                            //Flush(result, XML_TAG_END, "</...", reader.Position, reader.Position);
                         }
                         else if (sym2 == QUEST)
                         {
                             // ..< ? ...
                             reader.Read();
-                            Flush(result, XML_PI_TARGET, "<?...", reader.Position, reader.Position);
+                            PiTagLexar(reader, result);
+                            //Flush(result, XML_PI_TARGET, "<?...", reader.Position, reader.Position);
                         }
                         else
                         {
                             // ..< . ...
-                            Flush(result, XML_TAG_START, "<...", reader.Position, reader.Position);
+                            TagLexar(reader, result);
+                            //Flush(result, XML_TAG_START, "<...", reader.Position, reader.Position);
                         }
+                    }
+                    else if (sym == SP || sym == TAB || sym == CR || sym == LF)
+                    {
+                        reader.Read();
                     }
                     else
                     {
@@ -56,175 +62,6 @@ namespace CarrotScript.Lexar
                     }
                 }
             }
-            /*
-            char? c = lex.Reader.Peek();
-            bool hasToken = SymbolDict.TryGetValue(c!.ToString(), out Symbol tok);
-            if (!hasToken)
-            {
-                tok = CHAR;
-            }
-            switch (lex.CurrentState)
-            {
-                case XmlState.XmlContent:
-                    switch (tok)
-                    {
-                        // ... < ...
-                        case LT:
-                            if (lex.Context.ContainsKey("XmlContent.StartPosition"))
-                            {
-                                lex.CreateToken(XML_CONTENT,
-                                    (CodePosition)lex.Context["XmlContent.StartPosition"],
-                                    (CodePosition)lex.Context["XmlContent.EndPosition"]);
-                                lex.Context.Remove("XmlContent.StartPosition");
-                            }
-                            lex.CurrentState = XmlState.XmlTagBegin;
-                            break;
-                        case SP:
-                        case TAB:
-                            lex.Context["XmlContent.EndPosition"] = lex.Reader.Position;
-                            lex.CurrentState = XmlState.XmlContent;
-                            break;
-                        case CR:
-                        case LF:
-                            if (lex.Context.ContainsKey("XmlContent.StartPosition"))
-                            {
-                                lex.CreateToken(XML_CONTENT,
-                                    (CodePosition)lex.Context["XmlContent.StartPosition"],
-                                    (CodePosition)lex.Context["XmlContent.EndPosition"]);
-                                lex.Context.Remove("XmlContent.StartPosition");
-                            }
-                            else
-                            {
-                                lex.Context["XmlContent.EndPosition"] = lex.Reader.Position;
-                            }
-                            lex.CurrentState = XmlState.XmlContent;
-                            break;
-                        default:
-                            if (!lex.Context.ContainsKey("XmlContent.StartPosition"))
-                            {
-                                lex.Context["XmlContent.StartPosition"] = lex.Reader.Position;
-                                lex.Context["XmlContent.EndPosition"] = lex.Reader.Position;
-                            }
-                            else
-                            {
-                                lex.Context["XmlContent.EndPosition"] = lex.Reader.Position;
-                            }
-                            lex.CurrentState = XmlState.XmlContent;
-                            break;
-                    }
-                    break;
-                case XmlState.XmlTagBegin:
-                    switch (tok)
-                    {
-                        // ..< / ...
-                        case DIV:
-                            lex.Context["IsEndTag"] = true;
-                            lex.CurrentState = XmlState.XmlTagName;
-                            break;
-                        // ..< ? ...
-                        case QUEST:
-                            lex.Context["IsPiTag"] = true;
-                            lex.CurrentState = XmlState.XmlPiTagName;
-                            break;
-                        default:
-                            if (!lex.Context.ContainsKey("XmlTagName.StartPosition"))
-                            {
-                                lex.Context["XmlTagName.StartPosition"] = lex.Reader.Position;
-                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
-                            }
-                            lex.CurrentState = XmlState.XmlTagName;
-                            break;
-                    }
-                    break;
-                case XmlState.XmlTagName:
-                    switch (tok)
-                    {
-                        // <.. > ...
-                        case GT:
-                            lex.CreateToken(
-                                lex.Context.ContainsKey("IsEndTag")
-                                    ? XML_TAG_END : XML_TAG_START,
-                                (CodePosition)lex.Context["XmlTagName.StartPosition"],
-                                (CodePosition)lex.Context["XmlTagName.EndPosition"]);
-                            lex.Context.Remove("XmlTagName.StartPosition");
-                            lex.Context.Remove("IsEndtag");
-                            lex.CurrentState = XmlState.XmlContent;
-                            break;
-                        default:
-                            if (!lex.Context.ContainsKey("XmlTagName.StartPosition"))
-                            {
-                                lex.Context["XmlTagName.StartPosition"] = lex.Reader.Position;
-                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
-                            }
-                            else
-                            {
-                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
-                            }
-                            lex.CurrentState = XmlState.XmlTagName;
-                            break;
-                    }
-                    break;
-                case XmlState.XmlPiTagName:
-                    switch (tok)
-                    {
-                        // <?.. ? ...
-                        case QUEST:
-                            lex.Context["XmlPiTagName.MaybeTagEnd"] = true;
-                            if (!lex.Context.ContainsKey("XmlTagName.StartPosition"))
-                            {
-                                lex.Context["XmlTagName.StartPosition"] = lex.Reader.Position;
-                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
-                            }
-                            else
-                            {
-                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
-                            }
-                            lex.CurrentState = XmlState.XmlPiTagName;
-                            break;
-                        case GT:
-                            if (lex.Context.ContainsKey("XmlPiTagName.MaybeTagEnd"))
-                            {
-                                lex.CreateToken(XML_PI_TARGET,
-                                    (CodePosition)lex.Context["XmlTagName.StartPosition"],
-                                    (CodePosition)lex.Context["XmlTagName.EndPosition"]);
-                                lex.Context.Remove("XmlTagName.StartPosition");
-                                lex.Context.Remove("XmlPiTagName.MaybeTagEnd");
-                                lex.CurrentState = XmlState.XmlContent;
-                            }
-                            else
-                            {
-                                if (!lex.Context.ContainsKey("XmlTagName.StartPosition"))
-                                {
-                                    lex.Context["XmlTagName.StartPosition"] = lex.Reader.Position;
-                                    lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
-                                }
-                                else
-                                {
-                                    lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
-                                }
-                                lex.Context["XmlPiTagName.MaybeTagEnd"] = false;
-                                lex.CurrentState = XmlState.XmlPiTagName;
-                            }
-                            break;
-                        default:
-                            if (!lex.Context.ContainsKey("XmlTagName.StartPosition"))
-                            {
-                                lex.Context["XmlTagName.StartPosition"] = lex.Reader.Position;
-                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
-                            }
-                            else
-                            {
-                                lex.Context["XmlTagName.EndPosition"] = lex.Reader.Position;
-                            }
-                            lex.Context["XmlPiTagName.MaybeTagEnd"] = false;
-                            lex.CurrentState = XmlState.XmlPiTagName;
-                            break;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            */
             return result;
         }
 
@@ -235,7 +72,109 @@ namespace CarrotScript.Lexar
 
         public void TagLexar(TokenReader reader, List<Token> tokens)
         {
-            // TODO
+            // enter method when char is  ..< ...
+            var buffer = new StringBuilder();
+
+            // MAYBE OFFSET+1
+            CodePosition start = reader.Position;
+
+            buffer.Append("<");
+
+            // check reader has read to end or not
+            while (reader.Peek() != null)
+            {
+                char? c = reader.Peek();
+                Symbol? sym = c.ToSymbol();
+
+                if (sym != GT)
+                {
+                    // ..< . ...
+                    buffer.Append(reader.Read());
+                }
+                else
+                {
+                    // <.. > ...
+                    buffer.Append(reader.Read());
+                    Flush(tokens, XML_TAG_START, buffer.ToString(), start, reader.Position);
+                    break;
+                }
+            }
+        }
+
+        public void CloseTagLexar(TokenReader reader, List<Token> tokens)
+        {
+            // enter method when char is  .</ ...
+            var buffer = new StringBuilder();
+
+            // MAYBE OFFSET+2
+            CodePosition start = reader.Position;
+
+            buffer.Append("</");
+
+            // check reader has read to end or not
+            while (reader.Peek() != null)
+            {
+                char? c = reader.Peek();
+                Symbol? sym = c.ToSymbol();
+
+                if (sym != GT)
+                {
+                    // .</ . ...
+                    buffer.Append(reader.Read());
+                }
+                else
+                {
+                    // </. > ...
+                    buffer.Append(reader.Read());
+                    Flush(tokens, XML_TAG_END, buffer.ToString(), start, reader.Position);
+                    break;
+                }
+            }
+        }
+
+        public void PiTagLexar(TokenReader reader, List<Token> tokens)
+        {
+            // enter method when char is  .<? ...
+            var buffer = new StringBuilder();
+
+            // MAYBE OFFSET+2
+            CodePosition start = reader.Position;
+
+            buffer.Append("<?");
+
+            // check reader has read to end or not
+            while (reader.Peek() != null)
+            {
+                char? c = reader.Peek();
+                Symbol? sym = c.ToSymbol();
+
+                if (sym != QUEST)
+                {
+                    // .<? . ...
+                    buffer.Append(reader.Read());
+                }
+                else
+                {
+                    // <?. ? ...
+                    reader.Read();
+                    char? c2 = reader.Peek();
+                    Symbol? sym2 = c2.ToSymbol();
+                    if (sym2 != GT)
+                    {
+                        // <?. ? ...
+                        buffer.Append(c);
+                    }
+                    else
+                    {
+                        // <?. ?> ...
+                        buffer.Append(c);
+                        buffer.Append(reader.Read());
+                        Flush(tokens, XML_PI_TARGET, buffer.ToString(), start, reader.Position);
+                        break;
+                    }
+
+                }
+            }
         }
     }
 }
