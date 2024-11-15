@@ -20,11 +20,40 @@ namespace CarrotScript.Lexar
             foreach (Token token in tokens)
             {
                 TokenReader reader = new TokenReader(token);
-                char? c;
-                while ((c = reader.Peek()) != null)
+                while (reader.Peek() != null)
                 {
-                    result.Add(new Token(TokenType.UNKNOWN, reader.Read().ToString(), new TokenSpan(reader.Position, reader.Position)));
+                    //result.Add(new Token(TokenType.UNKNOWN, reader.Read().ToString(), new TokenSpan(reader.Position, reader.Position)));
+                    char? c = reader.Read();
+                    Symbol? sym = c.ToSymbol();
 
+                    if (sym == LT)
+                    {
+                        // ... < ...
+                        Symbol? sym2 = reader.Peek().ToSymbol();
+                        if (sym2 == DIV)
+                        {
+                            // ..< / ...
+                            reader.Read();
+                            Flush(result, XML_TAG_END, "</...", reader.Position, reader.Position);
+
+                        }
+                        else if (sym2 == QUEST)
+                        {
+                            // ..< ? ...
+                            reader.Read();
+                            Flush(result, XML_PI_TARGET, "<?...", reader.Position, reader.Position);
+                        }
+                        else
+                        {
+                            // ..< . ...
+                            Flush(result, XML_TAG_START, "<...", reader.Position, reader.Position);
+                        }
+                    }
+                    else
+                    {
+                        // ...
+                        Flush(result, UNKNOWN, c!.Value.ToString(), reader.Position, reader.Position);
+                    }
                 }
             }
             /*
@@ -197,6 +226,16 @@ namespace CarrotScript.Lexar
             }
             */
             return result;
+        }
+
+        private void Flush(List<Token> tokens, TokenType tokenType, string content, CodePosition start, CodePosition end)
+        {
+            tokens.Add(new Token(tokenType, content, new TokenSpan(start, end)));
+        }
+
+        public void TagLexar(TokenReader reader, List<Token> tokens)
+        {
+            // TODO
         }
     }
 }

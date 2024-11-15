@@ -229,5 +229,23 @@ namespace CarrotScript.Lang
             UNARYOP,        // UNARYOP
             BINARYOP,       // BINARYOP
         }
+
+        public static Symbol ToSymbol(this char c)
+        {
+            bool hasSymbol = SymbolDict.TryGetValue(c!.ToString(), out Symbol tok);
+            return hasSymbol ? tok : CHAR;
+        }
+        public static Symbol? ToSymbol(this char? c)
+        {
+            if (c == null)
+            {
+                return null;
+            }
+            else
+            {
+                bool hasSymbol = SymbolDict.TryGetValue(c!.ToString(), out Symbol tok);
+                return hasSymbol ? tok : CHAR;
+            }
+        }
     }
 }
