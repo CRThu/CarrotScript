@@ -14,162 +14,180 @@ namespace CarrotScript.Lexar
 {
     public class CarrotXmlLexar : ILexar
     {
-        public IEnumerable<Token> Tokenize(IEnumerable<Token> tokens)
-        {
-            List<Token> result = new List<Token>();
-            foreach (Token token in tokens)
-            {
-                TokenReader reader = new TokenReader(token);
-                // check reader has read to end or not
-                while (reader.Peek() != null)
-                {
-                    char? c = reader.Read();
-                    Symbol? sym = c.ToSymbol();
+        private TokenReader? Reader { get; set; }
+        private List<Token> ResultTokens { get; set; }
+        private StringBuilder Buffer { get; set; }
+        private CodePosition Start { get; set; }
+        private CodePosition End { get; set; }
 
-                    if (sym == LT)
+        public CarrotXmlLexar()
+        {
+            Buffer = new();
+            ResultTokens = new();
+        }
+
+        public IEnumerable<Token> Tokenize(IEnumerable<Token> inputTokens)
+        {
+            foreach (Token inputToken in inputTokens)
+            {
+                Reader = new TokenReader(inputToken);
+                ContentLexar();
+            }
+            return ResultTokens;
+        }
+
+        private void Append(char? c)
+        {
+            if (Reader != null && c != null)
+            {
+                if (Buffer.Length == 0)
+                {
+                    Start = Reader.LastPosition;
+                }
+                End = Reader.LastPosition;
+                Buffer.Append(c);
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        private void Flush(TokenType tokenType)
+        {
+            ResultTokens.Add(new Token(tokenType, Buffer.ToString(), new TokenSpan(Start, End)));
+            Buffer.Clear();
+        }
+
+        public void ContentLexar()
+        {
+            // enter method after char  ..> ...
+
+            // check reader has read to end or not
+            while (Reader != null && Reader.Peek() != null)
+            {
+                char? c = Reader.Peek();
+                Symbol? sym = c.ToSymbol();
+
+                if (sym == LT)
+                {
+                    // ... < ...
+                    char? c1 = Reader.Read();
+                    Append(c1);
+
+                    Symbol? sym2 = Reader.Peek().ToSymbol();
+                    if (sym2 == DIV)
                     {
-                        // ... < ...
-                        Symbol? sym2 = reader.Peek().ToSymbol();
-                        if (sym2 == DIV)
-                        {
-                            // ..< / ...
-                            reader.Read();
-                            CloseTagLexar(reader, result);
-                            //Flush(result, XML_TAG_END, "</...", reader.Position, reader.Position);
-                        }
-                        else if (sym2 == QUEST)
-                        {
-                            // ..< ? ...
-                            reader.Read();
-                            PiTagLexar(reader, result);
-                            //Flush(result, XML_PI_TARGET, "<?...", reader.Position, reader.Position);
-                        }
-                        else
-                        {
-                            // ..< . ...
-                            TagLexar(reader, result);
-                            //Flush(result, XML_TAG_START, "<...", reader.Position, reader.Position);
-                        }
+                        // ..< / ...
+                        char? c2 = Reader.Read();
+                        Append(c2);
+                        ClosingTagLexar();
                     }
-                    else if (sym == SP || sym == TAB || sym == CR || sym == LF)
+                    else if (sym2 == QUEST)
                     {
-                        reader.Read();
+                        // ..< ? ...
+                        char? c2 = Reader.Read();
+                        Append(c2);
+                        PiTagLexar();
                     }
                     else
                     {
-                        // ...
-                        Flush(result, UNKNOWN, c!.Value.ToString(), reader.Position, reader.Position);
+                        // ..< . ...
+                        OpeningTagLexar();
                     }
                 }
+                else if (sym == SP || sym == TAB || sym == CR || sym == LF)
+                {
+                    // ..< \s ...
+                    Reader.Read();
+                }
+                else
+                {
+                    // ..< . ...
+                    Flush(UNKNOWN);
+                }
             }
-            return result;
         }
 
-        private void Flush(List<Token> tokens, TokenType tokenType, string content, CodePosition start, CodePosition end)
+        public void OpeningTagLexar()
         {
-            tokens.Add(new Token(tokenType, content, new TokenSpan(start, end)));
-        }
-
-        public void TagLexar(TokenReader reader, List<Token> tokens)
-        {
-            // enter method when char is  ..< ...
-            var buffer = new StringBuilder();
-
-            // MAYBE OFFSET+1
-            CodePosition start = reader.Position;
-
-            buffer.Append("<");
-
+            // enter method after char  ..< ...
             // check reader has read to end or not
-            while (reader.Peek() != null)
+            while (Reader != null && Reader.Peek() != null)
             {
-                char? c = reader.Peek();
+                char? c = Reader.Peek();
                 Symbol? sym = c.ToSymbol();
 
                 if (sym != GT)
                 {
                     // ..< . ...
-                    buffer.Append(reader.Read());
+                    Append(Reader.Read());
                 }
                 else
                 {
                     // <.. > ...
-                    buffer.Append(reader.Read());
-                    Flush(tokens, XML_TAG_START, buffer.ToString(), start, reader.Position);
+                    Append(Reader.Read());
+                    Flush(XML_TAG_START);
                     break;
                 }
             }
         }
 
-        public void CloseTagLexar(TokenReader reader, List<Token> tokens)
+        public void ClosingTagLexar()
         {
-            // enter method when char is  .</ ...
-            var buffer = new StringBuilder();
-
-            // MAYBE OFFSET+2
-            CodePosition start = reader.Position;
-
-            buffer.Append("</");
-
+            // enter method after char  .</ ...
             // check reader has read to end or not
-            while (reader.Peek() != null)
+            while (Reader != null && Reader.Peek() != null)
             {
-                char? c = reader.Peek();
+                char? c = Reader.Peek();
                 Symbol? sym = c.ToSymbol();
 
                 if (sym != GT)
                 {
                     // .</ . ...
-                    buffer.Append(reader.Read());
+                    Append(Reader.Read());
                 }
                 else
                 {
                     // </. > ...
-                    buffer.Append(reader.Read());
-                    Flush(tokens, XML_TAG_END, buffer.ToString(), start, reader.Position);
+                    Append(Reader.Read());
+                    Flush(XML_TAG_END);
                     break;
                 }
             }
         }
 
-        public void PiTagLexar(TokenReader reader, List<Token> tokens)
+        public void PiTagLexar()
         {
-            // enter method when char is  .<? ...
-            var buffer = new StringBuilder();
-
-            // MAYBE OFFSET+2
-            CodePosition start = reader.Position;
-
-            buffer.Append("<?");
-
+            // enter method after char  .<? ...
             // check reader has read to end or not
-            while (reader.Peek() != null)
+            while (Reader != null && Reader.Peek() != null)
             {
-                char? c = reader.Peek();
+                char? c = Reader.Peek();
                 Symbol? sym = c.ToSymbol();
 
                 if (sym != QUEST)
                 {
                     // .<? . ...
-                    buffer.Append(reader.Read());
+                    Append(Reader.Read());
                 }
                 else
                 {
                     // <?. ? ...
-                    reader.Read();
-                    char? c2 = reader.Peek();
+                    char? c1 = Reader.Read();
+                    Append(c1);
+
+                    char? c2 = Reader.Peek();
                     Symbol? sym2 = c2.ToSymbol();
                     if (sym2 != GT)
                     {
                         // <?. ? ...
-                        buffer.Append(c);
                     }
                     else
                     {
                         // <?. ?> ...
-                        buffer.Append(c);
-                        buffer.Append(reader.Read());
-                        Flush(tokens, XML_PI_TARGET, buffer.ToString(), start, reader.Position);
+                        Append(Reader.Read());
+                        Flush(XML_PI_TARGET);
                         break;
                     }
 

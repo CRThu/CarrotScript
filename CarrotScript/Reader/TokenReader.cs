@@ -25,10 +25,19 @@ namespace CarrotScript.Reader
 
         public int Column { get; set; }
 
+        public int LastLine { get; set; }
+
+        public int LastColumn { get; set; }
+
         /// <summary>
         /// 游标位置
         /// </summary>
         public CodePosition Position => new CodePosition(File, Offset, Line, Column);
+
+        /// <summary>
+        /// 上一个读取的字符位置
+        /// </summary>
+        public CodePosition LastPosition => new CodePosition(File, Offset, LastLine, LastColumn);
 
         /// <summary>
         /// 构造函数
@@ -53,6 +62,9 @@ namespace CarrotScript.Reader
 
         public char? Read()
         {
+            LastLine = Line;
+            LastColumn = Column;
+
             char? c = Peek();
 
             if (c == null)

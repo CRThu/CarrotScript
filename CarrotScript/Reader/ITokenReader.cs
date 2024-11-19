@@ -22,6 +22,10 @@ namespace CarrotScript.Reader
         /// <summary>
         /// 当前游标位置
         /// </summary>
-        public CodePosition Position { get;  }
+        public CodePosition Position { get; }
+        /// <summary>
+        /// 上一个读取的字符位置
+        /// </summary>
+        public CodePosition LastPosition { get; }
     }
 }

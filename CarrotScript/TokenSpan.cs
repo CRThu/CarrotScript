@@ -12,6 +12,12 @@ namespace CarrotScript
         public CodePosition Start { get; set; }
         public CodePosition End { get; set; }
 
+        public TokenSpan()
+        {
+            Start = new CodePosition();
+            End = new CodePosition();
+        }
+
         public TokenSpan(CodePosition start, CodePosition end)
         {
             Start = start;
