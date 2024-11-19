@@ -90,15 +90,12 @@ namespace CarrotScript.Lang
 
         }.ToFrozenDictionary();
 
-        public enum XmlState
+        public enum XmlLexarState
         {
-            XmlContent,
-            XmlTagBegin,
-            XmlTagName,
-            XmlPiTagName,
-            XmlAttrName,
-            XmlAttrValue,
-            XmlTagEnd
+            Content,
+            TagName,
+            AttrName,
+            AttrValue,
         }
 
         public enum ScriptState

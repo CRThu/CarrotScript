@@ -19,11 +19,14 @@ namespace CarrotScript.Lexar
         private StringBuilder Buffer { get; set; }
         private CodePosition Start { get; set; }
         private CodePosition End { get; set; }
+        private Stack<XmlLexarState> ContextStates { get; set; }
+        private XmlLexarState State => ContextStates.Peek();
 
         public CarrotXmlLexar()
         {
             Buffer = new();
             ResultTokens = new();
+            ContextStates = new();
         }
 
         public IEnumerable<Token> Tokenize(IEnumerable<Token> inputTokens)
@@ -57,6 +60,23 @@ namespace CarrotScript.Lexar
         {
             ResultTokens.Add(new Token(tokenType, Buffer.ToString(), new TokenSpan(Start, End)));
             Buffer.Clear();
+        }
+
+        private void ChangeState(XmlLexarState state)
+        {
+            ContextStates.Push(state);
+        }
+
+        private void RestoreState()
+        {
+            if (ContextStates.Count > 1)
+            {
+                ContextStates.Pop();
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
         }
 
         public void ContentLexar()
@@ -128,6 +148,10 @@ namespace CarrotScript.Lexar
                     Append(Reader.Read());
                     Flush(XML_SINGLE_TAG);
                     break;
+                }
+                else if (sym == EQ && sym2 == QUOT)
+                {
+                    // <.. =" ...
                 }
                 else
                 {

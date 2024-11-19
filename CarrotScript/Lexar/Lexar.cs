@@ -26,7 +26,7 @@ namespace CarrotScript.Lexar
         /// </summary>
         public List<Token> Tokens { get; set; }
 
-        public XmlState CurrentState { get; set; }
+        public XmlLexarState CurrentState { get; set; }
 
         public Dictionary<string, object> Context { get; set; }
 
@@ -43,7 +43,7 @@ namespace CarrotScript.Lexar
         {
             Reader = codeReader;
             Tokens = new();
-            CurrentState = XmlState.XmlContent;
+            //CurrentState = XmlState.XmlContent;
             Context = new();
             DebugInfo = debugInfo;
         }
