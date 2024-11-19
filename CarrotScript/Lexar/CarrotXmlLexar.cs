@@ -115,20 +115,28 @@ namespace CarrotScript.Lexar
             // check reader has read to end or not
             while (Reader != null && Reader.Peek() != null)
             {
-                char? c = Reader.Peek();
-                Symbol? sym = c.ToSymbol();
+                char? c1 = Reader.Read();
+                Symbol? sym = c1.ToSymbol();
+                Append(c1);
+                char? c2 = Reader.Peek();
+                Symbol? sym2 = c2.ToSymbol();
 
-                if (sym != GT)
+
+                if (sym == GT)
                 {
-                    // ..< . ...
+                    // <.. > ...
+                    Flush(XML_OPEN_TAG);
+                    break;
+                }
+                else if(sym == DIV && sym2 == GT)
+                {
+                    // <.. /> ...
                     Append(Reader.Read());
+                    Flush(XML_SINGLE_TAG);
                 }
                 else
                 {
-                    // <.. > ...
-                    Append(Reader.Read());
-                    Flush(XML_TAG_START);
-                    break;
+                    // ..< . ...
                 }
             }
         }
@@ -151,7 +159,7 @@ namespace CarrotScript.Lexar
                 {
                     // </. > ...
                     Append(Reader.Read());
-                    Flush(XML_TAG_END);
+                    Flush(XML_CLOSE_TAG);
                     break;
                 }
             }

@@ -113,11 +113,12 @@ namespace CarrotScript.Lang
             ROOT,
 
             // CARROTXML
-            XML_TAG_START,
+            XML_SINGLE_TAG,
+            XML_OPEN_TAG,
             XML_ATTR_NAME,
             XML_ATTR_VALUE,
             XML_CONTENT,
-            XML_TAG_END,
+            XML_CLOSE_TAG,
             XML_PI_TARGET,
             XML_PI_ATTR_NAME,
             XML_PI_ATTR_VALUE,
