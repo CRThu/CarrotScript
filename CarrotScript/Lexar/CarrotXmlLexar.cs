@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static CarrotScript.Lang.Def;
+using static CarrotScript.Lang.Def.XmlLexarState;
 using static CarrotScript.Lang.Def.TokenType;
 using static CarrotScript.Lang.Def.Symbol;
 using CarrotScript.Reader;
@@ -34,7 +35,9 @@ namespace CarrotScript.Lexar
             foreach (Token inputToken in inputTokens)
             {
                 Reader = new TokenReader(inputToken);
+                ChangeState(Content);
                 ContentLexar();
+                RestoreState();
             }
             return ResultTokens;
         }
@@ -82,7 +85,6 @@ namespace CarrotScript.Lexar
         public void ContentLexar()
         {
             // enter method after char  ..> ...
-
             // check reader has read to end or not
             while (Reader != null && Reader.Peek() != null)
             {
@@ -95,6 +97,7 @@ namespace CarrotScript.Lexar
                     // ... </ ...
                     Append(c1);
                     Append(Reader.Read());
+                    ChangeState(TagName);
                     ClosingTagLexar();
                 }
                 else if (sym1 == LT && sym2 == QUEST)
@@ -102,12 +105,14 @@ namespace CarrotScript.Lexar
                     // ... <? ...
                     Append(c1);
                     Append(Reader.Read());
+                    ChangeState(TagName);
                     PiTagLexar();
                 }
                 else if (sym1 == LT)
                 {
                     // ..< . ...
                     Append(c1);
+                    ChangeState(TagName);
                     OpeningTagLexar();
                 }
                 else if (sym1 == SP || sym1 == TAB || sym1 == CR || sym1 == LF)
@@ -131,31 +136,45 @@ namespace CarrotScript.Lexar
             {
                 char? c1 = Reader.Read();
                 Symbol? sym = c1.ToSymbol();
-                Append(c1);
                 char? c2 = Reader.Peek();
                 Symbol? sym2 = c2.ToSymbol();
 
-
-                if (sym == GT)
+                if (State == TagName && sym == GT)
                 {
                     // <.. > ...
+                    Append(c1);
                     Flush(XML_OPEN_TAG);
-                    break;
+                    RestoreState();
+                    return;
                 }
-                else if (sym == DIV && sym2 == GT)
+                else if (State == TagName && (sym == DIV && sym2 == GT))
                 {
                     // <.. /> ...
+                    Append(c1);
                     Append(Reader.Read());
                     Flush(XML_SINGLE_TAG);
-                    break;
+                    RestoreState();
+                    return;
                 }
-                else if (sym == EQ && sym2 == QUOT)
+                else if (sym == SP || sym == TAB)
                 {
-                    // <.. =" ...
+                    // <.. \s ...
+                    if (State == Content)
+                    {
+                        ChangeState(AttrName);
+                    }
+                }
+                else if (State == AttrName && sym == EQ)
+                {
+                    // <.. \s ... = ...
+                    RestoreState();
+                    ChangeState(AttrValue);
+                    Flush(XML_ATTR_NAME);
                 }
                 else
                 {
                     // ..< . ...
+                    Append(c1);
                 }
             }
         }
@@ -174,6 +193,7 @@ namespace CarrotScript.Lexar
                 {
                     // </. > ...
                     Flush(XML_CLOSE_TAG);
+                    RestoreState();
                     break;
                 }
                 else
@@ -200,6 +220,7 @@ namespace CarrotScript.Lexar
                     // <?. ?> ...
                     Append(Reader.Read());
                     Flush(XML_PI_TARGET);
+                    RestoreState();
                     break;
                 }
                 else
