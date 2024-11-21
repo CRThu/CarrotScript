@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static CarrotScript.Lang.Def;
 
 namespace CarrotScript.Reader
 {
@@ -25,19 +26,15 @@ namespace CarrotScript.Reader
 
         public int Column { get; set; }
 
-        public int LastLine { get; set; }
-
-        public int LastColumn { get; set; }
+        public char? CurrentChar => PeekNext(0);
+        public Symbol? CurrentSymbol => CurrentChar.ToSymbol();
+        public char? NextChar => PeekNext(1);
+        public Symbol? NextSymbol => NextChar.ToSymbol();
 
         /// <summary>
         /// 游标位置
         /// </summary>
         public CodePosition Position => new CodePosition(File, Offset, Line, Column);
-
-        /// <summary>
-        /// 上一个读取的字符位置
-        /// </summary>
-        public CodePosition LastPosition => new CodePosition(File, Offset, LastLine, LastColumn);
 
         /// <summary>
         /// 构造函数
@@ -52,26 +49,21 @@ namespace CarrotScript.Reader
             Column = token.Span.Start.Col;
         }
 
-        public char? Peek()
+        public char? PeekNext(int offset = 1)
         {
-            if (Offset <= Code.Length - 1)
-                return Code[Position.Offset];
+            if (Position.Offset + offset < Code.Length)
+                return Code[Position.Offset + offset];
             else
                 return null;
         }
 
-        public char? Read()
+        public char? Advance()
         {
-            LastLine = Line;
-            LastColumn = Column;
-
-            char? c = Peek();
-
-            if (c == null)
+            if (CurrentChar == null)
             {
                 return null;
             }
-            else if (c == '\n')
+            else if (CurrentChar == '\n')
             {
                 Line += 1;
                 Column = 1;
@@ -82,25 +74,27 @@ namespace CarrotScript.Reader
             }
 
             Offset += 1;
+            char? c = CurrentChar;
+
             return c;
         }
 
-        ///// <summary>
-        ///// 获取所指字符串
-        ///// </summary>
-        ///// <returns></returns>
-        //public ReadOnlySpan<char> GetSpan(int start, int end)
-        //{
-        //    return Code.AsSpan(start, end - start + 1);
-        //}
+        /// <summary>
+        /// 获取所指字符串
+        /// </summary>
+        /// <returns></returns>
+        private ReadOnlySpan<char> GetSpan(int start, int end)
+        {
+            return Code.AsSpan(start, end - start);
+        }
 
-        ///// <summary>
-        ///// 获取所指字符串
-        ///// </summary>
-        ///// <returns></returns>
-        //public ReadOnlySpan<char> GetSpan(CodePosition start, CodePosition end)
-        //{
-        //    return GetSpan(start.Offset, end.Offset);
-        //}
+        /// <summary>
+        /// 获取所指字符串
+        /// </summary>
+        /// <returns></returns>
+        public ReadOnlySpan<char> GetSpan(CodePosition start, CodePosition end)
+        {
+            return GetSpan(start.Offset, end.Offset);
+        }
     }
 }

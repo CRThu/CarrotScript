@@ -90,7 +90,7 @@ namespace CarrotScript
             if (Attributes == null)
                 return string.Empty;
             else
-                return string.Join(",", Attributes.Select(kv => $"{kv.Key} = \"{kv.Value}\""));
+                return string.Join(", ", Attributes.Select(kv => $"{kv.Key} = \"{kv.Value}\""));
         }
 
         public string RemoveUnprintableAscii(string i)

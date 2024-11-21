@@ -241,5 +241,27 @@ namespace CarrotScript.Lang
                 return hasSymbol ? tok : CHAR;
             }
         }
+
+        public static bool InRange(this char? c, (int start, int end) range)
+        {
+            return c != null && c >= range.start && c <= range.end;
+        }
+
+        public static bool InRange(this char c, (char start, char end) range)
+        {
+            return c >= range.start && c <= range.end;
+        }
+
+        public static bool IsLangDefNameChar(this char c)
+        {
+            return c.InRange(('A', 'Z'))
+                || c.InRange(('a', 'z'))
+                || c.InRange(('0', '9'))
+                || c == ':'
+                || c == '.'
+                || c == '_'
+                || c == '-'
+                || c == '+';
+        }
     }
 }
