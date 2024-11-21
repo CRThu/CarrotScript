@@ -34,7 +34,7 @@ namespace CarrotScript.Lexar
             foreach (Token inputToken in inputTokens)
             {
                 Reader = new TokenReader(inputToken);
-                ContentLexar();
+                RootLexar();
             }
             return ResultTokens;
         }
@@ -58,8 +58,11 @@ namespace CarrotScript.Lexar
 
         private void Flush(TokenType tokenType)
         {
-            ResultTokens.Add(new Token(tokenType, Buffer.ToString(), new TokenSpan(Start, End)));
-            Buffer.Clear();
+            if (Buffer.Length != 0)
+            {
+                ResultTokens.Add(new Token(tokenType, Buffer.ToString(), new TokenSpan(Start, End)));
+                Buffer.Clear();
+            }
         }
 
         /*
@@ -81,45 +84,74 @@ namespace CarrotScript.Lexar
         }
         */
 
-        public void ContentLexar()
+        public void RootLexar()
         {
             // enter method after char  ..> ...
             // check reader has read to end or not
             while (Reader != null && Reader.Peek() != null)
             {
-                char? c1 = Reader.Read();
-                Symbol? sym1 = c1.ToSymbol();
-                Symbol? sym2 = Reader.Peek().ToSymbol();
-
-                if (sym1 == LT && sym2 == DIV)
+                Symbol? sym1 = Reader.Peek().ToSymbol();
+                if (sym1 == LT)
                 {
-                    // ... </ ...
-                    Append(c1);
                     Append(Reader.Read());
-                    ClosingTagLexar();
-                }
-                else if (sym1 == LT && sym2 == QUEST)
-                {
-                    // ... <? ...
-                    Append(c1);
-                    Append(Reader.Read());
-                    PiTagLexar();
-                }
-                else if (sym1 == LT)
-                {
-                    // ..< . ...
-                    Append(c1);
-                    OpeningTagLexar();
+                    Symbol? sym2 = Reader.Peek().ToSymbol();
+                    if (sym2 == DIV)
+                    {
+                        // ... </ ...
+                        Append(Reader.Read());
+                        ClosingTagLexar();
+                    }
+                    else if (sym2 == QUEST)
+                    {
+                        // ... <? ...
+                        Append(Reader.Read());
+                        Append(Reader.Read());
+                        PiTagLexar();
+                    }
+                    else
+                    {
+                        // ..< . ...
+                        Append(Reader.Read());
+                        OpeningTagLexar();
+                    }
                 }
                 else if (sym1 == SP || sym1 == TAB || sym1 == CR || sym1 == LF)
                 {
                     // ..< \s ...
+                    Reader.Read();
                 }
                 else
                 {
                     // ..< . ...
-                    Append(c1);
-                    Flush(UNKNOWN);
+                    ContentLineLexar();
+                }
+            }
+        }
+
+        public void ContentLineLexar()
+        {
+            // enter method after char  ..> ...
+            // check reader has read to end or not
+            while (Reader != null && Reader.Peek() != null)
+            {
+                Symbol? sym1 = Reader.Peek().ToSymbol();
+
+                if (sym1 == CR || sym1 == LF)
+                {
+                    // ... \n ...
+                    Reader.Read();
+                    Flush(XML_CONTENT);
+                    break;
+                }
+                else if (sym1 == GT)
+                {
+                    // ... < ...
+                    break;
+                }
+                else
+                {
+                    // ... .  ...
+                    Append(Reader.Read());
                 }
             }
         }
@@ -130,38 +162,45 @@ namespace CarrotScript.Lexar
             // check reader has read to end or not
             while (Reader != null && Reader.Peek() != null)
             {
-                char? c1 = Reader.Read();
-                Symbol? sym = c1.ToSymbol();
-                char? c2 = Reader.Peek();
-                Symbol? sym2 = c2.ToSymbol();
+                Symbol? sym1 = Reader.Peek().ToSymbol();
 
-                if (sym == GT)
+                if (sym1 == GT)
                 {
                     // <.. > ...
-                    Append(c1);
-                    Flush(XML_OPEN_TAG);
-                    return;
-                }
-                else if (sym == DIV && sym2 == GT)
-                {
-                    // <.. /> ...
-                    Append(c1);
                     Append(Reader.Read());
-                    Flush(XML_SINGLE_TAG);
-                    return;
+                    Flush(XML_OPEN_TAG);
+                    break;
                 }
-                else if (sym == SP || sym == TAB)
+                else if (sym1 == DIV)
+                {
+                    Append(Reader.Read());
+                    Symbol? sym2 = Reader.Peek().ToSymbol();
+                    if (sym2 == GT)
+                    {
+                        // <.. /> ...
+                        Append(Reader.Read());
+                        Flush(XML_SINGLE_TAG);
+                        break;
+                    }
+                    else
+                    {
+                        Append(Reader.Read());
+                    }
+                }
+                else if (sym1 == SP || sym1 == TAB)
                 {
                     // <.. \s ...
+                    Append(Reader.Read());
                 }
-                else if (sym == EQ)
+                else if (sym1 == EQ)
                 {
                     // <.. \s ... = ...
+                    Append(Reader.Read());
                 }
                 else
                 {
                     // ..< . ...
-                    Append(c1);
+                    Append(Reader.Read());
                 }
             }
         }
@@ -172,9 +211,8 @@ namespace CarrotScript.Lexar
             // check reader has read to end or not
             while (Reader != null && Reader.Peek() != null)
             {
-                char? c1 = Reader.Read();
-                Symbol? sym1 = c1.ToSymbol();
-                Append(c1);
+                Symbol? sym1 = Reader.Peek().ToSymbol();
+                Append(Reader.Read());
 
                 if (sym1 == GT)
                 {
@@ -195,24 +233,56 @@ namespace CarrotScript.Lexar
             // check reader has read to end or not
             while (Reader != null && Reader.Peek() != null)
             {
-                char? c1 = Reader.Read();
-                Symbol? sym1 = c1.ToSymbol();
-                Append(c1);
-                char? c2 = Reader.Peek();
-                Symbol? sym2 = c2.ToSymbol();
-
-                if (sym1 == QUEST && sym2 == GT)
+                Symbol? sym1 = Reader.Peek().ToSymbol();
+                if (sym1 == QUEST)
                 {
-                    // <?. ?> ...
                     Append(Reader.Read());
-                    Flush(XML_PI_TARGET);
-                    break;
+                    Symbol? sym2 = Reader.Peek().ToSymbol();
+
+                    if (sym2 == GT)
+                    {
+                        // <?. ?> ...
+                        Append(Reader.Read());
+                        Flush(XML_PI_TARGET);
+                        break;
+                    }
+                    else
+                    {
+
+                    }
                 }
                 else
                 {
                     // .<? . ...
+                    Append(Reader.Read());
                 }
             }
+        }
+
+        public IDictionary<string, string> AttributesLexar()
+        {
+            Dictionary<string, string> attrs = new();
+            StringBuilder name = new(), value = new();
+
+            // check reader has read to end or not
+            while (Reader != null && Reader.Peek() != null)
+            {
+                Symbol? sym1 = Reader.Peek().ToSymbol();
+                if (sym1 == QUEST || sym1 == DIV || sym1 == GT)
+                {
+                    break;
+                }
+                else if (sym1 == SP)
+                {
+                    Reader.Read();
+                }
+                else
+                {
+
+                }
+            }
+
+            return attrs;
         }
     }
 }
