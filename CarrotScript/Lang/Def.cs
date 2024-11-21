@@ -112,13 +112,9 @@ namespace CarrotScript.Lang
             // CARROTXML
             XML_SINGLE_TAG,
             XML_OPEN_TAG,
-            XML_ATTR_NAME,
-            XML_ATTR_VALUE,
             XML_CONTENT,
             XML_CLOSE_TAG,
             XML_PI_TARGET,
-            XML_PI_ATTR_NAME,
-            XML_PI_ATTR_VALUE,
 
             /*
             NUMERIC,    // Const Numberic

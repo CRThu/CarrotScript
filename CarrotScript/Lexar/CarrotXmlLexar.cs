@@ -20,14 +20,13 @@ namespace CarrotScript.Lexar
         private StringBuilder Buffer { get; set; }
         private CodePosition Start { get; set; }
         private CodePosition End { get; set; }
-        private Stack<XmlLexarState> ContextStates { get; set; }
-        private XmlLexarState State => ContextStates.Peek();
+        //private Stack<XmlLexarState> ContextStates { get; set; }
+        //private XmlLexarState State => ContextStates.Peek();
 
         public CarrotXmlLexar()
         {
             Buffer = new();
             ResultTokens = new();
-            ContextStates = new();
         }
 
         public IEnumerable<Token> Tokenize(IEnumerable<Token> inputTokens)
@@ -35,9 +34,7 @@ namespace CarrotScript.Lexar
             foreach (Token inputToken in inputTokens)
             {
                 Reader = new TokenReader(inputToken);
-                ChangeState(Content);
                 ContentLexar();
-                RestoreState();
             }
             return ResultTokens;
         }
@@ -65,6 +62,7 @@ namespace CarrotScript.Lexar
             Buffer.Clear();
         }
 
+        /*
         private void ChangeState(XmlLexarState state)
         {
             ContextStates.Push(state);
@@ -81,6 +79,7 @@ namespace CarrotScript.Lexar
                 throw new InvalidOperationException();
             }
         }
+        */
 
         public void ContentLexar()
         {
@@ -97,7 +96,6 @@ namespace CarrotScript.Lexar
                     // ... </ ...
                     Append(c1);
                     Append(Reader.Read());
-                    ChangeState(TagName);
                     ClosingTagLexar();
                 }
                 else if (sym1 == LT && sym2 == QUEST)
@@ -105,14 +103,12 @@ namespace CarrotScript.Lexar
                     // ... <? ...
                     Append(c1);
                     Append(Reader.Read());
-                    ChangeState(TagName);
                     PiTagLexar();
                 }
                 else if (sym1 == LT)
                 {
                     // ..< . ...
                     Append(c1);
-                    ChangeState(TagName);
                     OpeningTagLexar();
                 }
                 else if (sym1 == SP || sym1 == TAB || sym1 == CR || sym1 == LF)
@@ -139,37 +135,28 @@ namespace CarrotScript.Lexar
                 char? c2 = Reader.Peek();
                 Symbol? sym2 = c2.ToSymbol();
 
-                if (State == TagName && sym == GT)
+                if (sym == GT)
                 {
                     // <.. > ...
                     Append(c1);
                     Flush(XML_OPEN_TAG);
-                    RestoreState();
                     return;
                 }
-                else if (State == TagName && (sym == DIV && sym2 == GT))
+                else if (sym == DIV && sym2 == GT)
                 {
                     // <.. /> ...
                     Append(c1);
                     Append(Reader.Read());
                     Flush(XML_SINGLE_TAG);
-                    RestoreState();
                     return;
                 }
                 else if (sym == SP || sym == TAB)
                 {
                     // <.. \s ...
-                    if (State == Content)
-                    {
-                        ChangeState(AttrName);
-                    }
                 }
-                else if (State == AttrName && sym == EQ)
+                else if (sym == EQ)
                 {
                     // <.. \s ... = ...
-                    RestoreState();
-                    ChangeState(AttrValue);
-                    Flush(XML_ATTR_NAME);
                 }
                 else
                 {
@@ -193,7 +180,6 @@ namespace CarrotScript.Lexar
                 {
                     // </. > ...
                     Flush(XML_CLOSE_TAG);
-                    RestoreState();
                     break;
                 }
                 else
@@ -220,7 +206,6 @@ namespace CarrotScript.Lexar
                     // <?. ?> ...
                     Append(Reader.Read());
                     Flush(XML_PI_TARGET);
-                    RestoreState();
                     break;
                 }
                 else

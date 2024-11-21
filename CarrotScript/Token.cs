@@ -34,7 +34,7 @@ namespace CarrotScript
         ///// <summary>
         ///// 子Token
         ///// </summary>
-        //public List<Token> Children { get; set; }
+        public Dictionary<string, string>? Attributes { get; set; }
 
         /// <summary>
         /// 构造函数
@@ -46,12 +46,31 @@ namespace CarrotScript
             Type = tokenType;
             Value = value;
             Span = span;
-            //Children = new List<Token>();
+            Attributes = null;
+        }
+
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="tokenType"></param>
+        /// <param name="value"></param>
+        public Token(TokenType tokenType, string value, TokenSpan span, IDictionary<string, string>? attributes)
+        {
+            Type = tokenType;
+            Value = value;
+            Span = span;
+            Attributes = (attributes != null && attributes.Count != 0) ? new Dictionary<string, string>(attributes) : null;
         }
 
         public override string ToString()
         {
-            string tokenString = $"{{\"type\" = \"{Type}\", \"value\" = \"{RemoveUnprintableAscii(Value)}\", \"span\" = \"{Span}\"}}";
+            string tokenString =
+                $"{{" +
+                $"type = \"{Type}\"" +
+                $", value = \"{RemoveUnprintableAscii(Value)}\"" +
+                $", span = \"{Span}\"" +
+                ((Attributes != null) ? ", " + AttributesToString() : "") +
+                $"}}";
             //foreach (Token token in Children)
             //{
             //    tokenString += "\n\t";
@@ -64,6 +83,14 @@ namespace CarrotScript
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             });
             */
+        }
+
+        public string AttributesToString()
+        {
+            if (Attributes == null)
+                return string.Empty;
+            else
+                return string.Join(",", Attributes.Select(kv => $"{kv.Key} = \"{kv.Value}\""));
         }
 
         public string RemoveUnprintableAscii(string i)
