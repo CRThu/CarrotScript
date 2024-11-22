@@ -15,7 +15,7 @@ namespace CarrotScript.Lexar
         /// </summary>
         /// <param name="tokens"></param>
         /// <returns></returns>
-        IEnumerable<Token> Tokenize(IEnumerable<Token> tokens);
+        IEnumerable<Token> Tokenize(IEnumerable<Token> inputTokens);
     }
 
     public class LexarPipeline

@@ -116,11 +116,15 @@ namespace CarrotScript.Lang
             XML_CLOSE_TAG,
             XML_PI_TARGET,
 
-            /*
-            NUMERIC,    // Const Numberic
-            STRING,     // Const String
-            IDENTIFIER, // Identifier
+            // CARROTSCRIPT
+            IDENTIFIER, // 标识符
+            NUMBER,     // 数字
+            OPERATOR,   // 操作符
+            ASSIGNMENT, // 赋值
+            LPAREN,     //  (
+            RPAREN,     //  )
 
+            /*
             ADD,        //  +
             SUB,        //  -
             MUL,        //  *

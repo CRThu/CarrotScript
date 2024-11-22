@@ -96,12 +96,13 @@ Element             ::= EmptyElemTag | STag Content ETag
 Content             ::= Char? ((Element | BDATASection | PI | Comment) Char?)*
 
 ############################################
-
+(* CarrotScript EBNF Defination *)
 
 NUM         ::=     [0-9]+
 STR         ::=     [A-Za-z_0-9]+
 IDENTIFER   ::=     [A-Za-z_0-9]+
 
+/*
 TERM_TYPE   ::=     ( "+" | "-" )
 FACTOR_TYPE ::=     ( "*" | "/" )
 
@@ -110,3 +111,18 @@ FACTOR      ::=     [ ( "+" | "-" ) ] ATOM
 TERM        ::=     FACTOR { FACTOR_TYPE FACTOR }
 CALC        ::=     TERM { TERM_TYPE TERM }
 EXPR        ::=     CALC
+*/
+
+AttrValue               ::=     ('' | ''' | '"' ) EXPR ('' | ''' | '"' )
+Attribute               ::=     Name EQ AttrValue
+LangVersionStatement    ::=     'carrotxml' (Space Attribute)* S?   (* carrotxml version="1.0" *)
+AssignmentStatement     ::=     'def' (Space Attribute)* S?         (* def a=1 *)
+OutputStatement         ::=     EXPR
+
+PiTag                   ::=     '<?' ( LangVersionStatement | AssignmentStatement ) '?>'
+STag                    ::=     '<' Name (Space Attribute)* S? '>'  (* <tag a="a" b="b"> *)
+ETag                    ::=     '</' Name '>'                       (* </tag> *)
+EmptyElemTag            ::=     '<' Name (Space Attribute)* S? '/>' (* <tag/> *)
+Element                 ::=     EmptyElemTag | STag Content ETag
+
+Content                 ::=     (Element | PiTag | OutputStatement)*
