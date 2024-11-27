@@ -42,11 +42,17 @@ namespace CarrotScript.Lexar
 
             IEnumerable<Token> currTokens = tokens;
 
+            int phase = 0;
+
             if (DebugInfo)
             {
+                Console.WriteLine();
+                Console.WriteLine($"--- PHASE {phase} LEX ---");
                 foreach (var token in currTokens)
                     Console.WriteLine(token.ToString());
             }
+            phase++;
+
 
             foreach (var lex in Lexars)
             {
@@ -55,10 +61,11 @@ namespace CarrotScript.Lexar
                 if (DebugInfo)
                 {
                     Console.WriteLine();
-                    Console.WriteLine($"--- {lex} ---");
+                    Console.WriteLine($"--- PHASE {phase} {lex} ---");
                     foreach (var token in currTokens)
                         Console.WriteLine(token.ToString());
                 }
+                phase++;
             }
 
             return currTokens;
