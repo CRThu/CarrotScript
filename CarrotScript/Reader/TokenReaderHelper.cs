@@ -10,14 +10,14 @@ namespace CarrotScript.Reader
 {
     public static class TokenReaderHelper
     {
-        public static void Expect(this ITokenReader reader, Symbol expected)
+        public static char? Expect(this ITokenReader reader, Symbol expected)
         {
             if (reader == null)
                 throw new ArgumentNullException("Reader is null.");
             else if (reader.CurrentSymbol != expected)
                 throw new InvalidSyntaxException(reader.Position);
             else
-                reader.Advance();
+                return reader.Advance();
         }
 
         public static ReadOnlySpan<char> ParseWhile(this ITokenReader reader, Func<char, bool> condition)

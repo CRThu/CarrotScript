@@ -87,6 +87,8 @@ namespace CarrotScript.Lang
             {"\n", LF },
             {"!", EXCL },
             {"?", QUEST },
+            {"{", LCUB },
+            {"}", RCUB },
 
         }.ToFrozenDictionary();
 
@@ -117,12 +119,15 @@ namespace CarrotScript.Lang
             XML_PI_TARGET,
 
             // CARROTSCRIPT
+            TEXT,       // 输出文本
             IDENTIFIER, // 标识符
             NUMBER,     // 数字
             OPERATOR,   // 操作符
             ASSIGNMENT, // 赋值
             LPAREN,     //  (
             RPAREN,     //  )
+            LBRACE,     // {
+            RBRACE,     // }
 
             /*
             ADD,        //  +
@@ -162,6 +167,8 @@ namespace CarrotScript.Lang
             LF,         // '\n'                 |   Line Feed
             EXCL,       // '!'                  |   Exclamation
             QUEST,      // '?'                  |   Question
+            LCUB,       // '{'                  |   Left Curly Brace
+            RCUB,       // '}'                  |   Right Curly Brace
         }
 
         /*
@@ -266,6 +273,38 @@ namespace CarrotScript.Lang
                 || c == '_'
                 || c == '-'
                 || c == '+';
+        }
+
+        public static bool IsLangDefIdentifierStartChar(this char c)
+        {
+            return c.InRange(('A', 'Z'))
+                || c.InRange(('a', 'z'))
+                || c == '_';
+        }
+
+        public static bool IsLangDefIdentifierChar(this char c)
+        {
+            return c.InRange(('A', 'Z'))
+                || c.InRange(('a', 'z'))
+                || c.InRange(('0', '9'))
+                || c == '_';
+        }
+
+        public static bool IsLangDefNumberStartChar(this char c)
+        {
+            return c.InRange(('0', '9'))
+                || c == '.'
+                || c == '+'
+                || c == '-';
+        }
+
+        public static bool IsLangDefNumberChar(this char c)
+        {
+            return c.InRange(('0', '9'))
+                || c == '.'
+                || c == '+'
+                || c == '-'
+                || c == 'E';
         }
     }
 }
