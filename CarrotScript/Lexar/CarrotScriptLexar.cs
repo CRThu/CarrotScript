@@ -129,10 +129,12 @@ namespace CarrotScript.Lexar
             {
                 if (Reader.CurrentSymbol == RCUB)
                 {
+                    // { ... }
                     break;
                 }
                 else if (Reader.CurrentChar.Value.IsLangDefIdentifierStartChar())
                 {
+                    // { ... a
                     Start = Reader.Position;
                     Buffer.Append(Reader.CurrentChar);
                     Reader.Advance();
@@ -144,6 +146,7 @@ namespace CarrotScript.Lexar
                 }
                 else if (Reader.CurrentChar.Value.IsLangDefNumberStartChar())
                 {
+                    // { ... 123
                     Start = Reader.Position;
                     Buffer.Append(Reader.CurrentChar);
                     Reader.Advance();
@@ -151,7 +154,15 @@ namespace CarrotScript.Lexar
                     var numberChars = Reader.ParseWhile(C => C.IsLangDefNumberChar());
                     Buffer.Append(numberChars);
                     End = Reader.Position;
-                    Flush(IDENTIFIER);
+                    Flush(NUMBER);
+                }
+                else if(Reader.CurrentChar.Value.IsLangDefOperator())
+                {
+
+                }
+                else
+                {
+
                 }
             }
         }
