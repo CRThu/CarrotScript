@@ -34,8 +34,7 @@ namespace CarrotScript.Parser
 
         public override string ToString()
         {
-            return JsonSerializer.Serialize(this, new JsonSerializerOptions
-            {
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions {
                 WriteIndented = true,
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             });
@@ -49,19 +48,27 @@ namespace CarrotScript.Parser
         }
     }
 
-    public class NumericNode : ASTNode
+    public class ProgramNode : ASTNode
     {
-        public NumericNode(Token token) : base(token)
+        public ProgramNode(Token token) : base(token)
         {
-            Type = NodeType.NUMERIC;
+            Type = NodeType.Program;
         }
     }
 
-    public class StringNode : ASTNode
+    public class IdentifierNode : ASTNode
     {
-        public StringNode(Token token) : base(token)
+        public IdentifierNode(Token token) : base(token)
         {
-            Type = NodeType.STRING;
+            Type = NodeType.Identifier;
+        }
+    }
+
+    public class VariableDeclarationNode : ASTNode
+    {
+        public VariableDeclarationNode(Token token) : base(token)
+        {
+            Type = NodeType.VariableDeclaration;
         }
     }
 
@@ -80,7 +87,7 @@ namespace CarrotScript.Parser
     {
         public UnaryOpNode(Token op, ASTNode right) : base(op, left: null, right: right)
         {
-            Type = NodeType.UNARYOP;
+            Type = NodeType.UnaryExpression;
         }
     }
 
@@ -88,7 +95,7 @@ namespace CarrotScript.Parser
     {
         public BinaryOpNode(Token op, ASTNode left, ASTNode right) : base(op, left: left, right: right)
         {
-            Type = NodeType.BINARYOP;
+            Type = NodeType.BinaryExpression;
         }
     }
 }

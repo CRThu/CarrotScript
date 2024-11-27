@@ -228,12 +228,24 @@ namespace CarrotScript.Lang
             UNKNOWN,
 
             NULL,           // NULL
-            NUMERIC,        // Const Numberic
-            STRING,         // Const String
-            IDENTIFIER,     // Identifier
 
-            UNARYOP,        // UNARYOP
-            BINARYOP,       // BINARYOP
+            Program,        // 
+
+            Identifier,     // like: a,b,c
+            Literal,        // like: 123
+
+            // Statement
+            Statement,      // 
+
+            // Declaration
+            VariableDeclaration,   // 
+
+            // Expression
+            UnaryExpression,
+            BinaryExpression,
+
+            // Function
+            Function,       // 
         }
 
         public static Symbol ToSymbol(this char c)
