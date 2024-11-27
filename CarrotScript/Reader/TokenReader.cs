@@ -10,6 +10,8 @@ namespace CarrotScript.Reader
 {
     public class TokenReader : ITokenReader
     {
+        public Token? Token { get; set; }
+
         /// <summary>
         /// 代码文件名
         /// </summary>
@@ -19,6 +21,8 @@ namespace CarrotScript.Reader
         /// 代码字符串
         /// </summary>
         public string Code { get; set; }
+
+        private int CodeFixedOffset { get; set; }
 
         public int Offset { get; set; }
 
@@ -42,8 +46,10 @@ namespace CarrotScript.Reader
         /// <param name="code"></param>
         public TokenReader(Token token)
         {
+            Token = token;
             File = "<input>";
             Code = token.Value;
+            CodeFixedOffset = token.Span.Start.Offset;
             Offset = token.Span.Start.Offset;
             Line = token.Span.Start.Line;
             Column = token.Span.Start.Col;
@@ -51,10 +57,18 @@ namespace CarrotScript.Reader
 
         public char? PeekNext(int offset = 1)
         {
-            if (Position.Offset + offset < Code.Length)
-                return Code[Position.Offset + offset];
-            else
+            try
+            {
+                if (Position.Offset + offset - Token!.Span.Start.Offset < Code.Length)
+                    return Code[Position.Offset - CodeFixedOffset + offset];
+                else
+                    return null;
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
                 return null;
+            }
         }
 
         public char? Advance()
@@ -85,7 +99,16 @@ namespace CarrotScript.Reader
         /// <returns></returns>
         private ReadOnlySpan<char> GetSpan(int start, int end)
         {
-            return Code.AsSpan(start, end - start);
+            try
+            {
+                return Code.AsSpan(start - CodeFixedOffset, end - start);
+
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex);
+                return null;
+            }
         }
 
         /// <summary>

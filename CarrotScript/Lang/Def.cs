@@ -59,9 +59,6 @@ namespace CarrotScript.Lang
             { "*", MUL },
             { "/", DIV },
 
-            { "(", LPAREN },
-            { ")", RPAREN },
-
             { " ", SPACE },
 
             { "**", POW },
@@ -89,6 +86,8 @@ namespace CarrotScript.Lang
             {"?", QUEST },
             {"{", LCUB },
             {"}", RCUB },
+            { "(", LP },
+            { ")", RP },
 
         }.ToFrozenDictionary();
 
@@ -119,11 +118,11 @@ namespace CarrotScript.Lang
             XML_PI_TARGET,
 
             // CARROTSCRIPT
-            TEXT,       // 输出文本
-            IDENTIFIER, // 标识符
-            NUMBER,     // 数字
-            OPERATOR,   // 操作符
-            ASSIGNMENT, // 赋值
+            TEXT,       // output text like: helloworld
+            IDENTIFIER, // identifier like: a, b
+            NUMBER,     // numbers like: 123.456
+            OPERATOR,   // op like: +, -
+            ASSIGNMENT, // assignment like: a=1
             LPAREN,     //  (
             RPAREN,     //  )
             LBRACE,     // {
@@ -155,7 +154,7 @@ namespace CarrotScript.Lang
             // Default
             CHAR,       // Any Ascii            |   Ascii 
 
-            // CarrotXml
+            // CarrotScript
             LT,         // '<'                  |   Less than
             GT,         // '>'                  |   Greater than
             QUOT,       // ''' | '"'            |   Quote
@@ -169,6 +168,8 @@ namespace CarrotScript.Lang
             QUEST,      // '?'                  |   Question
             LCUB,       // '{'                  |   Left Curly Brace
             RCUB,       // '}'                  |   Right Curly Brace
+            LP,         // '('                  |   
+            RP,         // ')'                  |   
         }
 
         /*
@@ -305,6 +306,14 @@ namespace CarrotScript.Lang
                 || c == '+'
                 || c == '-'
                 || c == 'E';
+        }
+
+        public static bool IsLangDefOperatorChar(this char c)
+        {
+            return  c == '+'
+                || c == '-'
+                || c == '*'
+                || c == '/';
         }
     }
 }

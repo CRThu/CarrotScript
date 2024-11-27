@@ -54,6 +54,8 @@ namespace CarrotScript.Lexar
 
                 if (DebugInfo)
                 {
+                    Console.WriteLine();
+                    Console.WriteLine($"--- {lex} ---");
                     foreach (var token in currTokens)
                         Console.WriteLine(token.ToString());
                 }

@@ -9,6 +9,7 @@ namespace CarrotScript.Reader
 {
     public interface ITokenReader
     {
+        public Token? Token { get; }
         public char? CurrentChar { get; }
         public Symbol? CurrentSymbol { get; }
         public char? NextChar { get; }

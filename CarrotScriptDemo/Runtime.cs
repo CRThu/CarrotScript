@@ -32,7 +32,7 @@ namespace CarrotScriptDemo
                 LexarPipeline lexarPipeline = new LexarPipeline();
                 lexarPipeline.DebugInfo = true;
                 lexarPipeline.AddLexar(new CarrotXmlLexar());
-                //lexarPipeline.AddLexar(new CarrotScriptLexar());
+                lexarPipeline.AddLexar(new CarrotScriptLexar());
                 //lexarPipeline.AddReader(codeReader);
                 lexarPipeline.Code = code;
                 lexarPipeline.Process();

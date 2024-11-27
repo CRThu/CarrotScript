@@ -3,6 +3,7 @@ using System.Text;
 using static CarrotScript.Lang.Def;
 using static CarrotScript.Lang.Def.TokenType;
 using static CarrotScript.Lang.Def.Symbol;
+using CarrotScript.Exception;
 
 namespace CarrotScript.Lexar
 {
@@ -16,6 +17,13 @@ namespace CarrotScript.Lexar
 
         //private Stack<XmlLexarState> ContextStates { get; set; }
         //private XmlLexarState State => ContextStates.Peek();
+
+        public CarrotScriptLexar()
+        {
+            Buffer = new();
+            ResultTokens = new();
+        }
+
 
         private void Flush(TokenType tokenType)
         {
@@ -119,7 +127,22 @@ namespace CarrotScript.Lexar
 
         private void ParsePiTarget()
         {
-            throw new NotImplementedException();
+            // enter method after char  ..> ...
+            if (Reader == null)
+                return;
+
+            // <?target
+            var target = Reader.ParseWhile(S => S != SP);
+
+            switch (target)
+            {
+                case "def":
+                    ResultTokens.Add(new Token(ASSIGNMENT, Reader.Token.Value, Reader.Token.Span, Reader.Token.Attributes));
+                    break;
+                default:
+                    throw new InvalidSyntaxException(Reader.Position);
+                    break;
+            }
         }
 
         private void TokenizeExpr()
@@ -127,10 +150,35 @@ namespace CarrotScript.Lexar
             // check reader has read to end or not
             while (Reader != null && Reader.CurrentChar != null)
             {
-                if (Reader.CurrentSymbol == RCUB)
+                if (Reader.CurrentSymbol == RCUB
+                    || Reader.CurrentSymbol == RP)
                 {
                     // { ... }
+                    // { ... ( ... )
                     break;
+                }
+                else if (Reader.CurrentSymbol == SP)
+                {
+                    Reader.Advance();
+                }
+                else if (Reader.CurrentSymbol == LP)
+                {
+                    // { ... (
+                    Start = Reader.Position;
+                    Buffer.Append(Reader.CurrentChar);
+                    Reader.Advance();
+                    End = Reader.Position;
+                    Flush(LPAREN);
+
+                    // { ... ( ...
+                    TokenizeExpr();
+
+                    // { ... ( ... )
+                    Start = Reader.Position;
+                    var sym = Reader.Expect(RP);
+                    Buffer.Append(sym);
+                    End = Reader.Position;
+                    Flush(RPAREN);
                 }
                 else if (Reader.CurrentChar.Value.IsLangDefIdentifierStartChar())
                 {
@@ -156,13 +204,18 @@ namespace CarrotScript.Lexar
                     End = Reader.Position;
                     Flush(NUMBER);
                 }
-                else if(Reader.CurrentChar.Value.IsLangDefOperator())
+                else if (Reader.CurrentChar.Value.IsLangDefOperatorChar())
                 {
-
+                    // { ... +
+                    Start = Reader.Position;
+                    Buffer.Append(Reader.CurrentChar);
+                    Reader.Advance();
+                    End = Reader.Position;
+                    Flush(OPERATOR);
                 }
                 else
                 {
-
+                    throw new InvalidSyntaxException(Reader.Position);
                 }
             }
         }
