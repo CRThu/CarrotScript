@@ -61,12 +61,12 @@ namespace CarrotScript.Parser
 
     public class ProgramNode : ASTNode
     {
-        public List<ASTNode> Nodes { get; set; }
+        public List<StatementNode> Nodes { get; set; }
 
-        public ProgramNode(IEnumerable<ASTNode> nodes)
+        public ProgramNode(IEnumerable<StatementNode> nodes)
         {
             Type = NodeType.Program;
-            Nodes = new List<ASTNode>(nodes);
+            Nodes = new List<StatementNode>(nodes);
         }
     }
 
@@ -88,7 +88,7 @@ namespace CarrotScript.Parser
 
     public class PrintNode : StatementNode
     {
-        public PrintNode(ASTNode val) : base(val)
+        public PrintNode(ExpressionNode val) : base(val)
         {
             Type = NodeType.PrintStatement;
         }

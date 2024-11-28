@@ -62,7 +62,7 @@ namespace CarrotScript.Parser
 
         public ASTNode ParseProgram()
         {
-            List<ASTNode> nodes = new List<ASTNode>();
+            List<StatementNode> nodes = new List<StatementNode>();
             while (CurrentToken != null)
             {
                 nodes.Add(ParseStatement());
@@ -70,7 +70,7 @@ namespace CarrotScript.Parser
             return new ProgramNode(nodes);
         }
 
-        public ASTNode ParseStatement()
+        public StatementNode ParseStatement()
         {
             if (CurrentToken != null)
             {
@@ -98,12 +98,12 @@ namespace CarrotScript.Parser
         }
 
 
-        private ASTNode ParseAssignment()
+        private StatementNode ParseAssignment()
         {
             throw new NotImplementedException();
         }
 
-        private ASTNode ParseExpression()
+        private ExpressionNode ParseExpression()
         {
             throw new NotImplementedException();
         }
