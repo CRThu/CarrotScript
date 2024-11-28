@@ -235,12 +235,14 @@ namespace CarrotScript.Lang
             Literal,        // like: 123
 
             // Statement
-            Statement,      // 
+            Statement,
+            PrintStatement,      // 
 
             // Declaration
             VariableDeclaration,   // 
 
             // Expression
+            Expression,
             UnaryExpression,
             BinaryExpression,
 

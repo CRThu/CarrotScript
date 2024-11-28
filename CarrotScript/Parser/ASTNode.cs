@@ -10,31 +10,42 @@ using CarrotScript.Reader;
 
 namespace CarrotScript.Parser
 {
-    public abstract class ASTNode : NodeBase<Token>
+    public abstract class ASTNode
+    {
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public NodeType Type { get; set; }
+
+        public TokenSpan Span { get; }
+
+    }
+
+    public abstract class ASTBinaryNode : NodeBase<ASTNode>
     {
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public NodeType Type { get; set; }
 
         public TokenSpan Span => GetSpan();
 
-        public ASTNode() : base()
+        public ASTBinaryNode() : base()
         {
             Type = NodeType.UNKNOWN;
         }
 
-        public ASTNode(Token token) : base(token)
+        public ASTBinaryNode(ASTNode val) : base(val)
         {
             Type = NodeType.UNKNOWN;
         }
 
-        public ASTNode(Token token, ASTNode? left = null, ASTNode? right = null) : base(token, left, right)
+        /*
+        public ASTBinaryNode(ASTNode val, ASTNode? left = null, ASTNode? right = null) : base(val, left, right)
         {
             Type = NodeType.UNKNOWN;
         }
-
+        */
         public override string ToString()
         {
-            return JsonSerializer.Serialize(this, new JsonSerializerOptions {
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions
+            {
                 WriteIndented = true,
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             });
@@ -50,15 +61,42 @@ namespace CarrotScript.Parser
 
     public class ProgramNode : ASTNode
     {
-        public ProgramNode(Token token) : base(token)
+        public List<ASTNode> Nodes { get; set; }
+
+        public ProgramNode(IEnumerable<ASTNode> nodes)
         {
             Type = NodeType.Program;
+            Nodes = new List<ASTNode>(nodes);
+        }
+    }
+
+    public class ExpressionNode : ASTNode
+    {
+        public ExpressionNode(ASTNode val)
+        {
+            Type = NodeType.Expression;
+        }
+    }
+
+    public class StatementNode : ASTNode
+    {
+        public StatementNode(ASTNode val)
+        {
+            Type = NodeType.Statement;
+        }
+    }
+
+    public class PrintNode : StatementNode
+    {
+        public PrintNode(ASTNode val) : base(val)
+        {
+            Type = NodeType.PrintStatement;
         }
     }
 
     public class IdentifierNode : ASTNode
     {
-        public IdentifierNode(Token token) : base(token)
+        public IdentifierNode(ASTNode val)
         {
             Type = NodeType.Identifier;
         }
@@ -66,7 +104,7 @@ namespace CarrotScript.Parser
 
     public class VariableDeclarationNode : ASTNode
     {
-        public VariableDeclarationNode(Token token) : base(token)
+        public VariableDeclarationNode(ASTNode val)
         {
             Type = NodeType.VariableDeclaration;
         }
@@ -85,7 +123,7 @@ namespace CarrotScript.Parser
 
     public class UnaryOpNode : ASTNode
     {
-        public UnaryOpNode(Token op, ASTNode right) : base(op, left: null, right: right)
+        public UnaryOpNode(ASTNode op, ASTNode right)
         {
             Type = NodeType.UnaryExpression;
         }
@@ -93,7 +131,7 @@ namespace CarrotScript.Parser
 
     public class BinaryOpNode : ASTNode
     {
-        public BinaryOpNode(Token op, ASTNode left, ASTNode right) : base(op, left: left, right: right)
+        public BinaryOpNode(ASTNode op, ASTNode left, ASTNode right)
         {
             Type = NodeType.BinaryExpression;
         }

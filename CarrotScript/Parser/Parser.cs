@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 using CarrotScript.Exception;
 using CarrotScript.Lexar;
 using static CarrotScript.Lang.Def;
+using static CarrotScript.Lang.Def.TokenType;
 
 namespace CarrotScript.Parser
 {
     public class Parser
     {
-        public Token? CurrentToken => GetToken();
-        public int Index { get; set; }
+        public Token? CurrentToken => GetToken(position);
+        private int position;
         public List<Token> Tokens { get; set; }
         public bool DebugInfo { get; set; }
 
@@ -26,11 +27,11 @@ namespace CarrotScript.Parser
         /// 
         /// </summary>
         /// <returns></returns>
-        public Token? GetToken(int offset = 0)
+        public Token? GetToken(int pos = 0)
         {
-            if (Index + offset >= 0 && Index + offset < Tokens.Count)
+            if (position >= 0 && position < Tokens.Count)
             {
-                return Tokens[Index + offset];
+                return Tokens[position];
             }
             else
                 return null;
@@ -42,8 +43,69 @@ namespace CarrotScript.Parser
         /// <returns></returns>
         public Token? Advance()
         {
-            Index++;
-            return CurrentToken;
+            position++;
+            return GetToken(position - 1);
+        }
+
+        public Token? Expect(TokenType type)
+        {
+            if (CurrentToken != null && CurrentToken.Type == type)
+                return Advance();
+            else
+                throw new InvalidSyntaxException(CurrentToken!.Span);
+        }
+
+        public ASTNode Parse()
+        {
+            return ParseProgram();
+        }
+
+        public ASTNode ParseProgram()
+        {
+            List<ASTNode> nodes = new List<ASTNode>();
+            while (CurrentToken != null)
+            {
+                nodes.Add(ParseStatement());
+            }
+            return new ProgramNode(nodes);
+        }
+
+        public ASTNode ParseStatement()
+        {
+            if (CurrentToken != null)
+            {
+                switch (CurrentToken.Type)
+                {
+                    case TEXT:
+                        return ParsePrintStatement();
+                        break;
+                    case ASSIGNMENT:
+                        return ParseAssignment();
+                        break;
+                    default:
+                        throw new InvalidSyntaxException(CurrentToken!.Span);
+                        break;
+                }
+            }
+            else
+                return null;
+        }
+
+        private PrintNode ParsePrintStatement()
+        {
+            var expr = ParseExpression();
+            return new PrintNode(expr);
+        }
+
+
+        private ASTNode ParseAssignment()
+        {
+            throw new NotImplementedException();
+        }
+
+        private ASTNode ParseExpression()
+        {
+            throw new NotImplementedException();
         }
 
         /*
