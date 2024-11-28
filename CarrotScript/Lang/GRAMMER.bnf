@@ -126,3 +126,13 @@ EmptyElemTag            ::=     '<' Name (Space Attribute)* S? '/>' (* <tag/> *)
 Element                 ::=     EmptyElemTag | STag Content ETag
 
 Content                 ::=     (Element | PiTag | OutputStatement)*
+
+
+############################################
+(* Parser Impl EBNF *)
+
+Program                 ::=     ( Statement )*
+Statement               ::=     ( PrintStatement )
+PrintStatement          ::=     ( '{' Expression '}' | Text )*
+Text                    ::=     Str
+Expression              ::=     ( Identifier | Expression )*

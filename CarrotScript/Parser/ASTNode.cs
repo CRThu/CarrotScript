@@ -72,7 +72,7 @@ namespace CarrotScript.Parser
 
     public class ExpressionNode : ASTNode
     {
-        public ExpressionNode(ASTNode val)
+        public ExpressionNode(ExpressionNode val)
         {
             Type = NodeType.Expression;
         }
@@ -94,9 +94,9 @@ namespace CarrotScript.Parser
         }
     }
 
-    public class IdentifierNode : ASTNode
+    public class IdentifierNode : ExpressionNode
     {
-        public IdentifierNode(ASTNode val)
+        public IdentifierNode(ExpressionNode val): base(val)
         {
             Type = NodeType.Identifier;
         }
@@ -123,7 +123,7 @@ namespace CarrotScript.Parser
 
     public class UnaryOpNode : ASTNode
     {
-        public UnaryOpNode(ASTNode op, ASTNode right)
+        public UnaryOpNode(ExpressionNode op, ExpressionNode right)
         {
             Type = NodeType.UnaryExpression;
         }
@@ -131,7 +131,7 @@ namespace CarrotScript.Parser
 
     public class BinaryOpNode : ASTNode
     {
-        public BinaryOpNode(ASTNode op, ASTNode left, ASTNode right)
+        public BinaryOpNode(ExpressionNode op, ExpressionNode left, ExpressionNode right)
         {
             Type = NodeType.BinaryExpression;
         }
