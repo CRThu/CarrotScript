@@ -5,6 +5,7 @@ using CarrotScript.Reader;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -35,12 +36,14 @@ namespace CarrotScriptDemo
                 lexarPipeline.AddLexar(new CarrotScriptLexar());
                 //lexarPipeline.AddReader(codeReader);
                 lexarPipeline.Code = code;
-                lexarPipeline.Process();
+                Tokens = new List<Token>(lexarPipeline.Tokenize());
 
-                //Lexar Lexar = new Lexar(codeReader, DebugInfo);
-                //Tokens = Lexar.Parse();
-                //Parser parser = new Parser(Tokens, DebugInfo);
-                //Ast = parser.Parse();
+                Parser parser = new Parser(Tokens, DebugInfo);
+                Ast = parser.Parse();
+
+                Console.WriteLine($"");
+                Console.WriteLine($"--- PARSER ---");
+                Console.WriteLine(Ast.ToTree());
             }
             catch (Exception ex)
             {

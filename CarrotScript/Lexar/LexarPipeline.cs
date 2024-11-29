@@ -35,7 +35,7 @@ namespace CarrotScript.Lexar
         //    Readers.Add(reader);
         //}
 
-        public IEnumerable<Token> Process()
+        public IEnumerable<Token> Tokenize()
         {
             List<Token> tokens = new List<Token>();
             tokens.Add(new Token(TokenType.ROOT, Code, new TokenSpan()));
@@ -47,7 +47,7 @@ namespace CarrotScript.Lexar
             if (DebugInfo)
             {
                 Console.WriteLine();
-                Console.WriteLine($"--- PHASE {phase} LEX ---");
+                Console.WriteLine($"--- PHASE {phase} ROOT ---");
                 foreach (var token in currTokens)
                     Console.WriteLine(token.ToString());
             }

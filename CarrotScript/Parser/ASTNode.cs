@@ -59,58 +59,116 @@ namespace CarrotScript.Parser
         }
     }
 
+
+    public static class AstNodeDebugEx
+    {
+        public static string ToTree(this ASTNode node, int level = 0)
+        {
+            var indent = new string(' ', level * 2);
+            var builder = new StringBuilder();
+
+            builder.Append(indent);
+            builder.Append($"[{node.Type}]({node})[{node.Span}]");
+            builder.AppendLine();
+
+            if (node.Type == NodeType.Program)
+            {
+                foreach (var child in ((ProgramNode)node).Children)
+                {
+                    builder.AppendLine(child.ToTree(level + 1));
+                }
+            }
+            else if (node.Type == NodeType.PrintStatement)
+            {
+                foreach (var child in ((PrintNode)node).Children)
+                {
+                    builder.AppendLine(child.ToTree(level + 1));
+                }
+            }
+
+            return builder.ToString();
+        }
+    }
+
     public class ProgramNode : ASTNode
     {
-        public List<StatementNode> Nodes { get; set; }
+        public List<StatementNode> Children { get; set; }
 
         public ProgramNode(IEnumerable<StatementNode> nodes)
         {
             Type = NodeType.Program;
-            Nodes = new List<StatementNode>(nodes);
+            Children = new List<StatementNode>(nodes);
         }
     }
 
-    public class ExpressionNode : ASTNode
+    public abstract class StatementNode : ASTNode
     {
-        public ExpressionNode(ExpressionNode val)
+    }
+
+    public class AssignNode : StatementNode
+    {
+        public string VariableName { get; set; }
+        public ExpressionNode Value { get; set; }
+
+        public AssignNode(string variableName, ExpressionNode value)
         {
-            Type = NodeType.Expression;
+            VariableName = variableName;
+            Value = value;
+            Type = NodeType.AssignStatement;
         }
     }
 
-    public class StatementNode : ASTNode
-    {
-        public StatementNode(ASTNode val)
-        {
-            Type = NodeType.Statement;
-        }
-    }
 
     public class PrintNode : StatementNode
     {
-        public PrintNode(ExpressionNode val) : base(val)
+        public List<ExpressionNode> Children { get; set; }
+
+        public PrintNode(ExpressionNode val)
         {
             Type = NodeType.PrintStatement;
+            Children = [val];
+        }
+
+        public PrintNode(IEnumerable<ExpressionNode> val)
+        {
+            Type = NodeType.PrintStatement;
+            Children = new List<ExpressionNode>(val);
         }
     }
 
-    public class IdentifierNode : ExpressionNode
+    public abstract class ExpressionNode : ASTNode
     {
-        public IdentifierNode(ExpressionNode val): base(val)
+    }
+
+
+    public class VariableNode : ExpressionNode
+    {
+        public string Identifier { get; set; }
+
+        public VariableNode(string val)
         {
+            Identifier = val;
             Type = NodeType.Identifier;
         }
     }
 
-    public class VariableDeclarationNode : ASTNode
+    public class LiteralNode : ExpressionNode
     {
-        public VariableDeclarationNode(ASTNode val)
+        public string Variable { get; set; }
+
+        public LiteralNode(string val)
         {
-            Type = NodeType.VariableDeclaration;
+            Variable = val;
+            Type = NodeType.Literal;
+        }
+
+        public override string ToString()
+        {
+            return $"Variable = {Variable}";
         }
     }
 
-    public class NullNode : ASTNode
+    public class NullNode : ExpressionNode
     {
         public new TokenSpan Span { get; set; }
 

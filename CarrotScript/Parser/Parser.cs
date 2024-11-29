@@ -60,7 +60,7 @@ namespace CarrotScript.Parser
             return ParseProgram();
         }
 
-        public ASTNode ParseProgram()
+        public ProgramNode ParseProgram()
         {
             List<StatementNode> nodes = new List<StatementNode>();
             while (CurrentToken != null)
@@ -72,23 +72,24 @@ namespace CarrotScript.Parser
 
         public StatementNode ParseStatement()
         {
-            if (CurrentToken != null)
+            if (CurrentToken == null)
             {
-                switch (CurrentToken.Type)
-                {
-                    case TEXT:
-                        return ParsePrintStatement();
-                        break;
-                    case ASSIGNMENT:
-                        return ParseAssignment();
-                        break;
-                    default:
-                        throw new InvalidSyntaxException(CurrentToken!.Span);
-                        break;
-                }
-            }
-            else
                 return null;
+            }
+
+            switch (CurrentToken.Type)
+            {
+                case TEXT:
+                case LBRACE:
+                    return ParsePrintStatement();
+                    break;
+                case ASSIGNMENT:
+                    return ParseAssignment();
+                    break;
+                default:
+                    throw new InvalidSyntaxException(CurrentToken!.Span);
+                    break;
+            }
         }
 
         private PrintNode ParsePrintStatement()
@@ -97,15 +98,47 @@ namespace CarrotScript.Parser
             return new PrintNode(expr);
         }
 
-
-        private StatementNode ParseAssignment()
+        private AssignNode ParseAssignment()
         {
-            throw new NotImplementedException();
+            var attr = CurrentToken!.Attributes!.First();
+            var name = attr.Key;
+            ExpressionNode value = null;
+            //var value = ParseExpression();
+            Advance();
+            return new AssignNode(name, value);
         }
 
         private ExpressionNode ParseExpression()
         {
-            throw new NotImplementedException();
+            // TODO
+            var expr = ParseBasic();
+            return expr;
+        }
+
+        private ExpressionNode ParseBasic()
+        {
+            if (CurrentToken == null)
+            {
+                return null;
+            }
+
+            ExpressionNode expression = null;
+            switch (CurrentToken.Type)
+            {
+                case IDENTIFIER:
+                    expression = new VariableNode(CurrentToken.Value);
+                    break;
+                case NUMBER:
+                case TEXT:
+                    expression = new LiteralNode(CurrentToken.Value);
+                    break;
+                default:
+                    throw new InvalidSyntaxException(CurrentToken!.Span);
+                    break;
+            }
+
+            Advance();
+            return expression;
         }
 
         /*
