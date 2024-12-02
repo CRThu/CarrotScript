@@ -119,6 +119,7 @@ namespace CarrotScript.Lang
 
             // CARROTSCRIPT
             TEXT,       // output text like: helloworld
+            TEXT_END,   // output text end symbol
             IDENTIFIER, // identifier like: a, b
             NUMBER,     // numbers like: 123.456
             OPERATOR,   // op like: +, -

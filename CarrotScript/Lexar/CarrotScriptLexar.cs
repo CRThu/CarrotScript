@@ -123,6 +123,8 @@ namespace CarrotScript.Lexar
             // Flush Text Before {
             End = Reader.Position;
             Flush(TEXT);
+            // Add TEXT_END Symbol
+            ResultTokens.Add(new Token(TEXT_END, "", new TokenSpan(Reader.Position, Reader.Position)));
         }
 
         private void ParsePiTarget()

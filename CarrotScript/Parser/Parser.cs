@@ -94,10 +94,37 @@ namespace CarrotScript.Parser
 
         private PrintNode ParsePrintStatement()
         {
-            var expr = ParseExpression();
+            if (CurrentToken == null)
+            {
+                return null;
+            }
+            List<ExpressionNode> nodes = new List<ExpressionNode>();
+            while (CurrentToken != null)
+            {
+                if(CurrentToken.Type == TEXT_END)
+                {
+                    Advance();  // TEXT_END
+                    return new PrintNode(nodes);
+                }
 
-            List<ExpressionNode> nodes = [expr];
-            return new PrintNode(nodes);
+                switch (CurrentToken.Type)
+                {
+                    case LBRACE:
+                        Advance();  // LBRACE
+                        while (CurrentToken.Type != RBRACE)
+                            nodes.Add(ParseExpression());
+                        Advance();  // RBRACE
+                        break;
+                    case TEXT:
+                        nodes.Add(ParseText());
+                        break;
+                    default:
+                        throw new InvalidSyntaxException(CurrentToken!.Span);
+                        break;
+                }
+            }
+
+            throw new InvalidSyntaxException(CurrentToken!.Span);
         }
 
         private AssignNode ParseAssignment()
@@ -131,6 +158,28 @@ namespace CarrotScript.Parser
                     expression = new VariableNode(CurrentToken.Value, CurrentToken.Span);
                     break;
                 case NUMBER:
+                case TEXT:
+                    expression = new LiteralNode(CurrentToken.Value, CurrentToken.Span);
+                    break;
+                default:
+                    throw new InvalidSyntaxException(CurrentToken!.Span);
+                    break;
+            }
+
+            Advance();
+            return expression;
+        }
+
+        private ExpressionNode ParseText()
+        {
+            if (CurrentToken == null)
+            {
+                return null;
+            }
+
+            ExpressionNode expression = null;
+            switch (CurrentToken.Type)
+            {
                 case TEXT:
                     expression = new LiteralNode(CurrentToken.Value, CurrentToken.Span);
                     break;

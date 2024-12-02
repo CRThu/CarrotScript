@@ -68,7 +68,7 @@ namespace CarrotScript.Parser
             var builder = new StringBuilder();
 
             builder.Append(indent);
-            builder.Append($"[{node.Type}]({node})[{node.Span}]");
+            builder.Append($"[{node.Type}] ({node}) [{node.Span}]");
             builder.AppendLine();
 
             if (node.Type == NodeType.Program)
@@ -102,8 +102,8 @@ namespace CarrotScript.Parser
         }
         private TokenSpan GetNestedSpan()
         {
-            CodePosition startPos = (Children == null) ? default : Children.First().Span.Start;
-            CodePosition endPos = (Children == null) ? default : Children.Last().Span.End;
+            CodePosition startPos = (Children == null || Children.Count == 0) ? default : Children.First().Span.Start;
+            CodePosition endPos = (Children == null || Children.Count == 0) ? default : Children.Last().Span.End;
             return new TokenSpan(startPos, endPos);
         }
     }
@@ -140,8 +140,8 @@ namespace CarrotScript.Parser
 
         private TokenSpan GetNestedSpan()
         {
-            CodePosition startPos = (Children == null) ? default : Children.First().Span.Start;
-            CodePosition endPos = (Children == null) ? default : Children.Last().Span.End;
+            CodePosition startPos = (Children == null || Children.Count == 0) ? default : Children.First().Span.Start;
+            CodePosition endPos = (Children == null || Children.Count == 0) ? default : Children.Last().Span.End;
             return new TokenSpan(startPos, endPos);
         }
     }
@@ -160,6 +160,11 @@ namespace CarrotScript.Parser
             Identifier = val;
             Type = NodeType.Identifier;
             Span = span;
+        }
+
+        public override string ToString()
+        {
+            return $"Identifier = {Identifier}";
         }
     }
 
