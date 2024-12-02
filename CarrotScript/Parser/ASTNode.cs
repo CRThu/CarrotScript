@@ -19,6 +19,7 @@ namespace CarrotScript.Parser
 
     }
 
+    /*
     public abstract class ASTBinaryNode : NodeBase<ASTNode>
     {
         [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -36,12 +37,10 @@ namespace CarrotScript.Parser
             Type = NodeType.UNKNOWN;
         }
 
-        /*
         public ASTBinaryNode(ASTNode val, ASTNode? left = null, ASTNode? right = null) : base(val, left, right)
         {
             Type = NodeType.UNKNOWN;
         }
-        */
         public override string ToString()
         {
             return JsonSerializer.Serialize(this, new JsonSerializerOptions
@@ -58,7 +57,7 @@ namespace CarrotScript.Parser
             return new TokenSpan(startPos, endPos);
         }
     }
-
+    */
 
     public static class AstNodeDebugEx
     {
@@ -84,6 +83,15 @@ namespace CarrotScript.Parser
                 {
                     builder.Append(child.ToTree(level + 1));
                 }
+            }
+            else if (node.Type == NodeType.UnaryExpression)
+            {
+                builder.Append(((UnaryOpNode)node).Right.ToTree(level + 1));
+            }
+            else if (node.Type == NodeType.BinaryExpression)
+            {
+                builder.Append(((BinaryOpNode)node).Left.ToTree(level + 1));
+                builder.Append(((BinaryOpNode)node).Right.ToTree(level + 1));
             }
 
             return builder.ToString();
@@ -187,8 +195,6 @@ namespace CarrotScript.Parser
 
     public class NullNode : ExpressionNode
     {
-        public new TokenSpan Span { get; set; }
-
         public NullNode(TokenSpan span) : base()
         {
             Type = NodeType.NULL;
@@ -196,19 +202,60 @@ namespace CarrotScript.Parser
         }
     }
 
-    public class UnaryOpNode : ASTNode
+    public class UnaryOpNode : ExpressionNode
     {
-        public UnaryOpNode(ExpressionNode op, ExpressionNode right)
+        public string Operator { get; set; }
+        public ExpressionNode Right { get; set; }
+
+        public UnaryOpNode(string op, ExpressionNode right, CodePosition opPos = default)
         {
             Type = NodeType.UnaryExpression;
+            Operator = op;
+            Right = right;
+
+            // maybe wrong here
+            Span = new(opPos, GetEndPosition());
+        }
+
+        public override string ToString()
+        {
+            return $"Operator = {Operator}";
+        }
+
+        private CodePosition GetEndPosition()
+        {
+            CodePosition endPos = (Right == null) ? default : Right.Span.End;
+            return endPos;
         }
     }
 
-    public class BinaryOpNode : ASTNode
+    public class BinaryOpNode : ExpressionNode
     {
-        public BinaryOpNode(ExpressionNode op, ExpressionNode left, ExpressionNode right)
+        public string Operator { get; set; }
+        public ExpressionNode Left { get; set; }
+        public ExpressionNode Right { get; set; }
+
+        public BinaryOpNode(string op, ExpressionNode left, ExpressionNode right)
         {
             Type = NodeType.BinaryExpression;
+            Operator = op;
+            Left = left;
+            Right = right;
+
+            // maybe wrong here
+            Span = GetSpan();
+        }
+
+        public override string ToString()
+        {
+            return $"Operator = {Operator}";
+        }
+
+        private TokenSpan GetSpan()
+        {
+            CodePosition startPos = (Left == null) ? default : Left.Span.Start;
+            CodePosition endPos = (Right == null) ? default : Right.Span.End;
+            return new TokenSpan(startPos, endPos);
         }
     }
 }

@@ -136,9 +136,6 @@ namespace CarrotScript.Lang
             DIV,        //  /
             POW,        //  **
 
-            LPAREN,     //  (
-            RPAREN,     //  )
-
             SPACE,      // <SPACE>
 
             IF,         // if
@@ -305,17 +302,13 @@ namespace CarrotScript.Lang
         public static bool IsLangDefNumberStartChar(this char c)
         {
             return c.InRange(('0', '9'))
-                || c == '.'
-                || c == '+'
-                || c == '-';
+                || c == '.';
         }
 
         public static bool IsLangDefNumberChar(this char c)
         {
             return c.InRange(('0', '9'))
                 || c == '.'
-                || c == '+'
-                || c == '-'
                 || c == 'E';
         }
 

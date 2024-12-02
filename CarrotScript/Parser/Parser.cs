@@ -101,19 +101,19 @@ namespace CarrotScript.Parser
             List<ExpressionNode> nodes = new List<ExpressionNode>();
             while (CurrentToken != null)
             {
-                if(CurrentToken.Type == TEXT_END)
+                if (CurrentToken.Type == TEXT_END)
                 {
-                    Advance();  // TEXT_END
+                    Expect(TEXT_END);  // TEXT_END
                     return new PrintNode(nodes);
                 }
 
                 switch (CurrentToken.Type)
                 {
                     case LBRACE:
-                        Advance();  // LBRACE
+                        Expect(LBRACE);  // LBRACE
                         while (CurrentToken.Type != RBRACE)
                             nodes.Add(ParseExpression());
-                        Advance();  // RBRACE
+                        Expect(RBRACE);  // RBRACE
                         break;
                     case TEXT:
                         nodes.Add(ParseText());
@@ -139,9 +139,62 @@ namespace CarrotScript.Parser
 
         private ExpressionNode ParseExpression()
         {
-            // TODO
-            var expr = ParseBasic();
+            if (CurrentToken == null)
+            {
+                return null;
+            }
+            //expr = ParsePosNegExpr();
+            var expr = ParseAddSubExpr();
+
             return expr;
+        }
+
+        /*
+        private ExpressionNode ParsePosNegExpr()
+        {
+            var expr = ParseMulDivExpr();
+            return expr;
+        }
+        */
+
+        private ExpressionNode ParseMulDivExpr()
+        {
+            if (CurrentToken == null)
+            {
+                return null;
+            }
+            var node = ParseBasic();
+
+            while (CurrentToken.Type == OPERATOR
+                && (CurrentToken.Value == "*"
+                    || CurrentToken.Value == "/"))
+            {
+                var op = CurrentToken.Value;
+                Expect(OPERATOR);      // *|/
+                var right = ParseBasic();
+                node = new BinaryOpNode(op, node, right);
+            }
+            return node;
+        }
+
+        private ExpressionNode ParseAddSubExpr()
+        {
+            if (CurrentToken == null)
+            {
+                return null;
+            }
+            var node = ParseMulDivExpr();
+
+            while (CurrentToken.Type == OPERATOR
+                && (CurrentToken.Value == "+"
+                    || CurrentToken.Value == "-"))
+            {
+                var op = CurrentToken.Value;
+                Expect(OPERATOR);      // +|-
+                var right = ParseMulDivExpr();
+                node = new BinaryOpNode(op, node, right);
+            }
+            return node;
         }
 
         private ExpressionNode ParseBasic()
@@ -156,17 +209,23 @@ namespace CarrotScript.Parser
             {
                 case IDENTIFIER:
                     expression = new VariableNode(CurrentToken.Value, CurrentToken.Span);
+                    Advance();
                     break;
                 case NUMBER:
                 case TEXT:
                     expression = new LiteralNode(CurrentToken.Value, CurrentToken.Span);
+                    Advance();
+                    break;
+                case LPAREN:
+                    Expect(LPAREN);      // LPAREN
+                    expression = ParseExpression();
+                    Expect(RPAREN);      // RPAREN
                     break;
                 default:
                     throw new InvalidSyntaxException(CurrentToken!.Span);
                     break;
             }
 
-            Advance();
             return expression;
         }
 

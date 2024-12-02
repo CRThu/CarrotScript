@@ -133,6 +133,18 @@ Content                 ::=     (Element | PiTag | OutputStatement)*
 
 Program                 ::=     ( Statement )*
 Statement               ::=     ( PrintStatement )
-PrintStatement          ::=     ( '{' Expression '}' | Text )*
-Text                    ::=     Str
-Expression              ::=     ( Identifier | Expression )*
+PrintStatement          ::=     ( '{' Expression '}' )*
+AssignmentStatement     ::=     Identifier '=' Expression
+Expression              ::=     '(' Expression ')'
+                            |   Expression ( '**' ) Expression
+                            |   ( '+' | '-' ) Expression
+                            |   Expression ( '*' | '/' | '%' ) Expression
+                            |   Expression ( '+' | '-' ) Expression
+                            |   Expression ( '<<' | '>>' ) Expression
+                            |   Expression ( '&' ) Expression
+                            |   Expression ( '|' ) Expression
+                            |   Expression ( '>' | '>=' | '<' | '<=' ) Expression
+                            |   Expression ( '==' | '!=' ) Expression
+                            |   ( '!' ) Expression
+                            |   Identifier
+                            |   Literal
