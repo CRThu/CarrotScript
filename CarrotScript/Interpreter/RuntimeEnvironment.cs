@@ -8,14 +8,14 @@ namespace CarrotScript.Interpreter
 {
     public class RuntimeEnvironment
     {
-        private readonly Dictionary<string, double> variables = new();
+        private readonly Dictionary<string, object> variables = new();
 
-        public void SetVariable(string name, double value)
+        public void SetVariable(string name, object value)
         {
             variables[name] = value;
         }
 
-        public double GetVariable(string name)
+        public object GetVariable(string name)
         {
             if (!variables.ContainsKey(name))
             {
@@ -31,6 +31,11 @@ namespace CarrotScript.Interpreter
             {
                 Console.WriteLine($"{key}={variables[key]}");
             }
+        }
+
+        internal void Print(object result)
+        {
+            Console.WriteLine(result.ToString());
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CarrotScript;
+using CarrotScript.Interpreter;
 using CarrotScript.Lexar;
 using CarrotScript.Parser;
 using CarrotScript.Reader;
@@ -44,6 +45,13 @@ namespace CarrotScriptDemo
                 Console.WriteLine($"");
                 Console.WriteLine($"--- PARSER ---");
                 Console.WriteLine(Ast.ToTree());
+
+                var env = new RuntimeEnvironment();
+                var interpreter = new Interpreter(env);
+
+                Console.WriteLine($"");
+                Console.WriteLine($"--- INTERPRETER ---");
+                interpreter.Execute(Ast);
             }
             catch (Exception ex)
             {
