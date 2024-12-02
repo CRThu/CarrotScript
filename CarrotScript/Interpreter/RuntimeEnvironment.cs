@@ -35,7 +35,7 @@ namespace CarrotScript.Interpreter
 
         internal void Print(object result)
         {
-            Console.WriteLine(result.ToString());
+            Console.Write(result.ToString());
         }
     }
 }

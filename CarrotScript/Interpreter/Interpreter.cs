@@ -40,6 +40,7 @@ namespace CarrotScript.Interpreter
                     var result = Evaluate(expression);
                     Environment.Print(result);
                 }
+                Environment.Print("\r\n");
             }
             else
                 throw new InvalidSyntaxException(node.Span);
