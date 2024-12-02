@@ -15,7 +15,7 @@ namespace CarrotScript.Parser
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public NodeType Type { get; set; }
 
-        public TokenSpan Span { get; }
+        public TokenSpan Span { get; set; }
 
     }
 
@@ -75,14 +75,14 @@ namespace CarrotScript.Parser
             {
                 foreach (var child in ((ProgramNode)node).Children)
                 {
-                    builder.AppendLine(child.ToTree(level + 1));
+                    builder.Append(child.ToTree(level + 1));
                 }
             }
             else if (node.Type == NodeType.PrintStatement)
             {
                 foreach (var child in ((PrintNode)node).Children)
                 {
-                    builder.AppendLine(child.ToTree(level + 1));
+                    builder.Append(child.ToTree(level + 1));
                 }
             }
 
@@ -94,9 +94,10 @@ namespace CarrotScript.Parser
     {
         public List<StatementNode> Children { get; set; }
 
-        public ProgramNode(IEnumerable<StatementNode> nodes)
+        public ProgramNode(IEnumerable<StatementNode> nodes, TokenSpan span = default)
         {
             Type = NodeType.Program;
+            Span = span;
             Children = new List<StatementNode>(nodes);
         }
     }
@@ -110,10 +111,11 @@ namespace CarrotScript.Parser
         public string VariableName { get; set; }
         public ExpressionNode Value { get; set; }
 
-        public AssignNode(string variableName, ExpressionNode value)
+        public AssignNode(string variableName, ExpressionNode value, TokenSpan span = default)
         {
             VariableName = variableName;
             Value = value;
+            Span = span;
             Type = NodeType.AssignStatement;
         }
     }
@@ -129,10 +131,11 @@ namespace CarrotScript.Parser
             Children = [val];
         }
 
-        public PrintNode(IEnumerable<ExpressionNode> val)
+        public PrintNode(IEnumerable<ExpressionNode> val, TokenSpan span = default)
         {
             Type = NodeType.PrintStatement;
             Children = new List<ExpressionNode>(val);
+            Span = span;
         }
     }
 
@@ -145,10 +148,11 @@ namespace CarrotScript.Parser
     {
         public string Identifier { get; set; }
 
-        public VariableNode(string val)
+        public VariableNode(string val, TokenSpan span = default)
         {
             Identifier = val;
             Type = NodeType.Identifier;
+            Span = span;
         }
     }
 
@@ -156,10 +160,11 @@ namespace CarrotScript.Parser
     {
         public string Variable { get; set; }
 
-        public LiteralNode(string val)
+        public LiteralNode(string val, TokenSpan span = default)
         {
             Variable = val;
             Type = NodeType.Literal;
+            Span = span;
         }
 
         public override string ToString()

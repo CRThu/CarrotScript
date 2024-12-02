@@ -141,6 +141,8 @@ namespace CarrotScript.Lexar
                     Reader.Advance();
                 }
             }
+            End = Reader.Position;
+            Flush(XML_CONTENT);
         }
 
         public void OpeningTagLexar()

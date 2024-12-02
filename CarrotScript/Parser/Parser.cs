@@ -126,11 +126,11 @@ namespace CarrotScript.Parser
             switch (CurrentToken.Type)
             {
                 case IDENTIFIER:
-                    expression = new VariableNode(CurrentToken.Value);
+                    expression = new VariableNode(CurrentToken.Value, CurrentToken.Span);
                     break;
                 case NUMBER:
                 case TEXT:
-                    expression = new LiteralNode(CurrentToken.Value);
+                    expression = new LiteralNode(CurrentToken.Value, CurrentToken.Span);
                     break;
                 default:
                     throw new InvalidSyntaxException(CurrentToken!.Span);
