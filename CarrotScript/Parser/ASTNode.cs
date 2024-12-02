@@ -94,11 +94,17 @@ namespace CarrotScript.Parser
     {
         public List<StatementNode> Children { get; set; }
 
-        public ProgramNode(IEnumerable<StatementNode> nodes, TokenSpan span = default)
+        public ProgramNode(IEnumerable<StatementNode> nodes)
         {
             Type = NodeType.Program;
-            Span = span;
             Children = new List<StatementNode>(nodes);
+            Span = GetNestedSpan();
+        }
+        private TokenSpan GetNestedSpan()
+        {
+            CodePosition startPos = (Children == null) ? default : Children.First().Span.Start;
+            CodePosition endPos = (Children == null) ? default : Children.Last().Span.End;
+            return new TokenSpan(startPos, endPos);
         }
     }
 
@@ -125,17 +131,18 @@ namespace CarrotScript.Parser
     {
         public List<ExpressionNode> Children { get; set; }
 
-        public PrintNode(ExpressionNode val)
-        {
-            Type = NodeType.PrintStatement;
-            Children = [val];
-        }
-
-        public PrintNode(IEnumerable<ExpressionNode> val, TokenSpan span = default)
+        public PrintNode(IEnumerable<ExpressionNode> val)
         {
             Type = NodeType.PrintStatement;
             Children = new List<ExpressionNode>(val);
-            Span = span;
+            Span = GetNestedSpan();
+        }
+
+        private TokenSpan GetNestedSpan()
+        {
+            CodePosition startPos = (Children == null) ? default : Children.First().Span.Start;
+            CodePosition endPos = (Children == null) ? default : Children.Last().Span.End;
+            return new TokenSpan(startPos, endPos);
         }
     }
 

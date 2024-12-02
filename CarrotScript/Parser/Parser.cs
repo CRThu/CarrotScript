@@ -95,7 +95,9 @@ namespace CarrotScript.Parser
         private PrintNode ParsePrintStatement()
         {
             var expr = ParseExpression();
-            return new PrintNode(expr);
+
+            List<ExpressionNode> nodes = [expr];
+            return new PrintNode(nodes);
         }
 
         private AssignNode ParseAssignment()
