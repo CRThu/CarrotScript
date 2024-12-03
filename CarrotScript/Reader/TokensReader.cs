@@ -22,10 +22,24 @@ namespace CarrotScript.Reader
 
         public CodePosition Position => new CodePosition(File, FixedOffset + Offset, Line, Column);
 
-        public void Reset(int startPos)
+        public TokenPositionContext()
+        {
+            Reset();
+        }
+
+        public void Reset()
         {
             Offset = 0;
-            FixedOffset = startPos;
+            FixedOffset = 0;
+            Line = 1;
+            Column = 1;
+        }
+        public void Reset(CodePosition startPos)
+        {
+            Offset = 0;
+            FixedOffset = startPos.Offset;
+            Line = startPos.Line;
+            Column = startPos.Col;
         }
 
         public void Update(char? c)
@@ -118,7 +132,11 @@ namespace CarrotScript.Reader
         {
             _currentTokenIndex++;
             _currentCharIndex = 0;
-            _positionContext.Reset(CurrentToken == null ? 0 : CurrentToken.Span.Start.Offset);
+
+            if (CurrentToken == null)
+                _positionContext.Reset();
+            else
+                _positionContext.Reset(CurrentToken.Span.Start);
         }
 
         public char? Advance()
