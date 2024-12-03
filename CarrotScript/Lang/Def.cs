@@ -111,11 +111,13 @@ namespace CarrotScript.Lang
             ROOT,
 
             // CARROTXML
-            XML_SINGLE_TAG,
-            XML_OPEN_TAG,
             XML_CONTENT,
+            XML_OPEN_PI_TARGET,
+            XML_CLOSE_PI_TARGET,
+            XML_OPEN_TAG,
             XML_CLOSE_TAG,
-            XML_PI_TARGET,
+            XML_ATTR_NAME,
+            XML_ATTR_VALUE,
 
             // CARROTSCRIPT
             TEXT,       // output text like: helloworld
@@ -314,7 +316,7 @@ namespace CarrotScript.Lang
 
         public static bool IsLangDefOperatorChar(this char c)
         {
-            return  c == '+'
+            return c == '+'
                 || c == '-'
                 || c == '*'
                 || c == '/';

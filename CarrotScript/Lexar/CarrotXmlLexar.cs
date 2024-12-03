@@ -40,12 +40,20 @@ namespace CarrotScript.Lexar
             return ResultTokens;
         }
 
-        private void Flush(TokenType tokenType, IDictionary<string, string>? attributes = null)
+        private void Flush(TokenType tokenType)
         {
             if (Buffer.Length != 0)
             {
-                ResultTokens.Add(new Token(tokenType, Buffer.ToString(), new TokenSpan(Start, End), attributes));
+                ResultTokens.Add(new Token(tokenType, Buffer.ToString(), new TokenSpan(Start, End)));
                 Buffer.Clear();
+            }
+        }
+
+        private void Flush(TokenType tokenType, ReadOnlySpan<char> value)
+        {
+            if (value.Length != 0)
+            {
+                ResultTokens.Add(new Token(tokenType, value.ToString(), new TokenSpan(Start, End)));
             }
         }
 
@@ -160,25 +168,29 @@ namespace CarrotScript.Lexar
             var name = Reader.ParseWhile(Def.IsLangDefNameChar);
             Buffer.Append(name);
 
+            End = Reader.Position;
+            Flush(XML_OPEN_TAG);
+
             // ... < name \s...
             Reader.ParseWhile((S) => S == SP);
 
             // ... < name attrx='valx' ...
-            var attrs = AttributesLexar();
+            AttributesLexar();
 
-            TokenType tokenType = XML_OPEN_TAG;
             if (Reader.CurrentSymbol == DIV)
             {
+                Start = Reader.Position;
+
                 // ... < name attrx='valx' / ...
                 Reader.Expect(DIV);
-                tokenType = XML_SINGLE_TAG;
+
+                End = Reader.Position;
+                Flush(XML_CLOSE_TAG, name);
             }
 
             // ... < name attrx='valx' /> ...
             // ... < name attrx='valx' > ...
             Reader.Expect(GT);
-            End = Reader.Position;
-            Flush(tokenType, attrs);
         }
 
         public void ClosingTagLexar()
@@ -220,34 +232,35 @@ namespace CarrotScript.Lexar
             var name = Reader.ParseWhile(Def.IsLangDefNameChar);
             Buffer.Append(name);
 
+            End = Reader.Position;
+            Flush(XML_OPEN_PI_TARGET);
+
             // ... < name \s...
             Reader.ParseWhile((S) => S == SP);
 
             // ... <? name attrx='valx' ...
-            var attrs = AttributesLexar();
+            AttributesLexar();
 
             // ... <? name attrx='valx' ?>...
+            Start = Reader.Position;
+
             Reader.Expect(QUEST);
             Reader.Expect(GT);
 
             End = Reader.Position;
-            Flush(XML_PI_TARGET, attrs);
+            Flush(XML_CLOSE_PI_TARGET, name);
         }
 
-        public IDictionary<string, string> AttributesLexar()
+        public void AttributesLexar()
         {
-            Dictionary<string, string> attributes = new();
-
             // enter method after char ... < name ...
             // enter method after char ... <? name ...
             if (Reader == null)
-                return attributes;
+                return;
 
             // check reader has read to end or not
             while (Reader.CurrentChar != null)
             {
-                StringBuilder attrName = new(), attrValue = new();
-
                 // ... < name \s...
                 Reader.ParseWhile((S) => S == SP);
 
@@ -260,8 +273,11 @@ namespace CarrotScript.Lexar
 
                 // ... <  name attrx ...
                 // ... <? name attrx ...
+                Start = Reader.Position;
                 var attrNameSpan = Reader.ParseWhile(Def.IsLangDefNameChar);
-                attrName.Append(attrNameSpan);
+                Buffer.Append(attrNameSpan);
+                End = Reader.Position;
+                Flush(XML_ATTR_NAME);
 
                 // ... <  name attrx= ...
                 // ... <? name attrx= ...
@@ -274,18 +290,19 @@ namespace CarrotScript.Lexar
 
                 // ... <  name attrx='valx ...
                 // ... <? name attrx='valx ...
+                Start = Reader.Position;
                 var attrValSpan = Reader.ParseWhile(Def.IsLangDefNameChar);
-                attrValue.Append(attrValSpan);
+                Buffer.Append(attrValSpan);
+                End = Reader.Position;
+                Flush(XML_ATTR_VALUE);
 
                 // ... <  name attrx='valx' ...
                 // ... <? name attrx='valx' ...
                 //Reader.Expect(QUOT);
                 Reader.ParseWhile((S) => S == QUOT);
-
-                attributes.Add(attrName.ToString(), attrValue.ToString());
             }
 
-            return attributes;
+            return;
         }
     }
 }

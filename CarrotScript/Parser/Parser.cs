@@ -129,8 +129,8 @@ namespace CarrotScript.Parser
 
         private AssignNode ParseAssignment()
         {
-            var attr = CurrentToken!.Attributes!.First();
-            var name = attr.Key;
+            string attr = "";
+            string name = "";
             ExpressionNode value = null;
             //var value = ParseExpression();
             Advance();

@@ -50,10 +50,6 @@ namespace CarrotScript.Lexar
             {
                 switch (token.Type)
                 {
-                    case XML_SINGLE_TAG:
-                        // <main/>
-                        throw new NotImplementedException();
-                        break;
                     case XML_OPEN_TAG:
                         // <main>
                         throw new NotImplementedException();
@@ -66,7 +62,7 @@ namespace CarrotScript.Lexar
                         // CONTENT;
                         ParseContent();
                         break;
-                    case XML_PI_TARGET:
+                    case XML_OPEN_PI_TARGET:
                         // <?def a=1?>
                         ParsePiTarget();
                         break;
@@ -139,7 +135,7 @@ namespace CarrotScript.Lexar
             switch (target)
             {
                 case "def":
-                    ResultTokens.Add(new Token(ASSIGNMENT, Reader.Token.Value, Reader.Token.Span, Reader.Token.Attributes));
+                    ResultTokens.Add(new Token(ASSIGNMENT, Reader.Token.Value, Reader.Token.Span));
                     break;
                 default:
                     throw new InvalidSyntaxException(Reader.Position);

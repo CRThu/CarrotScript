@@ -34,7 +34,7 @@ namespace CarrotScript
         ///// <summary>
         ///// 子Token
         ///// </summary>
-        public Dictionary<string, string>? Attributes { get; set; }
+        //public Dictionary<string, string>? Attributes { get; set; }
 
         /// <summary>
         /// 构造函数
@@ -46,9 +46,10 @@ namespace CarrotScript
             Type = tokenType;
             Value = value;
             Span = span;
-            Attributes = null;
+            //Attributes = null;
         }
 
+        /*
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -61,6 +62,7 @@ namespace CarrotScript
             Span = span;
             Attributes = (attributes != null && attributes.Count != 0) ? new Dictionary<string, string>(attributes) : null;
         }
+        */
 
         public override string ToString()
         {
@@ -69,7 +71,7 @@ namespace CarrotScript
                 $"type = \"{Type}\"" +
                 $", value = \"{RemoveUnprintableAscii(Value)}\"" +
                 $", span = \"{Span}\"" +
-                ((Attributes != null) ? ", " + AttributesToString() : "") +
+                //((Attributes != null) ? ", " + AttributesToString() : "") +
                 $"}}";
             //foreach (Token token in Children)
             //{
@@ -85,6 +87,7 @@ namespace CarrotScript
             */
         }
 
+        /*
         public string AttributesToString()
         {
             if (Attributes == null)
@@ -92,6 +95,7 @@ namespace CarrotScript
             else
                 return string.Join(", ", Attributes.Select(kv => $"{kv.Key} = \"{kv.Value}\""));
         }
+        */
 
         public string RemoveUnprintableAscii(string i)
         {
