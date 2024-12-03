@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CarrotScript.Reader;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -100,6 +101,26 @@ namespace CarrotScript
         public string RemoveUnprintableAscii(string i)
         {
             return i.Replace(" ", "\\s").Replace("\t", "\\t").Replace("\r", "\\r").Replace("\n", "\\n");
+        }
+
+
+
+        /// <summary>
+        /// 获取所指字符串
+        /// </summary>
+        /// <returns></returns>
+        private ReadOnlySpan<char> GetSpan(int start, int end)
+        {
+            return Value.AsSpan(start - Span.Start.Offset, end - start);
+        }
+
+        /// <summary>
+        /// 获取所指字符串
+        /// </summary>
+        /// <returns></returns>
+        public ReadOnlySpan<char> GetSpan(CodePosition start, CodePosition end)
+        {
+            return GetSpan(start.Offset, end.Offset);
         }
     }
 }

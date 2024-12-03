@@ -10,7 +10,7 @@ namespace CarrotScript.Reader
 {
     public static class TokenReaderHelper
     {
-        public static char? Expect(this ITokenReader reader, Symbol expected)
+        public static char? Expect(this ITokensReader reader, Symbol expected)
         {
             if (reader == null)
                 throw new ArgumentNullException("Reader is null.");
@@ -20,7 +20,7 @@ namespace CarrotScript.Reader
                 return reader.Advance();
         }
 
-        public static ReadOnlySpan<char> ParseWhile(this ITokenReader reader, Func<char, bool> condition)
+        public static ReadOnlySpan<char> ParseWhile(this ITokensReader reader, Func<char, bool> condition)
         {
             if (reader == null)
                 throw new ArgumentNullException("Reader is null.");
@@ -33,10 +33,10 @@ namespace CarrotScript.Reader
                 {
                     reader.Advance();
                 }
-                return reader.GetSpan(start, reader.Position);
+                return reader.CurrentToken!.GetSpan(start, reader.Position);
             }
         }
-        public static ReadOnlySpan<char> ParseWhile(this ITokenReader reader, Func<Symbol, bool> condition)
+        public static ReadOnlySpan<char> ParseWhile(this ITokensReader reader, Func<Symbol, bool> condition)
         {
             if (reader == null)
                 throw new ArgumentNullException("Reader is null.");
@@ -49,7 +49,7 @@ namespace CarrotScript.Reader
                 {
                     reader.Advance();
                 }
-                return reader.GetSpan(start, reader.Position);
+                return reader.CurrentToken!.GetSpan(start, reader.Position);
             }
         }
     }

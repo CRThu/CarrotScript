@@ -9,7 +9,7 @@ namespace CarrotScript.Lexar
 {
     public class CarrotScriptLexar : ILexar
     {
-        private TokenReader? Reader { get; set; }
+        private TokensReader? Reader { get; set; }
         private List<Token> ResultTokens { get; set; }
         private StringBuilder Buffer { get; set; }
         private CodePosition Start { get; set; }
@@ -35,20 +35,21 @@ namespace CarrotScript.Lexar
         }
         public IEnumerable<Token> Tokenize(IEnumerable<Token> inputTokens)
         {
-            foreach (Token inputToken in inputTokens)
+            Reader = new TokensReader(inputTokens);
+            while (!Reader.IsAtEnd)
             {
-                RootLexar(inputToken);
+                RootLexar();
+                Reader.AdvanceToken();
             }
             return ResultTokens;
         }
 
-        public void RootLexar(Token token)
+        public void RootLexar()
         {
-            Reader = new TokenReader(token);
             // check reader has read to end or not
             while (Reader != null && Reader.CurrentChar != null)
             {
-                switch (token.Type)
+                switch (Reader.CurrentToken.Type)
                 {
                     case XML_OPEN_TAG:
                         // <main>
@@ -135,7 +136,7 @@ namespace CarrotScript.Lexar
             switch (target)
             {
                 case "def":
-                    ResultTokens.Add(new Token(ASSIGNMENT, Reader.Token.Value, Reader.Token.Span));
+                    ResultTokens.Add(new Token(ASSIGNMENT, Reader.CurrentToken.Value, Reader.CurrentToken.Span));
                     break;
                 default:
                     throw new InvalidSyntaxException(Reader.Position);

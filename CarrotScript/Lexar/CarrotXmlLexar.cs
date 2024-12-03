@@ -11,49 +11,50 @@ using static CarrotScript.Lang.Def.TokenType;
 using static CarrotScript.Lang.Def.Symbol;
 using CarrotScript.Reader;
 using CarrotScript.Lang;
+using System.Runtime.Intrinsics.Arm;
 
 namespace CarrotScript.Lexar
 {
     public class CarrotXmlLexar : ILexar
     {
-        private TokenReader? Reader { get; set; }
+        private TokensReader? Reader { get; set; }
         private List<Token> ResultTokens { get; set; }
-        private StringBuilder Buffer { get; set; }
-        private CodePosition Start { get; set; }
-        private CodePosition End { get; set; }
+
+        private readonly StringBuilder _buffer;
+        private CodePosition _start;
+        private CodePosition _end;
+
         //private Stack<XmlLexarState> ContextStates { get; set; }
         //private XmlLexarState State => ContextStates.Peek();
 
         public CarrotXmlLexar()
         {
-            Buffer = new();
+            _buffer = new();
             ResultTokens = new();
         }
 
         public IEnumerable<Token> Tokenize(IEnumerable<Token> inputTokens)
         {
-            foreach (Token inputToken in inputTokens)
+            Reader = new TokensReader(inputTokens);
+            while (!Reader.IsAtEnd)
             {
-                Reader = new TokenReader(inputToken);
                 RootLexar();
+                Reader.AdvanceToken();
             }
             return ResultTokens;
         }
 
         private void Flush(TokenType tokenType)
         {
-            if (Buffer.Length != 0)
-            {
-                ResultTokens.Add(new Token(tokenType, Buffer.ToString(), new TokenSpan(Start, End)));
-                Buffer.Clear();
-            }
+            Flush(tokenType, _buffer.ToString());
+            _buffer.Clear();
         }
 
         private void Flush(TokenType tokenType, ReadOnlySpan<char> value)
         {
             if (value.Length != 0)
             {
-                ResultTokens.Add(new Token(tokenType, value.ToString(), new TokenSpan(Start, End)));
+                ResultTokens.Add(new Token(tokenType, value.ToString(), new TokenSpan(_start, _end)));
             }
         }
 
@@ -122,7 +123,7 @@ namespace CarrotScript.Lexar
             if (Reader == null)
                 return;
 
-            Start = Reader.Position;
+            _start = Reader.Position;
             // check reader has read to end or not
             while (Reader.CurrentChar != null)
             {
@@ -131,25 +132,25 @@ namespace CarrotScript.Lexar
                 {
                     // ... \n ...
                     Reader.Advance();
-                    End = Reader.Position;
+                    _end = Reader.Position;
                     Flush(XML_CONTENT);
                     break;
                 }
                 else if (Reader.CurrentSymbol == LT)
                 {
                     // ... < ...
-                    End = Reader.Position;
+                    _end = Reader.Position;
                     Flush(XML_CONTENT);
                     break;
                 }
                 else
                 {
                     // ... .  ...
-                    Buffer.Append(Reader.CurrentChar);
+                    _buffer.Append(Reader.CurrentChar);
                     Reader.Advance();
                 }
             }
-            End = Reader.Position;
+            _end = Reader.Position;
             Flush(XML_CONTENT);
         }
 
@@ -159,16 +160,16 @@ namespace CarrotScript.Lexar
             if (Reader == null)
                 return;
 
-            Start = Reader.Position;
+            _start = Reader.Position;
 
             // ... < ...
             Reader.Expect(LT);
 
             // ... < name ...
             var name = Reader.ParseWhile(Def.IsLangDefNameChar);
-            Buffer.Append(name);
+            _buffer.Append(name);
 
-            End = Reader.Position;
+            _end = Reader.Position;
             Flush(XML_OPEN_TAG);
 
             // ... < name \s...
@@ -179,12 +180,12 @@ namespace CarrotScript.Lexar
 
             if (Reader.CurrentSymbol == DIV)
             {
-                Start = Reader.Position;
+                _start = Reader.Position;
 
                 // ... < name attrx='valx' / ...
                 Reader.Expect(DIV);
 
-                End = Reader.Position;
+                _end = Reader.Position;
                 Flush(XML_CLOSE_TAG, name);
             }
 
@@ -199,7 +200,7 @@ namespace CarrotScript.Lexar
             if (Reader == null)
                 return;
 
-            Start = Reader.Position;
+            _start = Reader.Position;
 
             // ... </ . ...
             Reader.Expect(LT);
@@ -207,12 +208,12 @@ namespace CarrotScript.Lexar
 
             // ... </ name ...
             var name = Reader.ParseWhile(Def.IsLangDefNameChar);
-            Buffer.Append(name);
+            _buffer.Append(name);
 
             // ... </ name > ...
             Reader.Expect(GT);
 
-            End = Reader.Position;
+            _end = Reader.Position;
             Flush(XML_CLOSE_TAG);
         }
 
@@ -222,7 +223,7 @@ namespace CarrotScript.Lexar
             if (Reader == null)
                 return;
 
-            Start = Reader.Position;
+            _start = Reader.Position;
 
             // ... <? . ...
             Reader.Expect(LT);
@@ -230,9 +231,9 @@ namespace CarrotScript.Lexar
 
             // ... <? name ...
             var name = Reader.ParseWhile(Def.IsLangDefNameChar);
-            Buffer.Append(name);
+            _buffer.Append(name);
 
-            End = Reader.Position;
+            _end = Reader.Position;
             Flush(XML_OPEN_PI_TARGET);
 
             // ... < name \s...
@@ -242,12 +243,12 @@ namespace CarrotScript.Lexar
             AttributesLexar();
 
             // ... <? name attrx='valx' ?>...
-            Start = Reader.Position;
+            _start = Reader.Position;
 
             Reader.Expect(QUEST);
             Reader.Expect(GT);
 
-            End = Reader.Position;
+            _end = Reader.Position;
             Flush(XML_CLOSE_PI_TARGET, name);
         }
 
@@ -273,10 +274,10 @@ namespace CarrotScript.Lexar
 
                 // ... <  name attrx ...
                 // ... <? name attrx ...
-                Start = Reader.Position;
+                _start = Reader.Position;
                 var attrNameSpan = Reader.ParseWhile(Def.IsLangDefNameChar);
-                Buffer.Append(attrNameSpan);
-                End = Reader.Position;
+                _buffer.Append(attrNameSpan);
+                _end = Reader.Position;
                 Flush(XML_ATTR_NAME);
 
                 // ... <  name attrx= ...
@@ -290,10 +291,10 @@ namespace CarrotScript.Lexar
 
                 // ... <  name attrx='valx ...
                 // ... <? name attrx='valx ...
-                Start = Reader.Position;
+                _start = Reader.Position;
                 var attrValSpan = Reader.ParseWhile(Def.IsLangDefNameChar);
-                Buffer.Append(attrValSpan);
-                End = Reader.Position;
+                _buffer.Append(attrValSpan);
+                _end = Reader.Position;
                 Flush(XML_ATTR_VALUE);
 
                 // ... <  name attrx='valx' ...

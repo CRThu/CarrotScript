@@ -19,7 +19,7 @@ namespace CarrotScript.Lexar
         /// <summary>
         /// 代码读取器
         /// </summary>
-        public TokenReader Reader { get; set; }
+        public TokensReader Reader { get; set; }
 
         /// <summary>
         /// Token向量
@@ -39,7 +39,7 @@ namespace CarrotScript.Lexar
         /// 构造函数
         /// </summary>
         /// <param name="code"></param>
-        public Lexar(TokenReader codeReader, bool debugInfo = false)
+        public Lexar(TokensReader codeReader, bool debugInfo = false)
         {
             Reader = codeReader;
             Tokens = new();
