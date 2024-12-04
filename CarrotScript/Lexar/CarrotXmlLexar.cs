@@ -4,14 +4,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using static CarrotScript.Lang.Def;
-using static CarrotScript.Lang.Def.XmlLexarState;
 using static CarrotScript.Lang.Def.TokenType;
 using static CarrotScript.Lang.Def.Symbol;
 using CarrotScript.Reader;
 using CarrotScript.Lang;
-using System.Runtime.Intrinsics.Arm;
 
 namespace CarrotScript.Lexar
 {

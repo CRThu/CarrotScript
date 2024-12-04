@@ -11,28 +11,42 @@ namespace CarrotScript.Lexar
     {
         private TokensReader? Reader { get; set; }
         private List<Token> ResultTokens { get; set; }
-        private StringBuilder Buffer { get; set; }
-        private CodePosition Start { get; set; }
-        private CodePosition End { get; set; }
+
+        private readonly StringBuilder _buffer;
+        private CodePosition _start;
+        private CodePosition _end;
 
         //private Stack<XmlLexarState> ContextStates { get; set; }
         //private XmlLexarState State => ContextStates.Peek();
 
         public CarrotScriptLexar()
         {
-            Buffer = new();
+            _buffer = new();
             ResultTokens = new();
         }
 
+        private void FlushCurrentToken(TokenType tokenType)
+        {
+            if (Reader != null && Reader.CurrentToken != null)
+            {
+                ResultTokens.Add(new Token(tokenType, Reader.CurrentToken.Value, Reader.CurrentToken.Span));
+            }
+        }
 
         private void Flush(TokenType tokenType)
         {
-            if (Buffer.Length != 0)
+            Flush(tokenType, _buffer.ToString());
+            _buffer.Clear();
+        }
+
+        private void Flush(TokenType tokenType, ReadOnlySpan<char> value)
+        {
+            if (value.Length != 0)
             {
-                ResultTokens.Add(new Token(tokenType, Buffer.ToString(), new TokenSpan(Start, End)));
-                Buffer.Clear();
+                ResultTokens.Add(new Token(tokenType, value.ToString(), new TokenSpan(_start, _end)));
             }
         }
+
         public IEnumerable<Token> Tokenize(IEnumerable<Token> inputTokens)
         {
             Reader = new TokensReader(inputTokens);
@@ -53,11 +67,13 @@ namespace CarrotScript.Lexar
                 {
                     case XML_OPEN_TAG:
                         // <main>
-                        throw new NotImplementedException();
+                        // TODO
+                        Reader.AdvanceToken();
                         break;
                     case XML_CLOSE_TAG:
                         // </main>
-                        throw new NotImplementedException();
+                        // TODO
+                        Reader.AdvanceToken();
                         break;
                     case XML_CONTENT:
                         // CONTENT;
@@ -79,46 +95,46 @@ namespace CarrotScript.Lexar
             if (Reader == null)
                 return;
 
-            Start = Reader.Position;
+            _start = Reader.Position;
             // check reader has read to end or not
             while (Reader.CurrentChar != null)
             {
                 if (Reader.CurrentSymbol == LCUB)
                 {
                     // Flush Text Before {
-                    End = Reader.Position;
+                    _end = Reader.Position;
                     Flush(TEXT);
 
                     // ... { ...
-                    Start = Reader.Position;
-                    Buffer.Append(Reader.CurrentChar);
+                    _start = Reader.Position;
+                    _buffer.Append(Reader.CurrentChar);
                     Reader.Advance();
-                    End = Reader.Position;
+                    _end = Reader.Position;
                     Flush(LBRACE);
 
                     // ... { ...
                     //var expr = Reader.ParseWhile(S => S != Symbol.RCUB);
-                    TokenizeExpr();
+                    ParseExpression();
 
                     // ... { ... } 
-                    Start = Reader.Position;
-                    Buffer.Append(Reader.CurrentChar);
+                    _start = Reader.Position;
+                    _buffer.Append(Reader.CurrentChar);
                     Reader.Advance();
-                    End = Reader.Position;
+                    _end = Reader.Position;
                     Flush(RBRACE);
 
-                    Start = Reader.Position;
+                    _start = Reader.Position;
                 }
                 else
                 {
                     // ... .  ...
-                    Buffer.Append(Reader.CurrentChar);
+                    _buffer.Append(Reader.CurrentChar);
                     Reader.Advance();
                 }
             }
 
             // Flush Text Before {
-            End = Reader.Position;
+            _end = Reader.Position;
             Flush(TEXT);
             // Add TEXT_END Symbol
             ResultTokens.Add(new Token(TEXT_END, "", new TokenSpan(Reader.Position, Reader.Position)));
@@ -127,24 +143,82 @@ namespace CarrotScript.Lexar
         private void ParsePiTarget()
         {
             // enter method after char  ..> ...
-            if (Reader == null)
+            if (Reader == null || Reader.CurrentToken == null)
                 return;
 
             // <?target
-            var target = Reader.ParseWhile(S => S != SP);
-
+            var target = Reader.CurrentToken.Value;
             switch (target)
             {
+                case "carrotxml":
+                    // TODO
+                    ParseInfo();
+                    break;
                 case "def":
-                    ResultTokens.Add(new Token(ASSIGNMENT, Reader.CurrentToken.Value, Reader.CurrentToken.Span));
+                    ParseAssignment();
                     break;
                 default:
                     throw new InvalidSyntaxException(Reader.Position);
                     break;
             }
+
+            Reader.AdvanceToken();
+
         }
 
-        private void TokenizeExpr()
+        private void ParseInfo()
+        {
+            if (Reader == null || Reader.CurrentToken == null)
+            {
+                return;
+            }
+
+            // <?carrotxml
+            Reader.AdvanceToken();
+
+            while (Reader != null && Reader.CurrentToken != null
+                    && (Reader.CurrentToken.Type == XML_ATTR_NAME
+                        || Reader.CurrentToken.Type == XML_ATTR_VALUE))
+            {
+                Reader.AdvanceToken();
+            }
+        }
+
+        private void ParseAssignment()
+        {
+            if (Reader == null || Reader.CurrentToken == null)
+            {
+                return;
+            }
+
+            // <?def
+            FlushCurrentToken(ASSIGNMENT);
+            Reader.AdvanceToken();
+
+            while (Reader != null && Reader.CurrentToken != null)
+            {
+                // <?def name1
+                // <?def name1=value1 name2
+                if (Reader.CurrentToken.Type == XML_ATTR_NAME)
+                {
+                    FlushCurrentToken(IDENTIFIER);
+                    Reader.AdvanceToken();
+                }
+                // <?def name1=value1
+                // <?def name1=value1 name2=value2
+                else if (Reader.CurrentToken.Type == XML_ATTR_VALUE)
+                {
+                    ParseExpression();
+                    Reader.AdvanceToken();
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        private void ParseExpression()
         {
             // check reader has read to end or not
             while (Reader != null && Reader.CurrentChar != null)
@@ -163,53 +237,53 @@ namespace CarrotScript.Lexar
                 else if (Reader.CurrentSymbol == LP)
                 {
                     // { ... (
-                    Start = Reader.Position;
-                    Buffer.Append(Reader.CurrentChar);
+                    _start = Reader.Position;
+                    _buffer.Append(Reader.CurrentChar);
                     Reader.Advance();
-                    End = Reader.Position;
+                    _end = Reader.Position;
                     Flush(LPAREN);
 
                     // { ... ( ...
-                    TokenizeExpr();
+                    ParseExpression();
 
                     // { ... ( ... )
-                    Start = Reader.Position;
+                    _start = Reader.Position;
                     var sym = Reader.Expect(RP);
-                    Buffer.Append(sym);
-                    End = Reader.Position;
+                    _buffer.Append(sym);
+                    _end = Reader.Position;
                     Flush(RPAREN);
                 }
                 else if (Reader.CurrentChar.Value.IsLangDefIdentifierStartChar())
                 {
                     // { ... a
-                    Start = Reader.Position;
-                    Buffer.Append(Reader.CurrentChar);
+                    _start = Reader.Position;
+                    _buffer.Append(Reader.CurrentChar);
                     Reader.Advance();
 
                     var identifierChars = Reader.ParseWhile(C => C.IsLangDefIdentifierChar());
-                    Buffer.Append(identifierChars);
-                    End = Reader.Position;
+                    _buffer.Append(identifierChars);
+                    _end = Reader.Position;
                     Flush(IDENTIFIER);
                 }
                 else if (Reader.CurrentChar.Value.IsLangDefNumberStartChar())
                 {
                     // { ... 123
-                    Start = Reader.Position;
-                    Buffer.Append(Reader.CurrentChar);
+                    _start = Reader.Position;
+                    _buffer.Append(Reader.CurrentChar);
                     Reader.Advance();
 
                     var numberChars = Reader.ParseWhile(C => C.IsLangDefNumberChar());
-                    Buffer.Append(numberChars);
-                    End = Reader.Position;
+                    _buffer.Append(numberChars);
+                    _end = Reader.Position;
                     Flush(NUMBER);
                 }
                 else if (Reader.CurrentChar.Value.IsLangDefOperatorChar())
                 {
                     // { ... +
-                    Start = Reader.Position;
-                    Buffer.Append(Reader.CurrentChar);
+                    _start = Reader.Position;
+                    _buffer.Append(Reader.CurrentChar);
                     Reader.Advance();
-                    End = Reader.Position;
+                    _end = Reader.Position;
                     Flush(OPERATOR);
                 }
                 else

@@ -25,7 +25,10 @@ namespace CarrotScript.Reader
             if (reader == null)
                 throw new ArgumentNullException("Reader is null.");
             else if (reader.CurrentChar == null)
-                throw new ArgumentNullException("Condition is null.");
+            {
+                return ReadOnlySpan<char>.Empty;
+                //throw new ArgumentNullException("Condition is null.");
+            }
             else
             {
                 CodePosition start = reader.Position;
@@ -41,7 +44,10 @@ namespace CarrotScript.Reader
             if (reader == null)
                 throw new ArgumentNullException("Reader is null.");
             else if (reader.CurrentSymbol == null)
-                throw new ArgumentNullException("Condition is null.");
+            {
+                return ReadOnlySpan<char>.Empty;
+                //throw new ArgumentNullException("Condition is null.");
+            }
             else
             {
                 CodePosition start = reader.Position;
