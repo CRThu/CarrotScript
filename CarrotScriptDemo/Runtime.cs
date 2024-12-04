@@ -52,6 +52,9 @@ namespace CarrotScriptDemo
                 Console.WriteLine($"");
                 Console.WriteLine($"--- INTERPRETER ---");
                 interpreter.Execute(Ast);
+
+                Console.WriteLine($"");
+                env.PrintSnapshot();
             }
             catch (Exception ex)
             {

@@ -25,25 +25,17 @@ namespace CarrotScript.Lexar
             ResultTokens = new();
         }
 
-        private void FlushCurrentToken(TokenType tokenType)
-        {
-            if (Reader != null && Reader.CurrentToken != null)
-            {
-                ResultTokens.Add(new Token(tokenType, Reader.CurrentToken.Value, Reader.CurrentToken.Span));
-            }
-        }
-
         private void Flush(TokenType tokenType)
         {
             Flush(tokenType, _buffer.ToString());
             _buffer.Clear();
         }
 
-        private void Flush(TokenType tokenType, ReadOnlySpan<char> value)
+        private void Flush(TokenType tokenType, ReadOnlySpan<char> value, TokenSpan? span = null)
         {
             if (value.Length != 0)
             {
-                ResultTokens.Add(new Token(tokenType, value.ToString(), new TokenSpan(_start, _end)));
+                ResultTokens.Add(new Token(tokenType, value.ToString(), span != null ? span.Value : new TokenSpan(_start, _end)));
             }
         }
 
@@ -192,7 +184,8 @@ namespace CarrotScript.Lexar
             }
 
             // <?def
-            FlushCurrentToken(ASSIGNMENT);
+            string target = Reader.CurrentToken.Value;
+            var span = Reader.CurrentToken.Span;
             Reader.AdvanceToken();
 
             while (Reader != null && Reader.CurrentToken != null)
@@ -201,7 +194,8 @@ namespace CarrotScript.Lexar
                 // <?def name1=value1 name2
                 if (Reader.CurrentToken.Type == XML_ATTR_NAME)
                 {
-                    FlushCurrentToken(IDENTIFIER);
+                    Flush(ASSIGNMENT, target, span);
+                    Flush(IDENTIFIER, Reader.CurrentToken.Value, Reader.CurrentToken.Span);
                     Reader.AdvanceToken();
                 }
                 // <?def name1=value1

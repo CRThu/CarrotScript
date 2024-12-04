@@ -129,11 +129,14 @@ namespace CarrotScript.Parser
 
         private AssignNode ParseAssignment()
         {
-            string attr = "";
-            string name = "";
-            ExpressionNode value = null;
-            //var value = ParseExpression();
+            if (CurrentToken == null)
+            {
+                return null;
+            }
+            Expect(ASSIGNMENT);
+            string name = CurrentToken.Value;
             Advance();
+            ExpressionNode value = ParseExpression();
             return new AssignNode(name, value);
         }
 

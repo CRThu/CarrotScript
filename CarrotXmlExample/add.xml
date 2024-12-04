@@ -3,8 +3,12 @@
     helloworld;
     <?def a=1?>
     <?def b=2?>
-    <?def c=a+1?>
+    <?def c=a+b?>
+    <?def d=c+1?>
     a={a};
     b={b};
     c={c};
+    d={d};
+    d*d={d*d};
+    d*(d+1)={d*(d+1)};
 </add>
