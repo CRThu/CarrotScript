@@ -29,9 +29,9 @@ namespace CarrotScript.Parser
         /// <returns></returns>
         public Token? GetToken(int pos = 0)
         {
-            if (position >= 0 && position < Tokens.Count)
+            if (pos >= 0 && pos < Tokens.Count)
             {
-                return Tokens[position];
+                return Tokens[pos];
             }
             else
                 return null;
@@ -79,6 +79,8 @@ namespace CarrotScript.Parser
 
             switch (CurrentToken.Type)
             {
+                case RETARGET:
+                    return ParseRetarget();
                 case TEXT:
                 case LBRACE:
                     return ParsePrintStatement();
@@ -90,6 +92,17 @@ namespace CarrotScript.Parser
                     throw new InvalidSyntaxException(CurrentToken!.Span);
                     break;
             }
+        }
+
+        private StatementNode ParseRetarget()
+        {
+            if (CurrentToken == null)
+            {
+                return null;
+            }
+
+            var token = Advance();
+            return new RetargetNode(token!.Value, token!.Span);
         }
 
         private PrintNode ParsePrintStatement()

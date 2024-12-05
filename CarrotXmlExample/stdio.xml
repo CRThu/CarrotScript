@@ -1,0 +1,19 @@
+<?carrotxml version="1.0" encoding="utf-8"?>
+<stdio>
+    @con1
+    HELLOWORLD;
+    <input content="i:{i}"/>
+    @default
+    {i}
+</stdio>
+
+
+<?carrotxml version="1.0" encoding="utf-8"?>
+<stdio>
+    @console
+    HELLOWORLD;
+    {i}
+    @debug
+    HELLOWORLD;
+    {i}
+</stdio>

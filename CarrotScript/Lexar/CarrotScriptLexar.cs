@@ -68,6 +68,7 @@ namespace CarrotScript.Lexar
                         Reader.AdvanceToken();
                         break;
                     case XML_CONTENT:
+                        // @retarget
                         // CONTENT;
                         ParseContent();
                         break;
@@ -82,6 +83,51 @@ namespace CarrotScript.Lexar
         }
 
         private void ParseContent()
+        {
+            // enter method after char  ..> ...
+            if (Reader == null || Reader.CurrentChar == null)
+                return;
+
+            if (Reader.CurrentSymbol == AT)
+            {
+                // @retarget
+                ParseRetarget();
+            }
+            else
+            {
+                // HELLOWORLD
+                ParsePrint();
+            }
+        }
+
+        private void ParseRetarget()
+        {
+            // enter method after char  ..> ...
+            if (Reader == null)
+                return;
+
+            // check reader has read to end or not
+            while (Reader.CurrentChar != null)
+            {
+                // @
+                _start = Reader.Position;
+                Reader.Advance();
+
+                // @ ...
+                if (!Reader.CurrentChar.Value.IsLangDefIdentifierStartChar())
+                    throw new InvalidSyntaxException(Reader.CurrentToken!.Span);
+
+                _buffer.Append(Reader.CurrentChar);
+                Reader.Advance();
+
+                var identifierChars = Reader.ParseWhile(C => C.IsLangDefIdentifierChar());
+                _buffer.Append(identifierChars);
+                _end = Reader.Position;
+                Flush(RETARGET);
+            }
+        }
+
+        private void ParsePrint()
         {
             // enter method after char  ..> ...
             if (Reader == null)

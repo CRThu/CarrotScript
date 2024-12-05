@@ -134,6 +134,22 @@ namespace CarrotScript.Parser
         }
     }
 
+    public class RetargetNode : StatementNode
+    {
+        public string TargetName { get; set; }
+
+        public RetargetNode(string targetName, TokenSpan span = default)
+        {
+            TargetName = targetName;
+            Span = span;
+            Type = NodeType.RetargetStatement;
+        }
+
+        public override string ToString()
+        {
+            return $"TargetName = {TargetName}";
+        }
+    }
 
     public class PrintNode : StatementNode
     {

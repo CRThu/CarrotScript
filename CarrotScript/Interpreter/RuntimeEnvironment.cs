@@ -8,34 +8,50 @@ namespace CarrotScript.Interpreter
 {
     public class RuntimeEnvironment
     {
-        private readonly Dictionary<string, object> variables = new();
+        private readonly Dictionary<string, object> _variables = new();
+        private readonly TargetManager _targetManager;
+
+        public RuntimeEnvironment(TargetManager targetManager)
+        {
+            _targetManager = targetManager;
+        }
 
         public void SetVariable(string name, object value)
         {
-            variables[name] = value;
+            _variables[name] = value;
         }
 
         public object GetVariable(string name)
         {
-            if (!variables.ContainsKey(name))
+            if (!_variables.ContainsKey(name))
             {
-                variables[name] = 0;
+                _variables[name] = 0;
             }
-            return variables[name];
+            return _variables[name];
         }
 
         public void PrintSnapshot()
         {
             Console.WriteLine("--- RuntimeEnvironment ---");
-            foreach (var key in variables.Keys)
+            foreach (var key in _variables.Keys)
             {
-                Console.WriteLine($"{key}={variables[key]}");
+                Console.WriteLine($"{key}={_variables[key]}");
             }
         }
 
-        internal void Print(object result)
+        public void Retarget(string targetName)
         {
-            Console.Write(result.ToString());
+            _targetManager.SetTarget(targetName);
+        }
+
+        public void Write(ReadOnlySpan<char> content)
+        {
+            _targetManager.Current.Write(content);
+        }
+
+        public ReadOnlySpan<char> Read()
+        {
+            return _targetManager.Current.Read();
         }
     }
 }

@@ -28,6 +28,10 @@ namespace CarrotScript.Interpreter
                     Execute(statement);
                 }
             }
+            else if (node.Type == RetargetStatement)
+            {
+                Environment.Retarget(((RetargetNode)node).TargetName);
+            }
             else if (node.Type == AssignStatement)
             {
                 var value = Evaluate(((AssignNode)node).Value);
@@ -38,9 +42,8 @@ namespace CarrotScript.Interpreter
                 foreach (var expression in ((PrintNode)node).Children)
                 {
                     var result = Evaluate(expression);
-                    Environment.Print(result);
+                    Environment.Write(result.ToString());
                 }
-                Environment.Print("\r\n");
             }
             else
                 throw new InvalidSyntaxException(node.Span);

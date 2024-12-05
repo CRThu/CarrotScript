@@ -46,7 +46,8 @@ namespace CarrotScriptDemo
                 Console.WriteLine($"--- PARSER ---");
                 Console.WriteLine(Ast.ToTree());
 
-                var env = new RuntimeEnvironment();
+                var targetManager = new TargetManager();
+                var env = new RuntimeEnvironment(targetManager);
                 var interpreter = new Interpreter(env);
 
                 Console.WriteLine($"");

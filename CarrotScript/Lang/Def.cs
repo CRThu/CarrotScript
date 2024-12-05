@@ -72,22 +72,23 @@ namespace CarrotScript.Lang
             */
 
             // CarrotXml
-            {"<", LT },
-            {">", GT },
-            {"\"", QUOT },
-            {"\'", QUOT },
-            {"=", EQ },
-            {"/", DIV },
-            {" ", SP },
-            {"\t", TAB },
-            {"\r", CR },
-            {"\n", LF },
-            {"!", EXCL },
-            {"?", QUEST },
-            {"{", LCUB },
-            {"}", RCUB },
+            { "<", LT },
+            { ">", GT },
+            { "\"", QUOT },
+            { "\'", QUOT },
+            { "=", EQ },
+            { "/", DIV },
+            { " ", SP },
+            { "\t", TAB },
+            { "\r", CR },
+            { "\n", LF },
+            { "!", EXCL },
+            { "?", QUEST },
+            { "{", LCUB },
+            { "}", RCUB },
             { "(", LP },
             { ")", RP },
+            { "@", AT },
 
         }.ToFrozenDictionary();
 
@@ -130,6 +131,7 @@ namespace CarrotScript.Lang
             RPAREN,     //  )
             LBRACE,     // {
             RBRACE,     // }
+            RETARGET,   // @
 
             /*
             ADD,        //  +
@@ -168,8 +170,9 @@ namespace CarrotScript.Lang
             QUEST,      // '?'                  |   Question
             LCUB,       // '{'                  |   Left Curly Brace
             RCUB,       // '}'                  |   Right Curly Brace
-            LP,         // '('                  |   
-            RP,         // ')'                  |   
+            LP,         // '('                  |   Left Parenthesis
+            RP,         // ')'                  |   Right Parenthesis
+            AT,         // '@'                  |   At
         }
 
         /*
@@ -235,8 +238,9 @@ namespace CarrotScript.Lang
             Literal,        // like: 123
 
             // Statement
-            PrintStatement,      // 
-            AssignStatement,   // 
+            RetargetStatement,  // 
+            PrintStatement,     // 
+            AssignStatement,    // 
 
             // Expression
             UnaryExpression,
